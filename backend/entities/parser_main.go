@@ -1,11 +1,15 @@
 package entities
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -18,6 +22,8 @@ var (
 type Client struct {
 	apiKey    string
 	apiSecret string
+	handle    string
+	password  string
 }
 
 func NewClient() *Client {
@@ -30,6 +36,14 @@ func (c *Client) SetApiKey(apiKey string) {
 
 func (c *Client) SetApiSecret(apiSecret string) {
 	c.apiSecret = apiSecret
+}
+
+func (c *Client) SetHandle(handle string) {
+	c.handle = handle
+}
+
+func (c *Client) SetPassword(password string) {
+	c.password = password
 }
 
 func (c *Client) GetContestStatus(con Contest) interface{} {
@@ -84,7 +98,7 @@ func (c *Client) GetContestStandings(con Contest) interface{} {
 	return data
 }
 
-func ParseContestStatus(data interface{}, dataStatus *DataFromStatus) (*DataFromStatus, error) {
+func ParseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandings *DataFromStandings) (*DataFromStatus, error) {
 	db := make(map[string]*User)
 
 	if resp := data.(map[string]interface{}); resp["status"].(string) == "FAILED" {
@@ -112,13 +126,27 @@ func ParseContestStatus(data interface{}, dataStatus *DataFromStatus) (*DataFrom
 		username := submissionJson["author"].(map[string]interface{})["members"].([]interface{})[0].(map[string]interface{})["handle"].(string)
 		problemIdx := submissionJson["problem"].(map[string]interface{})["index"].(string)
 
+		//go fetchSubmission(nil)
+
 		if _, ok := db[username]; !ok {
+			submissions := make(map[string]*Submission)
+			for _, p := range dataStandings.Problems {
+				submissions[p.Index] = &Submission{
+					Index:          p.Index,
+					Solution:       "",
+					Points:         0,
+					SubmissionId:   -1,
+					ProgramLang:    "",
+					SubmissionTime: 0,
+				}
+			}
+
 			db[username] = &User{
 				Handle:    username,
-				Solutions: make(map[string]*Submission),
+				Solutions: submissions,
 			}
 		}
-		if _, ok := db[username].Solutions[problemIdx]; !ok {
+		if s, _ := db[username].Solutions[problemIdx]; s.SubmissionId == -1 {
 			_, exists := submissionJson["points"]
 			submissionPoints := 0.0
 			if exists {
@@ -171,6 +199,45 @@ type DataFromStatus struct {
 type FinalJSONData struct {
 	Problems []Problem `json:"problems"`
 	Users    []User    `json:"users"`
+	CSV      []byte    `json:"csv"`
+}
+
+func MakeCSVFile(data FinalJSONData) *bytes.Buffer {
+	//buff, _ := os.OpenFile("report.csv", os.O_CREATE|os.O_TRUNC, 0606)
+
+	buff := new(bytes.Buffer)
+
+	writer := csv.NewWriter(buff)
+
+	headers := []string{"handle", "points", "comment"}
+
+	writer.Write(headers)
+
+	for _, user := range data.Users {
+		var comment []string
+
+		points := 0.0
+		for idx, submission := range user.Solutions {
+			points += submission.Points
+			id := submission.SubmissionId
+			if id == -1 {
+				comment = append(comment, fmt.Sprintf("%s: %d (no submission)", idx, 0))
+			} else {
+				comment = append(comment, fmt.Sprintf("%s: %d;", idx, int(submission.Points)))
+			}
+		}
+
+		sort.Strings(comment)
+
+		row := []string{user.Handle, strconv.Itoa(int(points)), strings.Join(comment, "; ")}
+
+		writer.Write(row)
+	}
+
+	writer.Flush()
+
+	return buff
+
 }
 
 func ParseContestStandings(data interface{}, dataStandings *DataFromStandings) (*DataFromStandings, error) {
@@ -230,7 +297,7 @@ func (c *Client) ParseAndFormEntities(con Contest) []byte {
 	}
 
 	status := c.GetContestStatus(con)
-	dataStatus, err = ParseContestStatus(status, dataStatus)
+	dataStatus, err = ParseContestStatus(status, dataStatus, dataStandings)
 
 	for _, problem := range dataStandings.Problems {
 		problem.MaxPoints = dataStatus.ProblemMaxPoints[problem.Index]
@@ -252,6 +319,8 @@ func (c *Client) ParseAndFormEntities(con Contest) []byte {
 		Problems: p,
 		Users:    u,
 	}
+
+	finalJsonData.CSV = MakeCSVFile(finalJsonData).Bytes()
 
 	//UserListToJSON(u)
 
@@ -279,16 +348,11 @@ func EntitiesToJSON[T any](jsonData T) []byte {
 	return data
 }
 
-var (
-	handle   = "ramzestwo"
-	password = "ramazan1810"
-)
-
-func GetGroupsList(client *http.Client) ([]Group, *http.Client) {
+func (c *Client) GetGroupsList(client *http.Client) ([]Group, *http.Client) {
 	var err error
 
 	if client == nil {
-		client, err = Login(handle, password)
+		client, err = Login(c.handle, c.password)
 		if err != nil {
 			log.Printf("Login failed: %v", err)
 		}
@@ -306,11 +370,11 @@ func GetGroupsList(client *http.Client) ([]Group, *http.Client) {
 	return groups, client
 }
 
-func GetContestsList(client *http.Client, groupCode string) ([]Contest, *http.Client) {
+func (c *Client) GetContestsList(client *http.Client, groupCode string) ([]Contest, *http.Client) {
 	var err error
 
 	if client == nil {
-		client, err = Login(handle, password)
+		client, err = Login(c.handle, c.password)
 		if err != nil {
 			log.Printf("Login failed: %v", err)
 		}
@@ -326,6 +390,30 @@ func GetContestsList(client *http.Client, groupCode string) ([]Contest, *http.Cl
 	//}
 
 	return contests, client
+}
+
+func (c *Client) GetSubmissionCode(client *http.Client, groupCode string, contestId, submissionId int) (string, *http.Client) {
+	var err error
+
+	if client == nil {
+		client, err = Login(c.handle, c.password)
+		if err != nil {
+			log.Printf("Login failed: %v", err)
+		}
+	}
+
+	submission, err := fetchSubmission(client, groupCode, contestId, submissionId)
+	if err != nil {
+		log.Printf("Failed to fetch submission: %v", err)
+	}
+
+	fmt.Println(submission)
+
+	//for _, contest := range contests {
+	//	fmt.Println(contest)
+	//}
+
+	return submission, client
 }
 
 //func main() {
