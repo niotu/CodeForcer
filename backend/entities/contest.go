@@ -17,6 +17,8 @@ type Contest struct {
 	Name             string
 	GroupCode        string
 	ContestLink      string
+	DurationString   string
+	StartTimeString  string
 	DurationSeconds  int64
 	StartTimeSeconds int64
 	Problems         []Problem
@@ -61,8 +63,8 @@ func fetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 		)[0]
 
 		if exists {
-			contestStartTimeString := s.Find("a[target='_blank']").Text()
-			contestDurationString := s.Find("td:nth-child(3)").Text()
+			contestStartTimeString := strings.TrimSpace(s.Find("a[target='_blank']").Text())
+			contestDurationString := strings.TrimSpace(s.Find("td:nth-child(3)").Text())
 
 			contestStartTime, _ := time.Parse("Jan/02/2006 15:04", contestStartTimeString)
 			parts := strings.Split(contestDurationString, ":")
@@ -78,6 +80,8 @@ func fetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 				GroupCode:        groupCode,
 				DurationSeconds:  int64(contestDuration),
 				StartTimeSeconds: contestStartTime.Unix(),
+				DurationString:   contestDurationString,
+				StartTimeString:  contestStartTimeString,
 				ContestLink:      groupURL + "/contest/" + strconv.Itoa(contestId),
 				Problems:         nil,
 			})

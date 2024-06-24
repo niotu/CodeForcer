@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	mx "github.com/gorilla/mux"
-	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/backend/entities"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
 	"net/http"
 	"strconv"
 )
@@ -21,21 +21,25 @@ func panicLogMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func setApiKey(w http.ResponseWriter, r *http.Request) {
+func setAdminData(w http.ResponseWriter, r *http.Request) {
 	api = entities.NewClient()
 
 	apiKey := r.URL.Query().Get("key")
 	apiSecret := r.URL.Query().Get("secret")
+	handle := r.URL.Query().Get("handle")
+	password := r.URL.Query().Get("password")
 
 	api.SetApiKey(apiKey)
 	api.SetApiSecret(apiSecret)
+	api.SetHandle(handle)
+	api.SetPassword(password)
 
 	w.Write([]byte("Ok"))
 
 }
 
 func getGroups(w http.ResponseWriter, r *http.Request) {
-	groups, client := entities.GetGroupsList(nil)
+	groups, client := api.GetGroupsList(nil)
 
 	authClient = client
 
@@ -47,7 +51,7 @@ func getGroups(w http.ResponseWriter, r *http.Request) {
 func getContests(w http.ResponseWriter, r *http.Request) {
 	groupCode := r.URL.Query().Get("groupCode")
 
-	contests, client := entities.GetContestsList(authClient, groupCode)
+	contests, client := api.GetContestsList(authClient, groupCode)
 	authClient = client
 	data := entities.EntitiesToJSON(contests)
 
@@ -79,7 +83,7 @@ func main() {
 
 	mux := mx.NewRouter()
 
-	mux.HandleFunc("/setApiKey", setApiKey)
+	mux.HandleFunc("/setAdmin", setAdminData)
 
 	mux.HandleFunc("/getGroups", getGroups)
 	mux.HandleFunc("/getContests", getContests)

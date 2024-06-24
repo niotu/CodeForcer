@@ -1,4 +1,4 @@
-module gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend
+module gitlab.pg.innopolis.university/n.solomennikov/choosetwooption
 
 go 1.21.5
 
