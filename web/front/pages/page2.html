@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="page1">
-    <div class="left-part">
-        <h1>Login to CodeForces</h1>
-        <button onclick="loadPage('page1.html')">previous_page</button>
+<div class="wizard">
+    <div class="panel">
+        <div class="left-part">
+            <h1>Login to CodeForces</h1>
+        </div>
+        <div class="right-part">
+            <a href="https://codeforces.com/enter?back=%2Fgroup%2FejNIMWx4fO%2Fcontest%2F518145%2Fmy">
+                <button class="login-to-cf">login with CodeForces</button>
+            </a>
+        </div>
     </div>
-    <div class="right-part">
-        <a href="https://codeforces.com/enter?back=%2Fgroup%2FejNIMWx4fO%2Fcontest%2F518145%2Fmy">
-            <button>login with CodeForces</button>
-        </a>
-        <button onclick="loadPage('page3.html')">next_page</button>
+    <div class="navigation">
+        <div class="left-navigation-part">
+            <button onclick="loadPage('page1.html')">previous page</button>
+        </div>
+        <div class="right-navigation-part">
+            <button onclick="loadPage('page3.html')">next page</button>
+        </div>
     </div>
 </div>
-<script src="scripts/basic.js"></script>
+<script src="../scripts/basic.js"></script>
