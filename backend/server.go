@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	mx "github.com/gorilla/mux"
-	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
 	"net/http"
 	"strconv"
 )
@@ -22,7 +22,7 @@ func panicLogMiddleware(next http.Handler) http.Handler {
 }
 
 func setAdminData(w http.ResponseWriter, r *http.Request) {
-	api = entities.NewClient()
+	api = cf_api_tools.NewClient()
 
 	apiKey := r.URL.Query().Get("key")
 	apiSecret := r.URL.Query().Get("secret")
@@ -43,7 +43,7 @@ func getGroups(w http.ResponseWriter, r *http.Request) {
 
 	authClient = client
 
-	data := entities.EntitiesToJSON(groups)
+	data := cf_api_tools.EntitiesToJSON(groups)
 
 	w.Write(data)
 }
@@ -53,33 +53,29 @@ func getContests(w http.ResponseWriter, r *http.Request) {
 
 	contests, client := api.GetContestsList(authClient, groupCode)
 	authClient = client
-	data := entities.EntitiesToJSON(contests)
+	data := cf_api_tools.EntitiesToJSON(contests)
 
 	w.Write(data)
 }
 
 func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	groupCode := r.URL.Query().Get("groupCode")
-	contestID, _ := strconv.Atoi(r.URL.Query().Get("contestID"))
+	contestID, _ := strconv.ParseInt(r.URL.Query().Get("contestID"), 10, 64)
 
-	con := entities.Contest{
-		Id:        contestID,
-		GroupCode: groupCode,
-		Problems:  nil,
-	}
-
-	data := api.ParseAndFormEntities(con)
+	data := api.GetStatistics(nil, groupCode, contestID)
 
 	w.Write(data)
 }
 
 // var logger *zap.Logger
-var api *entities.Client
+var api *cf_api_tools.Client
 var authClient *http.Client
 
 func main() {
 	//logger, _ = zap.NewProduction()
 	//defer logger.Sync()
+
+	fmt.Println("Start adding routes...")
 
 	mux := mx.NewRouter()
 
@@ -91,6 +87,14 @@ func main() {
 
 	http.Handle("/", mux)
 
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("All routes are added. Start polling port :8080...")
+
+	err := http.ListenAndServe(":8080", nil)
+
+	if err != nil {
+		fmt.Println("Error caught: ", err)
+	} else {
+		fmt.Println("Server finished work properly")
+	}
 
 }

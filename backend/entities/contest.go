@@ -13,7 +13,7 @@ import (
 )
 
 type Contest struct {
-	Id               int
+	Id               int64
 	Name             string
 	GroupCode        string
 	ContestLink      string
@@ -24,8 +24,8 @@ type Contest struct {
 	Problems         []Problem
 }
 
-// fetchContests fetches the contests of the current group
-func fetchContests(client *http.Client, groupCode string) ([]Contest, error) {
+// FetchContests fetches the contests of the current group
+func FetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 	groupURL := "https://codeforces.com/group/" + groupCode
 
 	contestsURL := groupURL + "/contests"
@@ -55,7 +55,7 @@ func fetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 
 	doc.Find(".highlighted-row").Each(func(i int, s *goquery.Selection) {
 		contestIdString, exists := s.Attr("data-contestid")
-		contestId, _ := strconv.Atoi(contestIdString)
+		contestId, _ := strconv.ParseInt(contestIdString, 10, 64)
 
 		contestName := strings.Split(
 			strings.TrimSpace(
@@ -82,7 +82,7 @@ func fetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 				StartTimeSeconds: contestStartTime.Unix(),
 				DurationString:   contestDurationString,
 				StartTimeString:  contestStartTimeString,
-				ContestLink:      groupURL + "/contest/" + strconv.Itoa(contestId),
+				ContestLink:      groupURL + "/contest/" + contestIdString,
 				Problems:         nil,
 			})
 		}

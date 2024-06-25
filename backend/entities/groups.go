@@ -1,12 +1,9 @@
 package entities
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"log"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -16,8 +13,8 @@ type Group struct {
 	GroupLink string
 }
 
-// fetchGroups fetches the groups the logged-in user is part of
-func fetchGroups(client *http.Client) ([]Group, error) {
+// FetchGroups fetches the groups the logged-in user is part of
+func FetchGroups(client *http.Client) ([]Group, error) {
 	groupsURL := "https://codeforces.com/groups/my"
 	req, err := http.NewRequest("GET", groupsURL, nil)
 	if err != nil {
@@ -56,16 +53,4 @@ func fetchGroups(client *http.Client) ([]Group, error) {
 	})
 
 	return groups, nil
-}
-
-func GroupListToJSON(groups []Group) []byte {
-	data, err := json.Marshal(groups)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	file, _ := os.OpenFile("groups.json", os.O_CREATE|os.O_TRUNC, 0606)
-	file.Write(data)
-
-	return data
 }

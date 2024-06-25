@@ -1,4 +1,4 @@
-package entities
+package cf_api_tools
 
 import (
 	"crypto/sha512"
