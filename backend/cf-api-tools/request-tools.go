@@ -1,4 +1,4 @@
-package entities
+package cf_api_tools
 
 import (
 	"math/rand"
@@ -6,18 +6,11 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 )
-
-type ApiSignature struct {
-	Rand   string      `url:"rand"`
-	Method string      `url:"-"`
-	Params *url.Values `url:"-"`
-}
 
 type ContestStatusRequestParams struct {
 	GroupCode string `url:"groupCode"`
-	ContestId int    `url:"contestId"`
+	ContestId int64  `url:"contestId"`
 	AsManager bool   `url:"asManager"`
 	ApiKey    string `url:"apiKey"`
 	ApiSecret string `url:"-"`
@@ -33,13 +26,9 @@ func (c *ContestStatusRequestParams) GetSecret() string {
 	return c.ApiSecret
 }
 
-func (c *ContestStatusRequestParams) UpdateTime() {
-	c.Time = time.Now().Unix()
-}
-
 type ContestStandingsRequestParams struct {
 	GroupCode string `url:"groupCode"`
-	ContestId int    `url:"contestId"`
+	ContestId int64  `url:"contestId"`
 	AsManager bool   `url:"asManager"`
 	ApiKey    string `url:"apiKey"`
 	ApiSecret string `url:"-"`
@@ -53,6 +42,12 @@ func (c *ContestStandingsRequestParams) GetKey() string {
 
 func (c *ContestStandingsRequestParams) GetSecret() string {
 	return c.ApiSecret
+}
+
+type ApiSignature struct {
+	Rand   string      `url:"rand"`
+	Method string      `url:"-"`
+	Params *url.Values `url:"-"`
 }
 
 func NewApiSignature() *ApiSignature {

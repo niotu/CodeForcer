@@ -45,6 +45,9 @@ func RandString(n int) string {
 // findHandle extracts the handle from the response body
 func findHandle(body []byte) (string, error) {
 	reg := regexp.MustCompile(`handle = "([\s\S]+?)"`)
+
+	//fmt.Println("auth.go/findHandle: ", string(body))
+
 	matches := reg.FindSubmatch(body)
 	if len(matches) < 2 {
 		return "", errors.New("Not logged in")
@@ -54,6 +57,7 @@ func findHandle(body []byte) (string, error) {
 
 // Login logs into Codeforces and returns an authenticated HTTP client
 func Login(handle, password string) (*http.Client, error) {
+	fmt.Println("login process:\n")
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{
 		Jar: jar,
@@ -109,7 +113,7 @@ func Login(handle, password string) (*http.Client, error) {
 
 	handle, err = findHandle(loginBody)
 	if err != nil {
-		return nil, fmt.Errorf("login failed")
+		return nil, err
 	}
 
 	fmt.Printf("Login successful. Welcome, %s!\n", handle)
