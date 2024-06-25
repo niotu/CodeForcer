@@ -1,20 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="page1">
-    <div class="left-part">
-        <h1>Congrats!</h1>
-        <h4>The grades are published, you can download partial data</h4>
-        <button onclick="loadPage('page7.html')">previous_page</button>
+<div class="wizard">
+    <div class="panel">
+        <div class="left-part">
+            <h1>Congrats!</h1>
+            <h4>The grades are published, you can download partial data</h4>
+        </div>
+        <div class="right-part">
+            <ul class="final-downloads">
+                <li>
+                    <a download="">
+                        <button>Download solutions</button>
+                    </a>
+                </li>
+                <li>
+                    <a download="">
+                        <button>Download partial data</button>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
-    <div class="right-part">
-        <ul>
-            <li>
-                <a download=""><button>Download solutions</button></a>
-            </li>
-            <li>
-                <a download=""><button>Download partial data</button></a>
-            </li>
-        </ul>
+
+    <div class="navigation">
+        <div class="left-navigation-part">
+            <button onclick="loadPage('page7.html')">previous page</button>
+        </div>
+        <div class="right-navigation-part">
+            <button onclick="loadPage('page9.html')">next page</button>
+        </div>
     </div>
 </div>
-<script src="scripts/basic.js"></script>
+<script src="../scripts/basic.js"></script>

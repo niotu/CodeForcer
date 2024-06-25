@@ -1,15 +1,149 @@
+* {
+    font-family: "Inter", serif;
+    font-weight: 400;
+}
+
+html {
+    margin: 0;
+    width: 100%;
+}
+
+
+body {
+    min-height: 100vh;
+}
+
+.page-active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-to-sso {
+    background-color: #7AC58F;
+    width: 100%;
+    height: 100%;
+    min-height: 126px;
+    color: black;
+}
+
+.login-to-sso:hover {
+    background-color: #4ECB71;
+}
+
+.login-to-cf {
+    width: 100%;
+    height: 100%;
+    min-height: 126px;
+}
+
 .wizard {
-    margin: auto;
-    width: 75%;
-    height: 50%;
-    padding: 10px;
+    text-align: center;
+    width: 80%;
+    max-height: 50%;
     background: #D9D9D9;
 }
-.page1 {
+
+.panel {
+    display: flex;
+}
+
+.navigation {
+    /*text-align: center;*/
+    display: flex;
+    padding-bottom: 15px;
+}
+
+.left-navigation-part {
+    width: 50%;
+    text-align: left;
+    margin-left: 30px;
+}
+
+.right-navigation-part {
+    width: 50%;
+    text-align: right;
+    margin-right: 30px;
+}
+
+h1 {
+    font-size: 96px;
+    font-family: "Inter", serif;
+    font-weight: 400;
+}
+
+.left-part {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+}
+
+.right-part {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    width: 220px;
+    height: 60px;
+    font-size: 24px;
+    background-color: #4F63CB;
+    border-radius: 25px;
+    color: white;
+    border: transparent;
+}
+
+button:hover {
+    background-color: #4556AA;
+    /*color: white;*/
+}
+
+.list-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
     align-items: flex-start;
 }
 
-.button {
-    background-color: #4F63CB;
+.list-view li {
+    position: relative;
+    height: 100px;
+    width: 400px;
+    background-color: #717171;
+    color: transparent;
     border-radius: 25px;
+    padding: 10px;
+    text-align: left;
+}
+
+.list-view li a {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+
+.final-downloads {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.final-downloads li {
+    margin-bottom: 10px;
+    color: transparent;
+}
+
+.final-downloads li a {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 10px;
 }

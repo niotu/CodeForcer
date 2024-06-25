@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="page1">
-    <div class="left-part">
-        <h1>Select Competition</h1>
-        <button onclick="loadPage('page3.html')">previous_page</button>
+<div class="wizard">
+    <div class="panel">
+        <div class="left-part">
+            <h1>Select Assignment</h1>
+        </div>
+        <div class="right-part">
+            <nav class="list-view">
+                <ul>
+                    <li><a href="#">Assignment 1</a></li>
+                </ul>
+            </nav>
+        </div>
     </div>
-    <div class="right-part">
-        <ul>
-            <li><a href="#">Assignment2</a></li>
-        </ul>
-        <button onclick="loadPage('page5.html')">next_page</button>
+    <div class="navigation">
+        <div class="left-navigation-part">
+            <button onclick="loadPage('page3.html')">previous page</button>
+        </div>
+        <div class="right-navigation-part">
+            <button onclick="loadPage('page5.html')">next page</button>
+        </div>
     </div>
 </div>
-<script src="scripts/basic.js"></script>
+<script src="../scripts/basic.js"></script>
