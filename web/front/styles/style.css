@@ -4,6 +4,17 @@
     box-sizing: border-box;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 html {
     margin: 0;
     width: 100%;
@@ -46,6 +57,7 @@ body {
 
 .wizard {
     text-align: center;
+    justify-content: center;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -63,6 +75,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
+    margin: 15px 0;
 
 }
 
@@ -72,7 +85,7 @@ body {
     bottom: 0;
     display: flex;
     flex-direction: row;
-    padding-bottom: 15px;
+    margin: 15px 0;
 }
 
 .left-navigation-part {
@@ -96,14 +109,18 @@ h1 {
 }
 
 .left-part {
-    width: 50%;
+    margin: 0 auto;
+    width: 40%;
+    max-height: 75%;
+    min-height: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .right-part {
-    width: 50%;
+    margin: 0 auto;
+    width: 40%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -111,9 +128,9 @@ h1 {
 }
 
 button {
-    width: 220px;
+    width: 30%;
     height: 60px;
-    font-size: 24px;
+    font-size: 1.3vw;
     background-color: #4F63CB;
     border-radius: 25px;
     color: white;
@@ -133,21 +150,32 @@ button:hover {
     align-items: flex-start;
 }
 
+.list-view ul {
+    display: block;
+    width: 100%;
+    list-style-type: disc;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    padding-inline-start: 40px;
+    unicode-bidi: isolate;
+}
+
 .list-view li {
-    /*position: relative;*/
+    position: relative;
     display: flex;
-    height: 100px;
-    width: 400px;
+    min-height: 100px;
+    min-width: 75%;
     background-color: #717171;
     color: transparent;
     border-radius: 25px;
     padding: 10px;
     text-align: left;
+    align-items: center;
 }
 
 .list-view li a {
     color: white;
-    font-size: 4.0vw;
+    font-size: 1.5vw;
     text-decoration: none;
     text-align: center;
 }
@@ -171,4 +199,53 @@ button:hover {
     text-align: center;
     margin-left: 10px;
     margin-right: 10px;
+}
+
+.distribution-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.distribution-form ul {
+    width : 100%;
+}
+
+.distribution-form li {
+    border: black 1px solid;
+    border-radius: 25px;
+    color: transparent;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-content: center;
+    align-items: center;
+}
+
+.distribution-form li p {
+    width: 25%;
+    font-size: 1.2vw;
+    color: black;
+    text-decoration: none;
+    text-align: center;
+}
+
+.distribution-form label {
+    width: 25%;
+}
+.distribution-form li label input {
+    border-bottom: 1px solid;
+    border-color: black;
+    border-left: transparent;
+    border-right: transparent;
+    border-top: transparent;
+    background: transparent;
+    text-align: center;
+    font-size: 1.2vw;
+    width: 100%;
+}
+
+.distribution-form li label input:focus {
+    outline: none;
 }
