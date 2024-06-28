@@ -50,6 +50,10 @@ func getGroups(w http.ResponseWriter, r *http.Request) {
 
 func getContests(w http.ResponseWriter, r *http.Request) {
 	groupCode := r.URL.Query().Get("groupCode")
+	if groupCode == "" {
+		w.Write([]byte("groupCode field malformed or does not exist"))
+		return
+	}
 
 	contests, client := api.GetContestsList(authClient, groupCode)
 	authClient = client
@@ -60,9 +64,22 @@ func getContests(w http.ResponseWriter, r *http.Request) {
 
 func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	groupCode := r.URL.Query().Get("groupCode")
-	contestID, _ := strconv.ParseInt(r.URL.Query().Get("contestID"), 10, 64)
+	contestID, errId := strconv.ParseInt(r.URL.Query().Get("contestID"), 10, 64)
+	count, errCount := strconv.Atoi(r.URL.Query().Get("count"))
+	if errCount != nil {
+		count = 0
+	}
 
-	data := api.GetStatistics(nil, groupCode, contestID)
+	if errId != nil {
+		w.Write([]byte("contestId field malformed or does not exist"))
+		return
+	}
+	if groupCode == "" {
+		w.Write([]byte("groupCode field malformed or does not exist"))
+		return
+	}
+
+	data := api.GetStatistics(nil, groupCode, contestID, count)
 
 	w.Write(data)
 }

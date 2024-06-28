@@ -11,8 +11,8 @@ type FinalJSONData struct {
 	CSV      []byte             `json:"csv"`
 }
 
-func parseAndFormEntities(c *Client, groupCode string, contestId int64) *FinalJSONData {
-	standings := getContestStandings(c, groupCode, contestId)
+func parseAndFormEntities(params *CFContestMethodParams) *FinalJSONData {
+	standings := getContestStandings(params)
 	dataStandings, err := parseContestStandings(standings)
 	if err != nil {
 		log.Println(err)
@@ -27,7 +27,7 @@ func parseAndFormEntities(c *Client, groupCode string, contestId int64) *FinalJS
 		dataStatus.ProblemMaxPoints[problem.Index] = 0.0
 	}
 
-	status := getContestStatus(c, groupCode, contestId)
+	status := getContestStatus(params)
 	dataStatus, err = parseContestStatus(status, dataStatus, dataStandings)
 
 	for _, problem := range dataStandings.Problems {

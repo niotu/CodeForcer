@@ -7,7 +7,6 @@ import (
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
 	"log"
 	"strings"
-	"time"
 )
 
 type DataFromStatus struct {
@@ -15,15 +14,7 @@ type DataFromStatus struct {
 	Users            map[string]*entities.User
 }
 
-func getContestStatus(c *Client, groupCode string, contestId int64) interface{} {
-	params := &ContestStatusRequestParams{
-		GroupCode: groupCode,
-		ContestId: contestId,
-		AsManager: true,
-		ApiKey:    c.apiKey,
-		ApiSecret: c.apiSecret,
-		Time:      time.Now().Unix(),
-	}
+func getContestStatus(params *CFContestMethodParams) interface{} {
 	api := NewApiRequest(CONTEST_STATUS, params)
 	fmt.Println(api.ApiSig.Rand, params.Time)
 
