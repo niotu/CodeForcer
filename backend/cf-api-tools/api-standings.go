@@ -7,7 +7,6 @@ import (
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
 	"log"
 	"strings"
-	"time"
 )
 
 type DataFromStandings struct {
@@ -16,16 +15,7 @@ type DataFromStandings struct {
 	StartTimeSeconds int64
 }
 
-func getContestStandings(c *Client, groupCode string, contestId int64) interface{} {
-	params := &ContestStandingsRequestParams{
-		GroupCode: groupCode,
-		ContestId: contestId,
-		AsManager: true,
-		ApiKey:    c.apiKey,
-		ApiSecret: c.apiSecret,
-		Time:      time.Now().Unix(),
-		Count:     1,
-	}
+func getContestStandings(params *CFContestMethodParams) interface{} {
 	api := NewApiRequest(CONTEST_STANDINGS, params)
 
 	resp, err := api.MakeApiRequest()

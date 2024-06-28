@@ -8,42 +8,6 @@ import (
 	"strings"
 )
 
-type ContestStatusRequestParams struct {
-	GroupCode string `url:"groupCode"`
-	ContestId int64  `url:"contestId"`
-	AsManager bool   `url:"asManager"`
-	ApiKey    string `url:"apiKey"`
-	ApiSecret string `url:"-"`
-	Time      int64  `url:"time"`
-	Count     int    `url:"count,omitempty"`
-}
-
-func (c *ContestStatusRequestParams) GetKey() string {
-	return c.ApiKey
-}
-
-func (c *ContestStatusRequestParams) GetSecret() string {
-	return c.ApiSecret
-}
-
-type ContestStandingsRequestParams struct {
-	GroupCode string `url:"groupCode"`
-	ContestId int64  `url:"contestId"`
-	AsManager bool   `url:"asManager"`
-	ApiKey    string `url:"apiKey"`
-	ApiSecret string `url:"-"`
-	Time      int64  `url:"time"`
-	Count     int    `url:"count,omitempty"`
-}
-
-func (c *ContestStandingsRequestParams) GetKey() string {
-	return c.ApiKey
-}
-
-func (c *ContestStandingsRequestParams) GetSecret() string {
-	return c.ApiSecret
-}
-
 type ApiSignature struct {
 	Rand   string      `url:"rand"`
 	Method string      `url:"-"`
