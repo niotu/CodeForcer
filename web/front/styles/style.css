@@ -6,13 +6,13 @@
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 html {
@@ -189,6 +189,7 @@ button:hover {
 }
 
 .final-downloads li {
+    width: 100%;
     margin-bottom: 10px;
     color: transparent;
 }
@@ -197,8 +198,8 @@ button:hover {
     color: white;
     text-decoration: none;
     text-align: center;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .distribution-form {
@@ -209,11 +210,12 @@ button:hover {
 }
 
 .distribution-form ul {
-    width : 100%;
+    width: 100%;
 }
 
 .distribution-form li {
     border: black 1px solid;
+    margin-bottom: 10px;
     border-radius: 25px;
     color: transparent;
     display: flex;
@@ -234,6 +236,7 @@ button:hover {
 .distribution-form label {
     width: 25%;
 }
+
 .distribution-form li label input {
     border-bottom: 1px solid;
     border-color: black;
@@ -248,4 +251,88 @@ button:hover {
 
 .distribution-form li label input:focus {
     outline: none;
+}
+
+.late-submission-form ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.late-submission-form ul li {
+    padding-bottom: 0.5em;
+    color: transparent;
+}
+
+.late-submission-form ul li h4 {
+    color: black;
+}
+
+.late-submission-form li label input {
+    border-bottom: 1px solid;
+    border-color: black;
+    border-left: transparent;
+    border-right: transparent;
+    border-top: transparent;
+    background: transparent;
+    text-align: center;
+    font-size: 1.2vw;
+    width: 100%;
+}
+
+.late-submission-form li label input:focus {
+    outline: none;
+}
+
+
+.input-file {
+	position: relative;
+	display: inline-block;
+}
+.input-file span {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+	outline: none;
+	text-decoration: none;
+	font-size: 14px;
+	vertical-align: middle;
+	color: rgb(255 255 255);
+	text-align: center;
+	border-radius: 4px;
+	background-color: #419152;
+	line-height: 22px;
+	height: 40px;
+	padding: 10px 20px;
+	box-sizing: border-box;
+	border: none;
+	margin: 0;
+	transition: background-color 0.2s;
+}
+.input-file input[type=file] {
+	position: absolute;
+	z-index: -1;
+	opacity: 0;
+	display: block;
+	width: 0;
+	height: 0;
+}
+
+/* Focus */
+.input-file input[type=file]:focus + span {
+	box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Hover/active */
+.input-file:hover span {
+	background-color: #59be6e;
+}
+.input-file:active span {
+	background-color: #2E703A;
+}
+
+/* Disabled */
+.input-file input[type=file]:disabled + span {
+	background-color: #eee;
 }

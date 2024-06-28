@@ -12,7 +12,6 @@
 > | handle   | required | string    |
 > | password | required |  string   |
 
-
 ##### Responses
 
 > | http code     | content-type                      | response                                                            |

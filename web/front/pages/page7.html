@@ -6,22 +6,29 @@
             <h1>Set up late submission settings</h1>
         </div>
         <div class="right-part">
-            <ul>
-                <li>
-                    <label>
-                        <input type="number" placeholder="hours">
-                    </label>
-                </li>
-                <li>
-                    <label>
-                        <input type="number" placeholder="penalty">
-                    </label>
-                </li>
-                <li>
-                    <input type="file" placeholder="upload a table">
-                    <h4>Note: after N hours the grade will automatically be 0.</h4>
-                </li>
-            </ul>
+            <nav class="late-submission-form">
+                <ul>
+                    <li>
+                        <label>
+                            <input type="number" placeholder="hours">
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="number" placeholder="penalty">
+                        </label>
+                    </li>
+                    <li>
+                        <form method="post" enctype="multipart/form-data">
+                            <label class="input-file">
+                                <input type="file" name="file">
+                                <span>Выберите файл</span>
+                            </label>
+                        </form>
+                        <h4>Note: after N hours the grade will automatically be 0.</h4>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
     <div class="navigation">
