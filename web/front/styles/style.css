@@ -22,7 +22,8 @@ html {
 
 
 body {
-    background-image: url(src/bg.png);
+    /*background-image: url(src/bg.png);*/
+    background: #E8FFDD;
     min-height: 100vh;
 }
 
@@ -56,6 +57,9 @@ body {
 }
 
 .wizard {
+    border-radius: 35px;
+    background-color: white;
+    box-shadow: 5px 5px 5px darkgray;
     text-align: center;
     justify-content: center;
     position: relative;
@@ -65,7 +69,6 @@ body {
     min-height: 50vh;
     block-size: auto;
     writing-mode: horizontal-tb;
-    background: #D9D9D9;
 }
 
 .panel {
@@ -121,6 +124,8 @@ h1 {
 .right-part {
     margin: 0 auto;
     width: 40%;
+    max-height: 75%;
+    min-height: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -129,8 +134,10 @@ h1 {
 
 button {
     width: 30%;
+    margin: 10px;
     height: 60px;
     font-size: 1.3vw;
+    font-size-adjust: inherit;
     background-color: #4F63CB;
     border-radius: 25px;
     color: white;
