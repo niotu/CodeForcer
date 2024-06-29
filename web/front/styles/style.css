@@ -133,9 +133,11 @@ h1 {
 }
 
 button {
-    width: 30%;
-    margin: 10px;
-    height: 60px;
+    width: 40%;
+    /*margin: 10px;*/
+    text-align: center;
+    padding: 10px;
+    height: 100%;
     font-size: 1.3vw;
     font-size-adjust: inherit;
     background-color: #4F63CB;
