@@ -18,11 +18,13 @@ input[type=number] {
 html {
     margin: 0;
     width: 100%;
+    height: 100%;
 }
 
 
 body {
-    background-image: url(src/bg.png);
+    /*background-image: url(src/bg.png);*/
+    background: #E8FFDD;
     min-height: 100vh;
 }
 
@@ -31,7 +33,7 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    margin: calc(25vh) auto;
+    margin: calc(23vh) auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -55,25 +57,15 @@ body {
     min-height: 126px;
 }
 
-.wizard {
-    text-align: center;
-    justify-content: center;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 80%;
-    min-height: 50vh;
-    block-size: auto;
-    writing-mode: horizontal-tb;
-    background: #D9D9D9;
-}
-
 .panel {
-    position: relative;
+    /*position: ;*/
     display: flex;
     flex-direction: row;
     justify-content: center;
+    position: relative;
     align-items: center;
+    max-height: 75%;
+    min-height: 50%;
     width: 100%;
     margin: 15px 0;
 
@@ -86,6 +78,21 @@ body {
     display: flex;
     flex-direction: row;
     margin: 15px 0;
+}
+
+.wizard {
+    border-radius: 25px;
+    background-color: white;
+    box-shadow: 5px 5px 5px darkgray;
+    text-align: center;
+    justify-content: space-between;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    min-height: 50vh;
+    block-size: auto;
+    writing-mode: horizontal-tb;
 }
 
 .left-navigation-part {
@@ -121,23 +128,29 @@ h1 {
 .right-part {
     margin: 0 auto;
     width: 40%;
+    max-height: 75%;
+    min-height: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-button {
-    width: 30%;
-    height: 60px;
+a button {
+    width: 40%;
+    /*margin: 10px;*/
+    text-align: center;
+    padding: 10px;
+    height: 100%;
     font-size: 1.3vw;
+    font-size-adjust: inherit;
     background-color: #4F63CB;
     border-radius: 25px;
     color: white;
     border: transparent;
 }
 
-button:hover {
+a button:hover {
     background-color: #4556AA;
     /*color: white;*/
 }
