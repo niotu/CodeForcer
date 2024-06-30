@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/googlesheets"
 	"log"
 	"sort"
 	"strconv"
@@ -20,22 +21,25 @@ func EntitiesToJSON[T any](jsonData T) []byte {
 	return data
 }
 
-func MakeCSVFile(data FinalJSONData) *bytes.Buffer {
+func MakeCSVFile(data FinalJSONData, headers []string) (*bytes.Buffer, [][]string) {
 	//buff, _ := os.OpenFile("report.csv", os.O_CREATE|os.O_TRUNC, 0606)
 
 	buff := new(bytes.Buffer)
 
 	writer := csv.NewWriter(buff)
-
-	headers := []string{"handle", "points", "comment"}
+	writer.Comma = ';'
 
 	writer.Write(headers)
+
+	var rows [][]string
 
 	for _, user := range data.Users {
 		var comment []string
 
 		points := 0.0
 		for idx, submission := range user.Solutions {
+			// TODO: add logic for calculating weights of tasks
+
 			points += submission.Points
 			id := submission.SubmissionId
 			if id == -1 {
@@ -47,13 +51,31 @@ func MakeCSVFile(data FinalJSONData) *bytes.Buffer {
 
 		sort.Strings(comment)
 
-		row := []string{user.Handle, strconv.Itoa(int(points)), strings.Join(comment, "; ")}
+		row := []string{user.Handle, strconv.Itoa(int(points)), strings.Join(comment, ", ")}
+		rows = append(rows, row)
 
 		writer.Write(row)
 	}
 
 	writer.Flush()
 
-	return buff
+	return buff, rows
+}
 
+func MakeGoogleSheet(name string, headers []string, data [][]string) (string, error) {
+	_, err := googlesheets.CreateSpreadsheet(name)
+	if err != nil {
+		return "", err
+	}
+
+	googlesheets.WriteHeaders(googlesheets.ToInterfaceSlice(headers))
+
+	var rows [][]interface{}
+	for _, row := range data {
+		rows = append(rows, googlesheets.ToInterfaceSlice(row))
+	}
+
+	googlesheets.WriteData(rows)
+
+	return googlesheets.GetSpreadsheetURL(), nil
 }

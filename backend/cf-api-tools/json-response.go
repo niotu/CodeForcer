@@ -6,9 +6,10 @@ import (
 )
 
 type FinalJSONData struct {
-	Problems []entities.Problem `json:"problems"`
-	Users    []entities.User    `json:"users"`
-	CSV      []byte             `json:"csv"`
+	Problems     []entities.Problem `json:"problems"`
+	Users        []entities.User    `json:"users"`
+	CSV          []byte             `json:"csv"`
+	GoogleSheets string             `json:"googleSheets"`
 }
 
 func parseAndFormEntities(params *CFContestMethodParams) *FinalJSONData {
@@ -50,7 +51,17 @@ func parseAndFormEntities(params *CFContestMethodParams) *FinalJSONData {
 		Problems: p,
 		Users:    u,
 	}
-	finalJsonData.CSV = MakeCSVFile(finalJsonData).Bytes()
+
+	csvHeaders := []string{"handle", "points", "comment"}
+	csvBuff, csvData := MakeCSVFile(finalJsonData, csvHeaders)
+
+	finalJsonData.CSV = csvBuff.Bytes()
+
+	sheetURL, err := MakeGoogleSheet(dataStandings.Name, csvHeaders, csvData)
+	if err != nil {
+		log.Println(err)
+	}
+	finalJsonData.GoogleSheets = sheetURL
 
 	return &finalJsonData
 }

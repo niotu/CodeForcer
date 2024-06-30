@@ -93,7 +93,7 @@ func (c *Client) GetSubmissionCode(client *http.Client, ch chan entities.Submiss
 	}
 }
 
-func (c *Client) GetStatistics(client *http.Client, groupCode string, contestId int64, count int) []byte {
+func (c *Client) GetStatistics(client *http.Client, groupCode string, contestId int64, count int, weights []int) []byte {
 	params := &CFContestMethodParams{
 		GroupCode: groupCode,
 		ContestId: contestId,
