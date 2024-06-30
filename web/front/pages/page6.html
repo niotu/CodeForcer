@@ -1,19 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="page1">
-    <div class="left-part">
-        <h1>Set up tasks weights</h1>
-        <h4>Note: summary points distribution must be 15.</h4>
-        <button class="prev-page">previous page</button>
+<div class="wizard">
+    <div class="panel">
+        <div class="left-part">
+            <h1>Set up tasks weights</h1>
+            <h4>Note: summary points distribution must be 15.</h4>
+        </div>
+        <div class="right-part">
+            <nav class="distribution-form">
+                <ul>
+                    <li>
+                        <p>task1</p>
+                        <label>
+                            <input type="number" name="task1" value="1">
+                        </label>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
-    <div class="right-part">
-        <ul>
-            <li>
-                <p>task1</p>
-                <input type="number" name="task1" value="1">
-            </li>
-        </ul>
-
-        <button class="next-page">next page</button>
+    <div class="navigation">
+        <div class="left-navigation-part">
+            <a href="./?page=page4.html">
+                <button class="previous-page">previous page</button>
+            </a>
+        </div>
+        <div class="right-navigation-part">
+            <a href="./?page=page7.html">
+                <button class="next-page">next page</button>
+            </a>
+        </div>
     </div>
 </div>
+<script src="../scripts/load.js"></script>

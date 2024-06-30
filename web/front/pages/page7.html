@@ -1,24 +1,47 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-<div class="page1">
-    <div class="left-part">
-        <h1>Set up late submission settings</h1>
-        <button class="prev-page">previous page</button>
+<div class="wizard">
+    <div class="panel">
+        <div class="left-part">
+            <h1>Set up late submission settings</h1>
+        </div>
+        <div class="right-part">
+            <nav class="late-submission-form">
+                <ul>
+                    <li>
+                        <label>
+                            <input type="number" placeholder="hours">
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="number" placeholder="penalty">
+                        </label>
+                    </li>
+                    <li>
+                        <form method="post" enctype="multipart/form-data">
+                            <label class="input-file">
+                                <input type="file" name="file">
+                                <span>Выберите файл</span>
+                            </label>
+                        </form>
+                        <h4>Note: after N hours the grade will automatically be 0.</h4>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
-    <div class="right-part">
-        <ul>
-            <li>
-                <input type="number" placeholder="hours">
-            </li>
-            <li>
-                <input type="number" placeholder="penalty">
-            </li>
-            <li>
-                <input type="file" placeholder="upload a table">
-                <h4>Note: after N hours the grade will automatically be 0.</h4>
-            </li>
-        </ul>
-
-        <button class="next-page">next page</button>
+    <div class="navigation">
+        <div class="left-navigation-part">
+            <a href="./?page=page6.html">
+                <button class="previous-page">previous page</button>
+            </a>
+        </div>
+        <div class="right-navigation-part">
+            <a href="./?page=page8.html">
+                <button class="next-page">next page</button>
+            </a>
+        </div>
     </div>
 </div>
+<script src="../scripts/load.js"></script>
