@@ -72,7 +72,7 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("proceeding...")
 
 	groupCode := r.URL.Query().Get("groupCode")
-	contestID, errId := strconv.ParseInt(r.URL.Query().Get("contestID"), 10, 64)
+	contestId, errId := strconv.ParseInt(r.URL.Query().Get("contestId"), 10, 64)
 	count, errCount := strconv.Atoi(r.URL.Query().Get("count"))
 	if errCount != nil {
 		count = 0
@@ -107,7 +107,7 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 
 	weights := []int{50, 50}
 
-	data := api.GetStatistics(nil, groupCode, contestID, count, weights)
+	data := api.GetStatistics(nil, groupCode, contestId, count, weights)
 
 	w.Write(data)
 }
