@@ -22,6 +22,8 @@ func panicLogMiddleware(next http.Handler) http.Handler {
 }
 
 func setAdminData(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("setting admin...")
+
 	api = cf_api_tools.NewClient()
 
 	apiKey := r.URL.Query().Get("key")
@@ -39,6 +41,8 @@ func setAdminData(w http.ResponseWriter, r *http.Request) {
 }
 
 func getGroups(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("getting groups...")
+
 	groups, client := api.GetGroupsList(nil)
 
 	authClient = client
@@ -49,6 +53,8 @@ func getGroups(w http.ResponseWriter, r *http.Request) {
 }
 
 func getContests(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("getting contests...")
+
 	groupCode := r.URL.Query().Get("groupCode")
 	if groupCode == "" {
 		w.Write([]byte("groupCode field malformed or does not exist"))
@@ -63,6 +69,8 @@ func getContests(w http.ResponseWriter, r *http.Request) {
 }
 
 func proceedProcess(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("proceeding...")
+
 	groupCode := r.URL.Query().Get("groupCode")
 	contestID, errId := strconv.ParseInt(r.URL.Query().Get("contestID"), 10, 64)
 	count, errCount := strconv.Atoi(r.URL.Query().Get("count"))
@@ -79,7 +87,27 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := api.GetStatistics(nil, groupCode, contestID, count)
+	//taskWeightsString := r.URL.Query().Get("weights")
+	//if taskWeightsString == "" {
+	//	w.Write([]byte("weights field malformed or does not exist"))
+	//	return
+	//}
+
+	//taskWeights := strings.Split(taskWeightsString, "-")
+	//weights := make([]int, len(taskWeights))
+	//for i, tw := range taskWeights {
+	//	intW, err := strconv.Atoi(tw)
+	//	if err != nil {
+	//		w.Write([]byte("weights field malformed or does not exist"))
+	//		return
+	//	}
+	//
+	//	weights[i] = intW
+	//}
+
+	weights := []int{50, 50}
+
+	data := api.GetStatistics(nil, groupCode, contestID, count, weights)
 
 	w.Write(data)
 }
@@ -96,17 +124,19 @@ func main() {
 
 	mux := mx.NewRouter()
 
-	mux.HandleFunc("/setAdmin", setAdminData)
+	mux.HandleFunc("/api/setAdmin", setAdminData)
 
-	mux.HandleFunc("/getGroups", getGroups)
-	mux.HandleFunc("/getContests", getContests)
-	mux.HandleFunc("/proceed", proceedProcess)
+	mux.HandleFunc("/api/getGroups", getGroups)
+	mux.HandleFunc("/api/getContests", getContests)
+	mux.HandleFunc("/api/proceed", proceedProcess)
 
 	http.Handle("/", mux)
 
-	fmt.Println("All routes are added. Start polling port :8080...")
+	PORT := 8080
 
-	err := http.ListenAndServe(":8080", nil)
+	fmt.Printf("All routes are added. Start polling port :%d...\n", PORT)
+
+	err := http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil)
 
 	if err != nil {
 		fmt.Println("Error caught: ", err)

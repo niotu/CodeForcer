@@ -10,6 +10,7 @@ import (
 )
 
 type DataFromStandings struct {
+	Name             string
 	Problems         []*entities.Problem
 	DurationSeconds  int64
 	StartTimeSeconds int64
@@ -59,6 +60,8 @@ func parseContestStandings(data interface{}) (*DataFromStandings, error) {
 	}
 
 	contest := result["contest"].(map[string]interface{})
+
+	name := contest["name"].(string)
 	durationSeconds := contest["durationSeconds"].(float64)
 	startTimeSeconds := contest["startTimeSeconds"].(float64)
 
@@ -66,6 +69,7 @@ func parseContestStandings(data interface{}) (*DataFromStandings, error) {
 	fmt.Println(problems)
 
 	return &DataFromStandings{
+		Name:             name,
 		Problems:         problems,
 		DurationSeconds:  int64(durationSeconds),
 		StartTimeSeconds: int64(startTimeSeconds),
