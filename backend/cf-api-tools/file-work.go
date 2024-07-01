@@ -33,6 +33,8 @@ func MakeCSVFile(data FinalJSONData, headers []string) (*bytes.Buffer, [][]strin
 
 	var rows [][]string
 
+	count := 1
+
 	for _, user := range data.Users {
 		var comment []string
 
@@ -45,14 +47,15 @@ func MakeCSVFile(data FinalJSONData, headers []string) (*bytes.Buffer, [][]strin
 			if id == -1 {
 				comment = append(comment, fmt.Sprintf("%s: %d (no submission)", idx, 0))
 			} else {
-				comment = append(comment, fmt.Sprintf("%s: %d;", idx, int(submission.Points)))
+				comment = append(comment, fmt.Sprintf("%s: %d", idx, int(submission.Points)))
 			}
 		}
 
 		sort.Strings(comment)
 
-		row := []string{user.Handle, strconv.Itoa(int(points)), strings.Join(comment, ", ")}
+		row := []string{fmt.Sprintf("User%d", count), strconv.Itoa(int(points)), strings.Join(comment, "; ")}
 		rows = append(rows, row)
+		count++
 
 		writer.Write(row)
 	}

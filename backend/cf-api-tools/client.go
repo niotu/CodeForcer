@@ -18,6 +18,7 @@ type Client struct {
 	apiSecret string
 	handle    string
 	password  string
+	auth      *http.Client
 }
 
 func NewClient() *Client {
@@ -43,14 +44,17 @@ func (c *Client) SetPassword(password string) {
 func (c *Client) GetGroupsList(client *http.Client) ([]entities.Group, *http.Client) {
 	var err error
 
-	if client == nil {
-		client, err = entities.Login(c.handle, c.password)
-		if err != nil {
-			log.Printf("Login failed: %v", err)
+	if c.auth == nil {
+		if client == nil {
+			client, err = entities.Login(c.handle, c.password)
+			if err != nil {
+				log.Printf("Login failed: %v", err)
+			}
 		}
+		c.auth = client
 	}
 
-	groups, err := entities.FetchGroups(client)
+	groups, err := entities.FetchGroups(c.auth)
 	if err != nil {
 		log.Printf("Failed to fetch groups: %v", err)
 	}
@@ -61,14 +65,17 @@ func (c *Client) GetGroupsList(client *http.Client) ([]entities.Group, *http.Cli
 func (c *Client) GetContestsList(client *http.Client, groupCode string) ([]entities.Contest, *http.Client) {
 	var err error
 
-	if client == nil {
-		client, err = entities.Login(c.handle, c.password)
-		if err != nil {
-			log.Printf("Login failed: %v", err)
+	if c.auth == nil {
+		if client == nil {
+			client, err = entities.Login(c.handle, c.password)
+			if err != nil {
+				log.Printf("Login failed: %v", err)
+			}
 		}
+		c.auth = client
 	}
 
-	contests, err := entities.FetchContests(client, groupCode)
+	contests, err := entities.FetchContests(c.auth, groupCode)
 	if err != nil {
 		log.Printf("Failed to fetch groups: %v", err)
 	}
@@ -80,14 +87,17 @@ func (c *Client) GetSubmissionCode(client *http.Client, ch chan entities.Submiss
 	mutex *sync.Mutex, groupCode string, contestId, submissionId int64) {
 	var err error
 
-	if client == nil {
-		client, err = entities.Login(c.handle, c.password)
-		if err != nil {
-			log.Fatalf("Login failed: %v", err)
+	if c.auth == nil {
+		if client == nil {
+			client, err = entities.Login(c.handle, c.password)
+			if err != nil {
+				log.Printf("Login failed: %v", err)
+			}
 		}
+		c.auth = client
 	}
 
-	entities.FetchSubmission(client, ch, mutex, groupCode, contestId, submissionId)
+	entities.FetchSubmission(c.auth, ch, mutex, groupCode, contestId, submissionId)
 	if err != nil {
 		log.Printf("Failed to fetch submission: %v", err)
 	}

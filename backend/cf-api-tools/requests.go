@@ -66,6 +66,8 @@ func (a *ApiRequest) MakeApiRequest() ([]byte, error) {
 	params := a.GetUrlParams()
 
 	params.Add("apiSig", a.GetApiSig())
+	fmt.Println(a.Params)
+	fmt.Println(a.ApiSig)
 
 	u.RawQuery = params.Encode()
 
