@@ -1,0 +1,197 @@
+/* Global styles */
+* {
+    font-family: "Inter", serif;
+    font-weight: 400;
+    box-sizing: border-box;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+html {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background: #E8FFDD; /* Light green background */
+    min-height: 100vh;
+}
+
+/* Component-specific styles */
+
+/* Wizard layout */
+.wizard {
+    border-radius: 25px;
+    background-color: white;
+    box-shadow: 5px 5px 5px darkgray;
+    text-align: center;
+    justify-content: space-between;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    min-height: 50vh;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Panel layout */
+.panel {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    position: relative;
+    align-items: center;
+    max-height: 75%;
+    min-height: 50%;
+    width: 100%;
+    margin: 15px 0;
+}
+
+/* Navigation layout */
+.navigation {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+/* Navigation buttons */
+.navigation button {
+    padding: 10px 20px;
+    border-radius: 25px;
+    background-color: #4F63CB; /* Dark blue */
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.navigation button:hover {
+    background-color: #4556AA; /* Darker blue on hover */
+}
+
+/* Left and right navigation parts */
+.left-navigation-part,
+.right-navigation-part {
+    width: 50%;
+    text-align: center;
+}
+
+/* Header styles */
+h1 {
+    font-size: 4.0vw;
+    font-weight: 400;
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input {
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* List view styles */
+.list-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.list-view ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.list-view li {
+    background-color: #717171; /* Dark grey */
+    color: white;
+    border-radius: 25px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.list-view li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5vw;
+}
+
+.list-view li a:hover {
+    text-decoration: underline;
+}
+
+/* Contest details styles */
+.right-part {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.right-part label {
+    margin-bottom: 10px;
+}
+
+.right-part a {
+    color: #4F63CB; /* Dark blue for links */
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+
+.right-part a:hover {
+    text-decoration: underline;
+}
+
+.right-part button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    background-color: #4F63CB; /* Dark blue */
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.right-part button:hover {
+    background-color: #4556AA; /* Darker blue on hover */
+}
+
+/* Media query for responsiveness */
+@media (max-width: 768px) {
+    .wizard {
+        width: 90%;
+    }
+
+    h1 {
+        font-size: 5vw;
+    }
+
+    .right-part {
+        width: 90%;
+    }
+}
