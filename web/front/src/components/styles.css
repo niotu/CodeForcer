@@ -1,4 +1,5 @@
-/* Global styles */
+/* src/styles/styles.css */
+
 * {
     font-family: "Inter", serif;
     font-weight: 400;
@@ -28,7 +29,6 @@ body {
 }
 
 /* Component-specific styles */
-
 /* Wizard layout */
 .wizard {
     border-radius: 25px;
@@ -113,72 +113,12 @@ input {
     margin-bottom: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    background-color: white; /* Default background color */
 }
 
-/* List view styles */
-.list-view {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.list-view ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.list-view li {
-    background-color: #717171; /* Dark grey */
-    color: white;
-    border-radius: 25px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.list-view li a {
-    color: white;
-    text-decoration: none;
-    font-size: 1.5vw;
-}
-
-.list-view li a:hover {
-    text-decoration: underline;
-}
-
-/* Contest details styles */
-.right-part {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.right-part label {
-    margin-bottom: 10px;
-}
-
-.right-part a {
-    color: #4F63CB; /* Dark blue for links */
-    text-decoration: none;
-    margin-bottom: 10px;
-}
-
-.right-part a:hover {
-    text-decoration: underline;
-}
-
-.right-part button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    border-radius: 25px;
-    background-color: #4F63CB; /* Dark blue */
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.right-part button:hover {
-    background-color: #4556AA; /* Darker blue on hover */
+/* Highlighting wrong inputs */
+.wrong {
+    background-color: #ffb3b3; /* Light red */
 }
 
 /* Media query for responsiveness */
