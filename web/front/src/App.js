@@ -12,7 +12,6 @@ const App = () => {
                 {this.localStorage.getItem("isAuthorized") === false &&
                     <Route path="/" element={<LoginPage/>}/>
                 }
-
                 {this.localStorage.getItem('isAuthorized') &&
                     <Route path="/groups" element={<GroupsPage/>}/>
                 }

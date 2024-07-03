@@ -9,6 +9,7 @@ const LoginPage = () => {
     const [key, setKey] = useState('');
     const [secret, setSecret] = useState('');
     const navigate = useNavigate();
+    let comment = '';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,11 +25,13 @@ const LoginPage = () => {
             method: 'GET'
         });
 
-        if (response.ok) {
+        let status = await response.json()['status'];
+        if (status === 'OK') {
             localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
             navigate('/groups');
-        } else {
+        } else if (status === 'FAILED') {
             alert('Login failed');
+            comment = await ((response.json()).then(r => r))['comment'];
         }
     };
 
