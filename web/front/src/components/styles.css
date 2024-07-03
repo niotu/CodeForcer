@@ -1,4 +1,6 @@
 /* Global styles */
+
+
 * {
     font-family: "Inter", serif;
     font-weight: 400;
@@ -28,6 +30,17 @@ body {
 }
 
 /* Component-specific styles */
+.page-active {
+    /*display: inline-block;*/
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: calc(23vh) auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
 /* Wizard layout */
 .wizard {

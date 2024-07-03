@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useParams} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const ContestDetails = () => {
-    const { groupCode, contestId } = useParams(); // Extracting groupCode and contestId from URL parameters
+    const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const [googleSheetLink, setGoogleSheetLink] = useState('');
     const [csvData, setCsvData] = useState('');
     const [submissionsData, setSubmissionsData] = useState('');
@@ -36,7 +36,7 @@ const ContestDetails = () => {
     }, [groupCode, contestId]);
 
     const downloadCsv = () => {
-        const blob = new Blob([atob(csvData)], { type: 'text/csv' });
+        const blob = new Blob([atob(csvData)], {type: 'text/csv'});
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -46,7 +46,7 @@ const ContestDetails = () => {
     };
 
     const downloadSubmissions = () => {
-        const blob = new Blob([atob(submissionsData)], { type: 'application/zip' });
+        const blob = new Blob([atob(submissionsData)], {type: 'application/zip'});
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -60,21 +60,24 @@ const ContestDetails = () => {
     }
 
     return (
-        <div className="wizard">
-            <div className="panel">
-                <div className="left-part">
-                    <h1>Contest Details</h1>
-                </div>
-                <div className="right-part">
-                    <div>
-                        <label>Google Sheet: </label>
-                        <a href={googleSheetLink} target="_blank" rel="noopener noreferrer">See Google Sheet</a>
+
+        <div className="page-active">
+            <div className="wizard">
+                <div className="panel">
+                    <div className="left-part">
+                        <h1>Contest Details</h1>
                     </div>
-                    <div>
-                        <button onClick={downloadCsv}>Download CSV</button>
-                    </div>
-                    <div>
-                        <button onClick={downloadSubmissions}>Download Submissions</button>
+                    <div className="right-part">
+                        <div>
+                            <label>Google Sheet: </label>
+                            <a href={googleSheetLink} target="_blank" rel="noopener noreferrer">See Google Sheet</a>
+                        </div>
+                        <div>
+                            <button onClick={downloadCsv}>Download CSV</button>
+                        </div>
+                        <div>
+                            <button onClick={downloadSubmissions}>Download Submissions</button>
+                        </div>
                     </div>
                 </div>
             </div>
