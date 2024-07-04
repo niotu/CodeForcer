@@ -2,76 +2,94 @@ package googlesheets
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
+	"go.uber.org/zap"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
-var spreadsheetID string
-var spreadsheetURL string
+var spreadsheets sync.Map
 
 var sheetsService *sheets.Service
 var driveService *drive.Service
+
+const SheetAccessType = "anyone"
+
+var GoogleSheetsError = errors.New("unable to create and edit google sheet, please, try later")
+
+type Spreadsheet struct {
+	OwnerEmail string
+	Obj        *sheets.Spreadsheet
+}
+
+func getSpreadsheet(email string) *Spreadsheet {
+	client, ok := spreadsheets.Load(email)
+	if !ok {
+		return nil
+	}
+	return client.(*Spreadsheet)
+}
+
+func setSpreadsheet(email string, client *Spreadsheet) {
+	spreadsheets.Store(email, client)
+}
 
 func initGoogleServices() error {
 	// Load the Google API credentials from your JSON file.
 	credsPath, err := filepath.Abs("./credentials.json")
 	if err != nil {
-		return fmt.Errorf("unable to get absolute path of credentials file: %v", err)
+		logger.Error(fmt.Errorf("unable to get absolute path of credentials file: %w", err))
+		return GoogleSheetsError
 	}
 	creds, err := os.ReadFile(credsPath)
 	if err != nil {
-		return fmt.Errorf("unable to read credentials file: %v", err)
+		logger.Error(fmt.Errorf("unable to read credentials file: %w", err))
+		return GoogleSheetsError
 	}
 
 	config, err := google.JWTConfigFromJSON(creds, sheets.SpreadsheetsScope, drive.DriveFileScope)
 	if err != nil {
-		return fmt.Errorf("unable to create JWT config: %v", err)
+		logger.Error(fmt.Errorf("unable to create JWT config: %w", err))
+		return GoogleSheetsError
 	}
 
 	client := config.Client(context.Background())
 
 	sheetsService, err = sheets.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
-		return fmt.Errorf("unable to create Google Sheets service: %v", err)
+		logger.Error(fmt.Errorf("unable to create Google Sheets service: %w", err))
+		return GoogleSheetsError
 	}
 
 	driveService, err = drive.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
-		return fmt.Errorf("unable to create Google Drive service: %v", err)
+		logger.Error(fmt.Errorf("unable to create Google Drive service: %w", err))
+		return GoogleSheetsError
 	}
 
 	return nil
 }
 
-func ReadData() {
+func (s *Spreadsheet) getNthSheetName(n int) (string, error) {
 	ctx := context.Background()
-	resp, err := sheetsService.Spreadsheets.Values.Get(spreadsheetID, "Лист1!A1:E12").Context(ctx).Do()
+	spreadsheet, err := sheetsService.Spreadsheets.Get(s.Obj.SpreadsheetId).Context(ctx).Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve data from sheet: %v", err)
-		return
-	}
-
-	for _, row := range resp.Values {
-		fmt.Println(row)
-	}
-}
-
-func getNthSheetName(n int) (string, error) {
-	ctx := context.Background()
-	spreadsheet, err := sheetsService.Spreadsheets.Get(spreadsheetID).Context(ctx).Do()
-	if err != nil {
-		return "", fmt.Errorf("unable to retrieve spreadsheet metadata: %v", err)
+		logger.Error(fmt.Errorf("unable to retrieve spreadsheet metadata: %w", err))
+		return "", GoogleSheetsError
 	}
 
 	if len(spreadsheet.Sheets) == 0 {
-		return "", fmt.Errorf("no sheets found in the spreadsheet")
+		logger.Error(fmt.Errorf("no sheets found in the spreadsheet: %w", err))
+		return "", GoogleSheetsError
 	}
 
 	if n == 0 || n > len(spreadsheet.Sheets) {
@@ -81,28 +99,36 @@ func getNthSheetName(n int) (string, error) {
 	return nthSheetName, nil
 }
 
-func WriteHeaders(headers []interface{}) {
+func (s *Spreadsheet) WriteHeaders(headers []interface{}) error {
 	ctx := context.Background()
+
 	var vr sheets.ValueRange
+
 	vr.Values = append(vr.Values, headers)
-	sheetName, err := getNthSheetName(1)
+	sheetName, err := s.getNthSheetName(1)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	cellFrom := "A1"
 	cellTo := string(rune('A'+len(headers))) + "1"
 
-	_, err = sheetsService.Spreadsheets.Values.Update(spreadsheetID,
+	_, err = sheetsService.Spreadsheets.Values.Update(s.Obj.SpreadsheetId,
 		fmt.Sprintf("%s!%s:%s", sheetName, cellFrom, cellTo), &vr,
 	).ValueInputOption("RAW").Context(ctx).Do()
 	if err != nil {
-		log.Fatalf("Unable to write headers to sheet: %v", err)
+		logger.Error(fmt.Errorf("unable to write headers to sheet: %w", err))
+		return GoogleSheetsError
 	}
-	fmt.Println("Headers written successfully!")
+
+	logger.Logger().Info("Headers written successfully!",
+		zap.String("spreadsheet ID", s.Obj.SpreadsheetId),
+		zap.String("owner email", s.OwnerEmail))
+
+	return nil
 }
 
-func WriteData(data [][]interface{}) {
+func (s *Spreadsheet) WriteData(data [][]interface{}) error {
 	ctx := context.Background()
 	var vr sheets.ValueRange
 
@@ -110,29 +136,34 @@ func WriteData(data [][]interface{}) {
 		vr.Values = append(vr.Values, row)
 	}
 
-	sheetName, err := getNthSheetName(1)
+	sheetName, err := s.getNthSheetName(1)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	letterFrom, numberFrom := "A", 2
 	letterTo, numberTo := string(rune('A'+len(data[0]))), len(data)+numberFrom-1
 
-	_, err = sheetsService.Spreadsheets.Values.Update(spreadsheetID,
+	_, err = sheetsService.Spreadsheets.Values.Update(s.Obj.SpreadsheetId,
 		fmt.Sprintf("%s!%s%d:%s%d", sheetName, letterFrom, numberFrom, letterTo, numberTo), &vr,
 	).ValueInputOption("RAW").Context(ctx).Do()
-
 	if err != nil {
-		log.Fatalf("Unable to write data to sheet: %v", err)
+		logger.Error(fmt.Errorf("unable to write data to sheet: %w", err))
+		return GoogleSheetsError
 	}
-	fmt.Println("Data written successfully!")
+
+	logger.Logger().Info("Data written successfully!",
+		zap.String("spreadsheet ID", s.Obj.SpreadsheetId),
+		zap.String("owner email", s.OwnerEmail))
+
+	return nil
 }
 
-func CreateSpreadsheet(title string) (string, error) {
+func CreateSpreadsheet(title, ownerEmail string) (*Spreadsheet, error) {
 	if sheetsService == nil || driveService == nil {
 		err := initGoogleServices()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 
@@ -149,32 +180,60 @@ func CreateSpreadsheet(title string) (string, error) {
 
 	resp, err := sheetsService.Spreadsheets.Create(spreadsheet).Context(ctx).Do()
 	if err != nil {
-		log.Printf("Unable to create spreadsheet: %v", err)
-		return "", err
+		logger.Error(fmt.Errorf("unable to create spreadsheet: %w", err))
+		return nil, GoogleSheetsError
 	}
-	fmt.Printf("Spreadsheet created: %s\n", resp.SpreadsheetUrl)
+	logger.Logger().Info("Spreadsheet created: "+resp.SpreadsheetUrl,
+		zap.String("spreadsheet ID", resp.SpreadsheetId),
+		zap.String("owner email", ownerEmail))
 
-	shareSpreadsheet(resp.SpreadsheetId)
+	spreadsheetObj := &Spreadsheet{
+		OwnerEmail: ownerEmail,
+		Obj:        resp,
+	}
 
-	spreadsheetID = resp.SpreadsheetId
-	spreadsheetURL = resp.SpreadsheetUrl
+	setSpreadsheet(ownerEmail, spreadsheetObj)
 
-	return resp.SpreadsheetId, nil
+	err = spreadsheetObj.shareSpreadsheet(resp.SpreadsheetId)
+	if err != nil {
+		return nil, err
+	}
+
+	return spreadsheetObj, nil
 }
 
-func shareSpreadsheet(spreadsheetId string) {
+func (s *Spreadsheet) shareSpreadsheet(spreadsheetId string) error {
 	ctx := context.Background()
 	permission := &drive.Permission{
-		Type: "anyone",
-		Role: "writer", // Replace with your service account email
+		Type: SheetAccessType,
+		Role: "writer",
+		//EmailAddress: s.OwnerEmail,
 	}
 
 	_, err := driveService.Permissions.Create(spreadsheetId, permission).Context(ctx).Do()
 	if err != nil {
-		log.Fatalf("Unable to share spreadsheet: %v", err)
-		return
+		var gErr *googleapi.Error
+		if errors.As(err, &gErr) {
+			for _, e := range gErr.Errors {
+				if e.Reason == "invalid" && strings.Contains(e.Message, "email") {
+					logger.Error(fmt.Errorf("invalid email address provided for sharing: %w", err))
+					return errors.New("invalid email address provided for sharing: " + s.OwnerEmail)
+				}
+			}
+		}
+		logger.Error(fmt.Errorf("unable to share spreadsheet: %w", err))
+		return GoogleSheetsError
 	}
-	fmt.Println("Spreadsheet shared successfully!")
+
+	logger.Logger().Info("Spreadsheet shared successfully!",
+		zap.String("spreadsheet ID", s.Obj.SpreadsheetId),
+		zap.String("owner email", s.OwnerEmail))
+
+	return nil
+}
+
+func (s *Spreadsheet) GetSpreadsheetURL() string {
+	return s.Obj.SpreadsheetUrl
 }
 
 func ToInterfaceSlice[T any](src []T) []interface{} {
@@ -183,8 +242,4 @@ func ToInterfaceSlice[T any](src []T) []interface{} {
 		interfaceSlice[i] = h
 	}
 	return interfaceSlice
-}
-
-func GetSpreadsheetURL() string {
-	return spreadsheetURL
 }
