@@ -16,7 +16,7 @@ const GroupsPage = () => {
     }, []);
 
     return (
-
+        <body>
         <div className="page-active">
             <div className="wizard">
                 <div className="panel">
@@ -36,6 +36,7 @@ const GroupsPage = () => {
                 </div>
             </div>
         </div>
+        </body>
     );
 };
 

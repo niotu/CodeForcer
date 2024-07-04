@@ -4,6 +4,7 @@ import LoginPage from './components/LoginPage';
 import GroupsPage from './components/GroupsPage';
 import ContestsPage from './components/ContestsPage';
 import ContestDetails from './components/ContestDetails';
+import WeightsDistrPage from "./components/WeightsDistrPage.jsx";
 
 const App = () => {
     return (
@@ -21,11 +22,13 @@ const App = () => {
                 {this.localStorage.getItem('isAuthorized') &&
                     <Route path="/contest-details/:groupCode/:contestId" element={<ContestDetails/>}/>
                 }
+                {this.localStorage.getItem('isAuthorized') &&
+                    <Route path="/weightsDistr/:GroupCode/:contestId" element={<WeightsDistrPage/>}/>
+                }
 
             </Routes>
         </Router>
-    )
-        ;
+    );
 };
 
 export default App;

@@ -24,10 +24,12 @@ const LoginPage = () => {
         const response = await fetch(`/api/setAdmin?${queryParams}`, {
             method: 'GET'
         });
-
-        let status = await response.json()['status'];
+        let id = 0;
+        let status = await ((response.json()).then(r => r))['status'];
         if (status === 'OK') {
+            id = await ((response.json()).then(r => r))[id];
             localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
+            localStorage.setItem('userId', id); // Store the user ID in local storage
             navigate('/groups');
         } else if (status === 'FAILED') {
             alert('Login failed');
@@ -37,7 +39,14 @@ const LoginPage = () => {
 
     const [isCorrect, setIsCorrect] = useState(false)
 
+    function logout() {
+        localStorage.setItem('isAuthorized', 'false');
+        localStorage.setItem('userId', null);
+        navigate('/');
+    }
+
     return (
+        <body>
         <div className="page-active">
             <div className="wizard">
                 <div className="panel">
@@ -69,7 +78,9 @@ const LoginPage = () => {
                     </div>
                 </div>
             </div>
+            <button className={'logout'} onSubmit={(e) => logout()}>Logout</button>
         </div>
+        </body>
     );
 };
 

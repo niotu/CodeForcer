@@ -60,7 +60,7 @@ const ContestDetails = () => {
     }
 
     return (
-
+        <body>
         <div className="page-active">
             <div className="wizard">
                 <div className="panel">
@@ -82,6 +82,7 @@ const ContestDetails = () => {
                 </div>
             </div>
         </div>
+        </body>
     );
 };
 

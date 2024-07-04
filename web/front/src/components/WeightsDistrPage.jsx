@@ -1,63 +1,58 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const WeightsDistrPage = () => {
 
     const navigate = useNavigate();
+    const [tasks, setTasks] = useState([]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        const fetchTasks = async () => {
+            const response = await fetch('/api/getGroups');
+            const data = await response.json();
+            setTasks(data);
+            console.log(data);
+        };
 
-        const queryParams = new URLSearchParams({
-            handle,
-            password,
-            key,
-            secret,
-        });
-
-        const response = await fetch(`/api/setAdmin?${queryParams}`, {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-            localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
-            navigate('/groups');
-        } else {
-            alert('Login failed');
-        }
-    };
+        fetchTasks()
+    }, [])
 
     return (
-        <div className="wizard">
-            <div className="panel">
-                <div className="left-part">
-                    <h1>Login to CodeForces</h1>
-                </div>
-                <div className="right-part">
-                    <form onSubmit={handleSubmit}>
-                        <label htmlFor="handle">Handle:</label>
-                        <input type="text" id="handle" value={handle} onChange={(e) => setHandle(e.target.value)}
-                               required/><br/><br/>
+        <body>
+        <div className='page-active'>
+            <div className="wizard">
+                <div className="panel">
+                    <div className="left-part">
+                        <h1>Set up tasks weights</h1>
+                        <h4>Note: summary points distribution must be 15.</h4>
+                    </div>
+                    <div className="right-part">
+                        <nav className="distribution-form">
+                            <ul>
+                                {tasks.map(task => (
+                                    <li key={task.taskCode}><p>{task.taskName }</p>
+                                        <label>
+                                            <input type="number" name="task1" value="1"/>
+                                        </label>
+                                    </li>
+                                ))}
+                                <li>
 
-                        <label htmlFor="password">Password:</label>
-                        <input type="password" id="password" value={password}
-                               onChange={(e) => setPassword(e.target.value)} required/><br/><br/>
-
-                        <label htmlFor="key">Key:</label>
-                        <input type="password" id="key" value={key} onChange={(e) => setKey(e.target.value)}
-                               required/><br/><br/>
-
-                        <label htmlFor="secret">Secret:</label>
-                        <input type="password" id="secret" value={secret} onChange={(e) => setSecret(e.target.value)}
-                               required/><br/><br/>
-
-                        <button type="submit">Submit</button>
-                    </form>
+                                    <p>task1</p>
+                                    <label>
+                                        <input type="number" name="task1" value="1"/>
+                                    </label>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
+            <button className={'logout'} onSubmit={(e) => logout()}>Logout</button>
         </div>
+        </body>
     );
 };
 
-export default LoginPage;
+export default WeightsDistrPage;
