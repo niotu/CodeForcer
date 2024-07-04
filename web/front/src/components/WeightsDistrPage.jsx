@@ -1,15 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const WeightsDistrPage = () => {
-
+    const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
 
     useEffect(() => {
+        const queryParams = new URLSearchParams({
+            groupCode,
+            contestId,
+        });
+
         const fetchTasks = async () => {
-            const response = await fetch('/api/getGroups');
+            const response = await fetch(`/api/getTasks?${queryParams}`);
             const data = await response.json();
             setTasks(data);
             console.log(data);
@@ -31,19 +36,12 @@ const WeightsDistrPage = () => {
                         <nav className="distribution-form">
                             <ul>
                                 {tasks.map(task => (
-                                    <li key={task.taskCode}><p>{task.taskName }</p>
+                                    <li key={task.taskCode}><p>{task.taskName}</p>
                                         <label>
-                                            <input type="number" name="task1" value="1"/>
+                                            <input type="number" name={task.taskName} value="1"/>
                                         </label>
                                     </li>
                                 ))}
-                                <li>
-
-                                    <p>task1</p>
-                                    <label>
-                                        <input type="number" name="task1" value="1"/>
-                                    </label>
-                                </li>
                             </ul>
                         </nav>
                     </div>
