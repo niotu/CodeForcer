@@ -44,10 +44,9 @@ const LoginPage = () => {
         localStorage.setItem('userId', null);
         navigate('/');
     }
-
+    console.log('fef')
     return (
-        <body>
-        <div className="page-active">
+        <div className="page-active"    >
             <div className="wizard">
                 <div className="panel">
                     <div className="left-part">
@@ -80,7 +79,6 @@ const LoginPage = () => {
             </div>
             <button className={'logout'} onSubmit={(e) => logout()}>Logout</button>
         </div>
-        </body>
     );
 };
 
