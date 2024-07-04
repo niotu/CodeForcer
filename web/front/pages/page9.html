@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="page1">
-    <div class="left-part">
-        <h1>Everything is ready.</h1>
-        <h4>Warning: the next action cannot be undone!!!</h4>
-        <button class="prev-page">previous page</button>
+<div class="wizard">
+    <div class="panel">
+        <div class="left-part">
+            <h1>Everything is ready.</h1>
+            <h4>Warning: the next action cannot be undone!!!</h4>
+        </div>
+        <div class="right-part">
+            <button id="upload-to-moodle">Upload marks to Moodle</button>
+        </div>
     </div>
-    <div class="right-part">
-        <ul>
-            <li>
-                <button id="upload-to-moodle">Upload marks to Moodle</button>
-            </li>
-        </ul>
 
-        <button class="next-page">next page</button>
+    <div class="navigation">
+        <div class="left-navigation-part">
+            <a href="./?page=page8.html">
+                <button class="previous-page">previous page</button>
+            </a>
+        </div>
+        <div class="right-navigation-part">
+        </div>
     </div>
 </div>
+<script src="../scripts/load.js"></script>
