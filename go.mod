@@ -1,12 +1,12 @@
 module gitlab.pg.innopolis.university/n.solomennikov/choosetwooption
 
-go 1.21.5
+        go 1.21.5
 
-require (
-	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/google/go-querystring v1.1.0
-	github.com/gorilla/mux v1.8.1
-)
+        require (
+        github.com/PuerkitoBio/goquery v1.9.2
+        github.com/google/go-querystring v1.1.0
+        github.com/gorilla/mux v1.8.1
+        )
 
 require (
 	cloud.google.com/go/auth v0.6.0 // indirect

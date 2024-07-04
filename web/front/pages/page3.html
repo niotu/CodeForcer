@@ -1,14 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="page1">
-    <div class="left-part">
-        <h1>Select Group</h1>
-        <button class="prev-page">previous page</button>
+<div class="wizard">
+    <div class="panel">
+        <div class="left-part">
+            <h1>Select Group</h1>
+        </div>
+        <div class="right-part">
+            <nav class="list-view">
+                <ul>
+                    <li><a href="#">Group1</a></li>
+                </ul>
+            </nav>
+        </div>
     </div>
-    <div class="right-part">
-        <ul>
-            <li><a href="#">Group1</a></li>
-        </ul>
-        <button class="next-page">next page</button>
+    <div class="navigation">
+        <div class="left-navigation-part">
+            <a href="./?page=page2.html">
+                <button class="previous-page">previous page</button>
+            </a>
+        </div>
+        <div class="right-navigation-part">
+            <a href="./?page=page4.html">
+                <button class="next-page">next page</button>
+            </a>
+        </div>
     </div>
 </div>
+<script src="../scripts/load.js"></script>
