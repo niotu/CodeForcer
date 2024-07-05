@@ -27,6 +27,8 @@ func checkResponseError(comment string) error {
 		errorMsg += "\tOR\n"
 		errorMsg += "You are not the manager of the contest. Be sure that on the page of contest you selected the following:\n" +
 			"Administration (block on the right) -> Enable manager mode."
+		errorMsg += "\tOR\n"
+		errorMsg += "Check the correctness of entered URL"
 	} else {
 		return nil
 	}
