@@ -115,6 +115,7 @@ h1 {
     font-weight: 400;
 }
 
+
 .left-part {
     margin: 0 auto;
     width: 40%;
@@ -136,7 +137,7 @@ h1 {
     align-items: center;
 }
 
-a button {
+button {
     width: 40%;
     /*margin: 10px;*/
     text-align: center;
@@ -150,7 +151,7 @@ a button {
     border: transparent;
 }
 
-a button:hover {
+button:hover {
     background-color: #4556AA;
     /*color: white;*/
 }
