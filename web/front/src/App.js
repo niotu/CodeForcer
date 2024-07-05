@@ -14,7 +14,7 @@ const App = () => {
                 <Route path="/" element={<LoginPage/>}/>
 
                 {/* Protected Routes (with Redirection) */}
-                {localStorage.getItem('isAuthorized') ? (
+                {localStorage.getItem('isAuthorized') === false ? (
                     <>
                         <Route path="/groups" element={<GroupsPage/>}/>
                         <Route path="/contests/:groupCode" element={<ContestsPage/>}/>
