@@ -88,14 +88,18 @@ const LinkPage = () => {
             </div>
             <div className="navigation">
                 <div className="left-navigation-part">
-                    <a href="/">
-                        <button className="previous-page">Back</button>
+                    <a href="">
+                        <button className="previous-page" onClick={(e) => {
+                            e.preventDefault();
+                            history.go(-1);
+                        }}>Back
+                        </button>
                     </a>
                 </div>
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={(e) => logout(e)}>Logout</button>
+                        <button className={'logout'} onClick={(e) => {localStorage.clear()}}>Logout</button>
                     </a>
                 </div>
             </div>

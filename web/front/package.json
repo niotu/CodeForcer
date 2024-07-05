@@ -19,7 +19,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "https://doberman-primary-pony.ngrok-free.app/",
+  "proxy": "http://localhost:8080",
   "browserslist": {
     "production": [
       ">0.2%",

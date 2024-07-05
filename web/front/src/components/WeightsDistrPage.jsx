@@ -3,11 +3,11 @@ import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const WeightsDistrPage = () => {
-    let comment = 'the comment'
+    let comment = 'The task weights must be in percentage (0-100%)'
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
-    const [taskWeights, setTaskWeights] = useState([]);
+    const [weights, setWeights] = useState([]);
 
     function logout() {
         localStorage.setItem('isAuthorized', 'false');
@@ -16,28 +16,19 @@ const WeightsDistrPage = () => {
 
     const handleWeights = async (e) => {
         e.preventDefault();
-        const weights = Array.from(e.target).reduce((acc, curr) => {
-            if (curr.name.startsWith('task-')) {
-                const taskId = parseInt(curr.name.split('-')[1]);
-                const weight = parseInt(curr.value);
-                acc[taskId] = weight;
-            }
-            return acc;
-        }, {});
 
-        const response = await fetch(`/api/setTaskWeights`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                groupCode,
-                contestId,
-                userID: localStorage.getItem('userId'),
-                weights,
-            }),
-        });
+        console.log(`Weights: [ ${weights.join('-')} ]`)
+
+        localStorage.setItem('weights', weights);
+
+        navigate(`/contest-details/${groupCode}/${contestId}`);
     };
+
+    const setTaskWeights = (value, index) => {
+        console.log(`Setting weight for ${index} to ${value}`);
+        weights[index] = value;
+        setWeights([...weights]);
+    }
 
     useEffect(() => {
         const queryParams = new URLSearchParams({
@@ -69,15 +60,24 @@ const WeightsDistrPage = () => {
                         <form onSubmit={handleWeights} autoComplete='on'>
                             <nav className="list-view" id='distribution-form'>
                                 <ul>
-                                    {tasks.map(task => (
-                                        <li key={task.Index}>
-                                            <label className='task'> {task.Name}</label>
-                                            <input type='number' onChange={(e) => {
-                                            setTaskWeights(e.target.value, task.Index)}} min={0} max={task.MaxPoints}/>
-                                        </li>
-                                    ))}
+                                    {
+                                        tasks.map((task, index) => ( // Add the 'index' parameter here
+                                            <li key={task.Index}>
+                                                <label className='task'> {task.Name}</label>
+                                                <input
+                                                    type='number'
+                                                    onChange={(e) => {
+                                                        setTaskWeights(e.target.value, index); // Pass the index
+                                                    }}
+                                                    min={0}
+                                                    max={task.MaxPoints}
+                                                />
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </nav>
+
                             <button type='submit'>Submit</button>
                         </form>
                     </div>
@@ -85,14 +85,18 @@ const WeightsDistrPage = () => {
             </div>
             <div className="navigation">
                 <div className="left-navigation-part">
-                    <a href="/link">
-                        <button className="previous-page">Back</button>
+                    <a href="">
+                        <button className="previous-page" onClick={(e) => {
+                            e.preventDefault();
+                            history.go(-1);
+                        }}>Back
+                        </button>
                     </a>
                 </div>
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={(e) => logout(e)}>Logout</button>
+                        <button className={'logout'} onClick={(e) => {localStorage.clear()}}>Logout</button>
                     </a>
                 </div>
             </div>

@@ -9,18 +9,16 @@ const ContestDetails = () => {
     const [csvData, setCsvData] = useState('');
     const [submissionsData, setSubmissionsData] = useState('');
     const [loading, setLoading] = useState(true); // Add a loading state
-
-    function logout() {
-        localStorage.setItem('isAuthorized', 'false');
-        localStorage.setItem('userId', null);
-    }
+    const [taskWeights, setWeignts] = localStorage.getItem('weights')
 
     useEffect(() => {
         const fetchContestDetails = async () => {
             try {
                 const queryParams = new URLSearchParams({
-                    groupCode,
-                    contestId,
+                    groupCode: groupCode,
+                    contestId: contestId,
+                    userID: localStorage.getItem('userId'),
+                    weights: taskWeights.replace(',', '-')
                 });
 
                 const response = await fetch(`/api/proceed?${queryParams}`);
@@ -30,8 +28,13 @@ const ContestDetails = () => {
 
                 setGoogleSheetLink(data.googleSheets);
                 setCsvData(data.csv);
-                // setSubmissionsData(data.Submissions);
                 setLoading(false); // Data fetching complete, set loading to false
+
+                if (data.status === 'OK') {
+                    // setSubmissionsData(data.Submissions);
+                } else if (data.status === 'FAILED') {
+                    comment = data.comment;
+                }
             } catch (error) {
                 console.error('Error fetching contest details:', error);
                 setLoading(false); // Set loading to false even if there's an error
@@ -65,8 +68,10 @@ const ContestDetails = () => {
         return <div>Loading...</div>; // Render a loading indicator while data is being fetched
     }
 
+    history.goBack = () => {
+        history.go(-1)
+    };
     return (
-        <body>
         <div className="page-active">
             <div className="wizard">
                 <div className="panel">
@@ -89,19 +94,25 @@ const ContestDetails = () => {
             </div>
             <div className="navigation">
                 <div className="left-navigation-part">
-                    <a href="/groups">
-                        <button className="previous-page">previous page</button>
+                    <a href="">
+                        <button className="previous-page" onClick={(e) => {
+                            e.preventDefault();
+                            history.go(-1);
+                        }}>Back
+                        </button>
                     </a>
                 </div>
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={(e) => logout(e)}>Logout</button>
+                        <button className={'logout'} onClick={(e) => {
+                            localStorage.clear()
+                        }}>Logout
+                        </button>
                     </a>
                 </div>
             </div>
         </div>
-        </body>
     );
 };
 
