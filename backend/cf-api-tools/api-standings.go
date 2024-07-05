@@ -65,3 +65,17 @@ func parseContestStandings(data interface{}) (*DataFromStandings, error) {
 		StartTimeSeconds: int64(startTimeSeconds),
 	}, nil
 }
+
+func formattedStandings(params *CFContestMethodParams) (*DataFromStandings, error) {
+	standings, err := getContestStandings(params)
+	if err != nil {
+		return nil, err
+	}
+
+	dataStandings, err := parseContestStandings(standings)
+	if err != nil {
+		return nil, err
+	}
+
+	return dataStandings, nil
+}

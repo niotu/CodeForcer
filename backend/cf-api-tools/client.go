@@ -15,43 +15,39 @@ var (
 type Client struct {
 	apiKey     string
 	apiSecret  string
-	Handle     string
-	password   string
 	authClient *http.Client
 }
 
-func NewClient(apiKey, apiSecret, handle, password string) (*Client, error) {
-	authClient, err := entities.Login(handle, password)
-	if err != nil {
-		return nil, err
-	}
+func NewClient(apiKey, apiSecret string) (*Client, error) {
+	//authClient, err := entities.Login(handle, password)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return &Client{
-		apiKey:     apiKey,
-		apiSecret:  apiSecret,
-		Handle:     handle,
-		password:   password,
-		authClient: authClient,
+		apiKey:    apiKey,
+		apiSecret: apiSecret,
+		//authClient: authClient,
 	}, nil
 }
 
-func (c *Client) Authenticate() error {
-	if c.authClient == nil || entities.IsCookieExpired(c.authClient) {
-		client, err := entities.Login(c.Handle, c.password)
-		if err != nil {
-			return err
-		}
-		c.authClient = client
-	}
-	return nil
-}
+//func (c *Client) Authenticate() error {
+//	if c.authClient == nil || entities.IsCookieExpired(c.authClient) {
+//		//client, err := entities.Login(c.Handle, c.password)
+//		if err != nil {
+//			return err
+//		}
+//		c.authClient = client
+//	}
+//	return nil
+//}
 
 func (c *Client) GetGroupsList() ([]entities.Group, error) {
 	var err error
 
-	if err = c.Authenticate(); err != nil {
-		return nil, err
-	}
+	//if err = c.Authenticate(); err != nil {
+	//	return nil, err
+	//}
 
 	groups, err := entities.FetchGroups(c.authClient)
 	if err != nil {
@@ -64,9 +60,9 @@ func (c *Client) GetGroupsList() ([]entities.Group, error) {
 func (c *Client) GetContestsList(groupCode string) ([]entities.Contest, error) {
 	var err error
 
-	if err = c.Authenticate(); err != nil {
-		return nil, err
-	}
+	//if err = c.Authenticate(); err != nil {
+	//	return nil, err
+	//}
 
 	contests, err := entities.FetchContests(c.authClient, groupCode)
 	if err != nil {
@@ -80,9 +76,9 @@ func (c *Client) GetSubmissionCode(ch chan entities.SubmissionCodeChanObject,
 	mutex *sync.Mutex, groupCode string, contestId, submissionId int64) error {
 	var err error
 
-	if err = c.Authenticate(); err != nil {
-		return err
-	}
+	//if err = c.Authenticate(); err != nil {
+	//	return err
+	//}
 
 	entities.FetchSubmission(c.authClient, ch, mutex, groupCode, contestId, submissionId)
 	if err != nil {
@@ -90,6 +86,25 @@ func (c *Client) GetSubmissionCode(ch chan entities.SubmissionCodeChanObject,
 	}
 
 	return nil
+}
+
+func (c *Client) GetTasks(groupCode string, contestId int64) ([]*entities.Problem, error) {
+	params := &CFContestMethodParams{
+		GroupCode: groupCode,
+		ContestId: contestId,
+		AsManager: true,
+		ApiKey:    c.apiKey,
+		ApiSecret: c.apiSecret,
+		Time:      time.Now().Unix(),
+		Count:     1,
+	}
+
+	data, err := formattedStandings(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return data.Problems, nil
 }
 
 func (c *Client) GetStatistics(groupCode string, contestId int64, count int, weights []int) (FinalJSONData, error) {

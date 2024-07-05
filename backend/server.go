@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -106,25 +107,25 @@ func validateAndWrite(w http.ResponseWriter, client *cf_api_tools.Client, params
 func setAdminData(w http.ResponseWriter, r *http.Request) {
 	apiKey := r.URL.Query().Get("key")
 	apiSecret := r.URL.Query().Get("secret")
-	handle := r.URL.Query().Get("handle")
-	password := r.URL.Query().Get("password")
+	//handle := r.URL.Query().Get("handle")
+	//password := r.URL.Query().Get("password")
 	//userId := "123"
 	userId := uuid.New().String()
 
 	logger.Logger().Info("Setting admin:",
-		zap.String("Handle", handle),
-		zap.String("Password", password),
+		//zap.String("Handle", handle),
+		//zap.String("Password", password),
 		zap.String("ApiKey", apiKey),
 		zap.String("ApiSecret", apiSecret),
 		zap.String("UserID", userId),
 	)
 
-	if isEmptyParams(apiSecret, apiKey, handle, password) {
+	if isEmptyParams(apiSecret, apiKey) {
 		_, _ = w.Write(statusFailedResponse(EmptyParamsErrorMsg))
 		return
 	}
 
-	client, err := cf_api_tools.NewClient(apiKey, apiSecret, handle, password)
+	client, err := cf_api_tools.NewClient(apiKey, apiSecret)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))
 		return
@@ -151,7 +152,7 @@ func getGroups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Logger().Info("Getting groups:",
-		zap.String("Handle", client.Handle),
+		//zap.String("Key", client.k),
 		zap.String("UserID", userID))
 
 	groups, err := client.GetGroupsList()
@@ -175,7 +176,7 @@ func getContests(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Logger().Info("Getting contests:",
-		zap.String("Handle", client.Handle),
+		//zap.String("Handle", client.Handle),
 		zap.String("UserID", userID),
 		zap.String("GroupCode", groupCode))
 
@@ -189,11 +190,43 @@ func getContests(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
+func getTasks(w http.ResponseWriter, r *http.Request) {
+	userID := r.URL.Query().Get("userID")
+	groupCode := r.URL.Query().Get("groupCode")
+	contestId, errId := strconv.ParseInt(r.URL.Query().Get("contestId"), 10, 64)
+
+	client := getClient(userID)
+
+	if !validateAndWrite(w, client, userID, groupCode, r.URL.Query().Get("contestId")) {
+		return
+	}
+	if errId != nil {
+		_, _ = w.Write(statusFailedResponse("Incorrect contest ID"))
+		return
+	}
+
+	logger.Logger().Info("Getting tasks:",
+		//zap.String("Handle", client.Handle),
+		zap.String("UserID", userID),
+		zap.String("GroupCode", groupCode),
+		zap.Int64("ContestID", contestId))
+
+	data, err := client.GetTasks(groupCode, contestId)
+	if err != nil {
+		_, _ = w.Write(statusFailedResponse(err.Error()))
+		return
+	}
+
+	_, _ = w.Write(statusOKResponse(data))
+
+}
+
 func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("userID")
 	groupCode := r.URL.Query().Get("groupCode")
 	contestId, errId := strconv.ParseInt(r.URL.Query().Get("contestId"), 10, 64)
 	count, errCount := strconv.Atoi(r.URL.Query().Get("count"))
+	weightsString := r.URL.Query().Get("weights")
 	if errCount != nil {
 		count = 0
 	}
@@ -206,14 +239,22 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	if errId != nil {
 		_, _ = w.Write(statusFailedResponse("Incorrect contest ID"))
 	}
+	weightsSplitted := strings.Split(weightsString, "-")
+	var weights []int
+	for _, s := range weightsSplitted {
+		weight, err := strconv.Atoi(s)
+		if err != nil {
+			_, _ = w.Write(statusFailedResponse("Incorrect weights"))
+			return
+		}
+		weights = append(weights, weight)
+	}
 
 	logger.Logger().Info("Proceeding:",
-		zap.String("Handle", client.Handle),
+		//zap.String("Handle", client.Handle),
 		zap.String("UserID", userID),
 		zap.String("GroupCode", groupCode),
 		zap.Int64("ContestID", contestId))
-
-	weights := []int{50, 50} // Assuming weights are fixed for simplicity
 
 	data, err := client.GetStatistics(groupCode, contestId, count, weights)
 	if err != nil {
@@ -249,8 +290,9 @@ func main() {
 	mux.Use(infoLogMiddleware)
 
 	mux.HandleFunc("/api/setAdmin", setAdminData).Methods("GET")
-	mux.HandleFunc("/api/getGroups", getGroups).Methods("GET")
-	mux.HandleFunc("/api/getContests", getContests).Methods("GET")
+	mux.HandleFunc("/api/getTasks", getTasks).Methods("GET")
+	//mux.HandleFunc("/api/getGroups", getGroups).Methods("GET")
+	//mux.HandleFunc("/api/getContests", getContests).Methods("GET")
 	mux.HandleFunc("/api/proceed", proceedProcess).Methods("GET")
 
 	http.Handle("/", mux)
