@@ -14,26 +14,33 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        let id = 0;
+        let status = '';
+
         const queryParams = new URLSearchParams({
             handle,
             password,
             key,
             secret,
         });
-
         const response = await fetch(`/api/setAdmin?${queryParams}`, {
-            method: 'GET'
+            method: 'GET',
+            mode: 'no-cors'
         });
-        let id = 0;
-        let status = await ((response.json()).then(r => r))['status'];
-        if (status === 'OK') {
-            id = await ((response.json()).then(r => r))[id];
+        let resp_json = await ((response.json()).then(r => r));
+        console.log(resp_json);
+        status = resp_json.status;
+        if (response.ok) {
+            id = resp_json.id;
+            console.log(id);
             localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
             localStorage.setItem('userId', id); // Store the user ID in local storage
             navigate('/groups');
+            console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
+            console.log(`** userId is ${localStorage.getItem('userId')}`)
         } else if (status === 'FAILED') {
             alert('Login failed');
-            comment = await ((response.json()).then(r => r))['comment'];
+            comment = await resp_json.comment;
         }
     };
 
@@ -44,9 +51,10 @@ const LoginPage = () => {
         localStorage.setItem('userId', null);
         navigate('/');
     }
+
     console.log('fef')
     return (
-        <div className="page-active"    >
+        <div className="page-active">
             <div className="wizard">
                 <div className="panel">
                     <div className="left-part">

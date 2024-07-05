@@ -5,10 +5,14 @@ const GroupsPage = () => {
     const [groups, setGroups] = useState([]);
 
     useEffect(() => {
+        const queryParams = new URLSearchParams({
+            userID: localStorage.getItem('userId'),
+        });
+        console.log(`** userID for groups ${localStorage.getItem('userId')}`);
         const fetchGroups = async () => {
-            const response = await fetch('/api/getGroups');
+            const response = await fetch(`/api/getGroups?${queryParams}`);
             const data = await response.json();
-            setGroups(data);
+            setGroups(data.result);
             console.log(data);
         };
 
