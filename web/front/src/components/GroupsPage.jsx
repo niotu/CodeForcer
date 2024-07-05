@@ -12,7 +12,10 @@ const GroupsPage = () => {
         const fetchGroups = async () => {
             const response = await fetch(`/api/getGroups?${queryParams}`);
             const data = await response.json();
-            setGroups(data.result);
+            // for (const group of data.result) {
+            //     console.log(group.AccessLevel);
+            // }
+            setGroups(data.result.filter(g => (g.AccessLevel === 'Manager' || g.AccessLevel === 'Менеджер')));
             console.log(data);
         };
 
@@ -31,9 +34,11 @@ const GroupsPage = () => {
                         <nav className="list-view">
                             <ul>
                                 {groups.map(group => (
-                                    <li key={group.GroupCode}><a
-                                        href={`/contests/${group.GroupCode}`}>{group.GroupName}</a></li>
-                                ))}
+                                        <li key={group.GroupCode}><a
+                                            href={`/contests/${group.GroupCode}`}>{group.GroupName}</a></li>
+                                    )
+                                )
+                                }
                             </ul>
                         </nav>
                     </div>

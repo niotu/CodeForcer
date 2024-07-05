@@ -7,11 +7,16 @@ const ContestPage = () => {
     const navigate = useNavigate();
     const [contests, setContests] = useState([]);
 
+    const queryParams = new URLSearchParams({
+            userID: localStorage.getItem('userId'),
+            groupCode: groupCode
+        });
+
     useEffect(() => {
         const fetchContests = async () => {
-            const response = await fetch(`/api/getContests?groupCode=${groupCode}`);
+            const response = await fetch(`/api/getContests?${queryParams}`);
             const data = await response.json();
-            setContests(data);
+            setContests(data.result);
             console.log(data);
         };
 
@@ -38,19 +43,11 @@ const ContestPage = () => {
                                         <a href="#" onClick={() => handleContestClick(contest.Id)}>
                                             {contest.Name}
                                         </a><br/>
-                                        <a href={contest.ContestLink}>{contest.Name} on codeforces</a>
+                                        <a className='link' href={contest.ContestLink}>{contest.Name} on codeforces</a>
                                     </li>
                                 ))}
                             </ul>
                         </nav>
-                    </div>
-                </div>
-                <div className="navigation">
-                    <div className="left-navigation-part">
-                        <button onClick={() => navigate(-1)} className="previous-page">Previous Page</button>
-                    </div>
-                    <div className="right-navigation-part">
-                        <button onClick={() => navigate('/assignment')} className="next-page">Next Page</button>
                     </div>
                 </div>
             </div>
