@@ -3,12 +3,10 @@ import {useNavigate} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const LoginPage = () => {
-    const [handle, setHandle] = useState('');
-    const [password, setPassword] = useState('');
     const [key, setKey] = useState('');
     const [secret, setSecret] = useState('');
     const navigate = useNavigate();
-    let comment = '';
+    let comment = 'here will be comment';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,15 +15,15 @@ const LoginPage = () => {
         let status = '';
 
         const queryParams = new URLSearchParams({
-            handle,
-            password,
             key,
             secret,
         });
+
         const response = await fetch(`/api/setAdmin?${queryParams}`, {
-            method: 'GET',
-            mode: 'no-cors'
+            method: 'GET'
+            // mode: 'no-cors'
         });
+
         let resp_json = await ((response.json()).then(r => r));
         console.log(resp_json);
         status = resp_json.status;
@@ -34,24 +32,31 @@ const LoginPage = () => {
             console.log(id);
             localStorage.setItem('isAuthorized', true); // Store the authorization status in local storage
             localStorage.setItem('userId', id); // Store the user ID in local storage
-            navigate('/groups');
+            navigate('/link');
             console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
             console.log(`** userId is ${localStorage.getItem('userId')}`)
         } else if (status === 'FAILED') {
             alert('Login failed');
-            comment = await resp_json.comment;
+            comment = resp_json.comment;
         }
     };
 
     const [isCorrect, setIsCorrect] = useState(false)
 
-    function logout() {
+    function logout(e) {
+        e.preventDefault()
+        console.log('** logout');
         localStorage.setItem('isAuthorized', 'false');
         localStorage.setItem('userId', null);
-        navigate('/');
     }
 
     console.log('fef')
+
+    function readJson(file) {
+        console.log(file);
+        console.log('file read')
+    }
+
     return (
         <div className="page-active">
             <div className="wizard">
@@ -60,15 +65,16 @@ const LoginPage = () => {
                         <h1>Login to CodeForces</h1>
                     </div>
                     <div className="right-part">
-                        <form onSubmit={handleSubmit}>
-                            <label htmlFor="handle">Handle:</label>
-                            <input type="text" id="handle" value={handle} onChange={(e) => setHandle(e.target.value)}
-                                   required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                        <form onSubmit={handleSubmit} autoComplete='on'>
+                            {/*<label htmlFor="handle">Handle:</label>*/}
+                            {/*<input type="text" id="handle" value={handle} onChange={(e) => setHandle(e.target.value)}*/}
+                            {/*       required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>*/}
 
-                            <label htmlFor="password">Password:</label>
-                            <input type="password" id="password" value={password}
-                                   onChange={(e) => setPassword(e.target.value)} required
-                                   className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                            {/*<label htmlFor="password">Password:</label>*/}
+                            {/*<input type="password" id="password" value={password}*/}
+                            {/*       onChange={(e) => setPassword(e.target.value)} required*/}
+                            {/*       className={isCorrect ? 'correct' : 'incorrect'}*/}
+                            {/*       autoComplete='current-password'/><br/><br/>*/}
 
                             <label htmlFor="key">Key:</label>
                             <input type="password" id="key" value={key} onChange={(e) => setKey(e.target.value)}
@@ -78,14 +84,22 @@ const LoginPage = () => {
                             <input type="password" id="secret" value={secret}
                                    onChange={(e) => setSecret(e.target.value)}
                                    required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
-
                             <button type="submit">Submit</button>
                         </form>
                     </div>
                 </div>
-                <p>{comment}</p>
             </div>
-            <button className={'logout'} onSubmit={(e) => logout()}>Logout</button>
+            <div className="navigation">
+                <div className="left-navigation-part">
+
+                </div>
+                <p>{comment}</p>
+                <div className="right-navigation-part">
+                    <a href="/">
+                        <button className={'logout'} onClick={(e) => logout(e)}>Logout</button>
+                    </a>
+                </div>
+            </div>
         </div>
     );
 };

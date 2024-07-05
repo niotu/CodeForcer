@@ -1,8 +1,7 @@
 import React from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import LoginPage from './components/LoginPage.jsx';
-import GroupsPage from './components/GroupsPage.jsx';
-import ContestsPage from './components/ContestsPage.jsx';
+import LinkPage from './components/LinkPage.jsx';
 import ContestDetails from './components/ContestDetails.jsx';
 import WeightsDistrPage from "./components/WeightsDistrPage.jsx";
 
@@ -15,9 +14,8 @@ const App = () => {
 
                 {/* Protected Routes (with Redirection) */}
                 {localStorage.getItem('isAuthorized') &&
-                    <Route path="/groups" element={<GroupsPage/>}/>}
-                {localStorage.getItem('isAuthorized') &&
-                    <Route path="/contests/:groupCode" element={<ContestsPage/>}/>}
+                    <Route path="/link" element={<LinkPage/>}/>}
+
                 {localStorage.getItem('isAuthorized') &&
                     <Route path="/contest-details/:groupCode/:contestId" element={<ContestDetails/>}/>}
                 {localStorage.getItem('isAuthorized') &&

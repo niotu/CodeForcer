@@ -35,8 +35,9 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    margin: calc(23vh) auto;
+    margin: calc(17vh) auto;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -53,7 +54,8 @@ body {
     display: flex;
     flex-direction: column;
     width: 70%;
-    min-height: 50vh;
+    min-height: 60vh;
+    /*max-height: 50vh;*/
     margin: auto;
     padding: 20px;
 }
@@ -73,8 +75,8 @@ body {
 
 /* Navigation layout */
 .navigation {
-    position: absolute;
-    width: 100%;
+    position: relative;
+    width: 70%;
     bottom: 0;
     display: flex;
     flex-direction: row;
@@ -84,6 +86,7 @@ body {
 
 /* Navigation buttons */
 .navigation button {
+    font-size: 1.4vw;
     padding: 10px 20px;
     border-radius: 25px;
     background-color: #4F63CB; /* Dark blue */
@@ -120,7 +123,10 @@ body {
 /* Left and right navigation parts */
 .left-navigation-part,
 .right-navigation-part {
-    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 30%;
     text-align: center;
 }
 
@@ -149,6 +155,7 @@ input {
     border: 1px solid #ccc;
 }
 
+
 /* List view styles */
 .list-view {
     width: 100%;
@@ -164,7 +171,7 @@ input {
 }
 
 .list-view li {
-    background-color: #717171; /* Dark grey */
+    background-color: #4F63CB; /* Dark grey */
     color: white;
     border-radius: 25px;
     padding: 10px;
@@ -181,6 +188,13 @@ input {
     text-decoration: underline;
 }
 
+.list-view#distribution-form li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
 /* Contest details styles */
 .right-part {
     display: flex;
@@ -194,7 +208,7 @@ input {
 
 .right-part a {
     color: #4F63CB; /* Dark blue for links */
-    text-decoration: none;
+    /*text-decoration: none;*/
     margin-bottom: 10px;
 }
 
@@ -203,6 +217,7 @@ input {
 }
 
 .right-part button {
+    font-size: 1.4vw;
     margin-top: 10px;
     padding: 10px 20px;
     border-radius: 25px;
@@ -220,6 +235,7 @@ input {
 @media (max-width: 768px) {
     .wizard {
         width: 90%;
+        max-height: 50vh;
     }
 
     h1 {

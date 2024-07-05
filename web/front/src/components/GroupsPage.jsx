@@ -4,6 +4,12 @@ import './styles.css';
 
 const GroupsPage = () => {
     const [groups, setGroups] = useState([]);
+    let comment = 'here will be comment';
+
+    function logout() {
+        localStorage.setItem('isAuthorized', 'false');
+        localStorage.setItem('userId', null);
+    }
     // const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,6 +24,9 @@ const GroupsPage = () => {
             //     console.log(group.AccessLevel);
             // }
             setGroups(data.result.filter(g => (g.AccessLevel === 'Manager' || g.AccessLevel === 'Менеджер')));
+            if (groups.length === 0) {
+                comment = 'You have no groups';
+            }
             console.log(data);
         };
 
@@ -44,6 +53,19 @@ const GroupsPage = () => {
                             </ul>
                         </nav>
                     </div>
+                </div>
+            </div>
+            <div className="navigation">
+                <div className="left-navigation-part">
+                    <a href="/">
+                        <button className="previous-page">previous page</button>
+                    </a>
+                </div>
+                <p>{comment}</p>
+                <div className="right-navigation-part">
+                    <a href="/">
+                        <button className={'logout'} onSubmit={(e) => logout()}>Logout</button>
+                    </a>
                 </div>
             </div>
         </div>

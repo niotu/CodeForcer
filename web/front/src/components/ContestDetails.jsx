@@ -3,11 +3,17 @@ import {useParams} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const ContestDetails = () => {
+    let comment = 'Congratulations!'
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const [googleSheetLink, setGoogleSheetLink] = useState('');
     const [csvData, setCsvData] = useState('');
     const [submissionsData, setSubmissionsData] = useState('');
     const [loading, setLoading] = useState(true); // Add a loading state
+
+    function logout() {
+        localStorage.setItem('isAuthorized', 'false');
+        localStorage.setItem('userId', null);
+    }
 
     useEffect(() => {
         const fetchContestDetails = async () => {
@@ -79,6 +85,19 @@ const ContestDetails = () => {
                             <button onClick={downloadSubmissions}>Download Submissions</button>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div className="navigation">
+                <div className="left-navigation-part">
+                    <a href="/groups">
+                        <button className="previous-page">previous page</button>
+                    </a>
+                </div>
+                <p>{comment}</p>
+                <div className="right-navigation-part">
+                    <a href="/">
+                        <button className={'logout'} onClick={(e) => logout(e)}>Logout</button>
+                    </a>
                 </div>
             </div>
         </div>
