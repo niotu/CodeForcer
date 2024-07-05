@@ -14,25 +14,14 @@ const App = () => {
                 <Route path="/" element={<LoginPage/>}/>
 
                 {/* Protected Routes (with Redirection) */}
-                {localStorage.getItem('isAuthorized') ? (
-                    <Route path="/groups" element={<GroupsPage/>}/>) : (
-                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
-                )}
-                {localStorage.getItem('isAuthorized')? (
-                    <Route path="/contests/:groupCode" element={<ContestsPage/>}/>) : (
-                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
-                )}
-                {localStorage.getItem('isAuthorized') ? (
-                    <Route path="/contests/:groupCode/:contestId" element={<ContestDetails/>}/>) : (
-                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
-                )}
-                {localStorage.getItem('isAuthorized') ? (
-                    <Route
-                        path="/weightsDistr/:GroupCode/:contestId"
-                        element={<WeightsDistrPage/>}
-                    />) : (
-                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
-                )}
+                {localStorage.getItem('isAuthorized') && (
+                    <Route path="/groups" element={<GroupsPage/>}/>)}
+                {localStorage.getItem('isAuthorized') && (
+                    <Route path="/contests/:groupCode" element={<ContestsPage/>}/>)}
+                {localStorage.getItem('isAuthorized') && (
+                    <Route path="/contests/:groupCode/:contestId" element={<ContestDetails/>}/>)}
+                {localStorage.getItem('isAuthorized') &&
+                    <Route path="/weights-distribution/:groupCode/:contestId" element={<WeightsDistrPage/>}/>}
             </Routes>
         </Router>
     );
