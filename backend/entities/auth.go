@@ -2,7 +2,8 @@ package entities
 
 import (
 	"errors"
-	"fmt"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
+	"go.uber.org/zap"
 	"io"
 	"math/rand"
 	"net/http"
@@ -10,14 +11,18 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 )
+
+var LoginFailed = errors.New("login failed: try later")
 
 // generateCSRFToken fetches the CSRF token from the login page
 func generateCSRFToken(body []byte) (string, error) {
 	reg := regexp.MustCompile(`csrf='(.+?)'`)
 	matches := reg.FindSubmatch(body)
 	if len(matches) < 2 {
-		return "", errors.New("Cannot find CSRF token")
+		logger.Error(errors.New("cannot find CSRF token"))
+		return "", errors.New("authorization cannot be proceeded, please, try later")
 	}
 	return string(matches[1]), nil
 }
@@ -46,18 +51,18 @@ func RandString(n int) string {
 func findHandle(body []byte) (string, error) {
 	reg := regexp.MustCompile(`handle = "([\s\S]+?)"`)
 
-	//fmt.Println("auth.go/findHandle: ", string(body))
-
 	matches := reg.FindSubmatch(body)
 	if len(matches) < 2 {
-		return "", errors.New("Not logged in")
+		return "", errors.New("login failed: incorrect handle or password, try later")
 	}
 	return string(matches[1]), nil
 }
 
 // Login logs into Codeforces and returns an authenticated HTTP client
 func Login(handle, password string) (*http.Client, error) {
-	fmt.Println("login process:\n")
+	logger.Logger().Info("Login process...",
+		zap.String("Handle", handle))
+
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{
 		Jar: jar,
@@ -66,13 +71,14 @@ func Login(handle, password string) (*http.Client, error) {
 	loginURL := "https://codeforces.com/enter"
 	resp, err := client.Get(loginURL)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil, LoginFailed
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, LoginFailed
 	}
 
 	csrfToken, err := generateCSRFToken(body)
@@ -95,27 +101,51 @@ func Login(handle, password string) (*http.Client, error) {
 
 	req, err := http.NewRequest("POST", loginURL, strings.NewReader(form.Encode()))
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil, LoginFailed
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Referer", loginURL)
 
 	loginResp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil, LoginFailed
 	}
 	defer loginResp.Body.Close()
 
 	loginBody, err := io.ReadAll(loginResp.Body)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil, LoginFailed
 	}
 
-	handle, err = findHandle(loginBody)
+	_, err = findHandle(loginBody)
 	if err != nil {
+		logger.Logger().Error(err.Error(), zap.String("handle", handle))
 		return nil, err
 	}
 
-	fmt.Printf("Login successful. Welcome, %s!\n", handle)
+	logger.Logger().Info("Login success: ", zap.String("handle", handle))
 	return client, nil
+}
+
+func IsCookieExpired(client *http.Client) bool {
+	jar := client.Jar
+	if jar == nil {
+		return true
+	}
+
+	// Get all cookies for the codeforces domain
+	u, _ := url.Parse("https://codeforces.com")
+	cookies := jar.Cookies(u)
+
+	// Check if any cookie is expired
+	for _, cookie := range cookies {
+		// If a cookie has an expiration date and it's before now, consider it expired
+		if !cookie.Expires.IsZero() && cookie.Expires.Before(time.Now()) {
+			return true
+		}
+	}
+	return false
 }

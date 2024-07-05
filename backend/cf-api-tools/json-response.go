@@ -2,7 +2,6 @@ package cf_api_tools
 
 import (
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
-	"log"
 )
 
 type FinalJSONData struct {
@@ -12,11 +11,15 @@ type FinalJSONData struct {
 	GoogleSheets string             `json:"googleSheets"`
 }
 
-func parseAndFormEntities(params *CFContestMethodParams) *FinalJSONData {
-	standings := getContestStandings(params)
+func parseAndFormEntities(params *CFContestMethodParams, weights []int) (*FinalJSONData, error) {
+	standings, err := getContestStandings(params)
+	if err != nil {
+		return nil, err
+	}
+
 	dataStandings, err := parseContestStandings(standings)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 
 	dataStatus := &DataFromStatus{
@@ -28,14 +31,18 @@ func parseAndFormEntities(params *CFContestMethodParams) *FinalJSONData {
 		dataStatus.ProblemMaxPoints[problem.Index] = 0.0
 	}
 
-	status := getContestStatus(params)
-	dataStatus, err = parseContestStatus(status, dataStatus, dataStandings)
+	status, err := getContestStatus(params)
+	if err != nil {
+		return nil, err
+	}
+	dataStatus, err = parseContestStatus(status, dataStatus, dataStandings, LastSolutionMode)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, problem := range dataStandings.Problems {
 		problem.MaxPoints = dataStatus.ProblemMaxPoints[problem.Index]
 	}
-
-	//ProblemListToJSON(dataStandings.Problems)
 
 	var u []entities.User
 	for _, v := range dataStatus.Users {
@@ -59,9 +66,9 @@ func parseAndFormEntities(params *CFContestMethodParams) *FinalJSONData {
 
 	sheetURL, err := MakeGoogleSheet(dataStandings.Name, csvHeaders, csvData)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	finalJsonData.GoogleSheets = sheetURL
 
-	return &finalJsonData
+	return &finalJsonData, nil
 }

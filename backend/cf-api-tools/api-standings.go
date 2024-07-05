@@ -2,11 +2,8 @@ package cf_api_tools
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
-	"log"
-	"strings"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 )
 
 type DataFromStandings struct {
@@ -16,21 +13,22 @@ type DataFromStandings struct {
 	StartTimeSeconds int64
 }
 
-func getContestStandings(params *CFContestMethodParams) interface{} {
-	api := NewApiRequest(CONTEST_STANDINGS, params)
+func getContestStandings(params *CFContestMethodParams) (interface{}, error) {
+	api := NewApiRequest(ContestStandings, params)
 
 	resp, err := api.MakeApiRequest()
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 
 	var data interface{}
 	err = json.Unmarshal(resp, &data)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
+		return nil, ApiRequestError
 	}
 
-	return data
+	return data, nil
 }
 
 func parseContestStandings(data interface{}) (*DataFromStandings, error) {
@@ -39,14 +37,9 @@ func parseContestStandings(data interface{}) (*DataFromStandings, error) {
 	if resp := data.(map[string]interface{}); resp["status"].(string) == "FAILED" {
 		comment := resp["comment"].(string)
 
-		errorMsg := ""
-
-		if strings.Contains(comment, "asManager") {
-			errorMsg = "You are not the manager of contest or group. Be sure that on the page of contest you selected the following:\n" +
-				"Administration (block on the right) -> Enable manager mode."
+		if err := checkResponseError(comment); err != nil {
+			return nil, err
 		}
-
-		return nil, errors.New(errorMsg)
 	}
 
 	result := data.(map[string]interface{})["result"].(map[string]interface{})
@@ -64,9 +57,6 @@ func parseContestStandings(data interface{}) (*DataFromStandings, error) {
 	name := contest["name"].(string)
 	durationSeconds := contest["durationSeconds"].(float64)
 	startTimeSeconds := contest["startTimeSeconds"].(float64)
-
-	// test
-	fmt.Println(problems)
 
 	return &DataFromStandings{
 		Name:             name,
