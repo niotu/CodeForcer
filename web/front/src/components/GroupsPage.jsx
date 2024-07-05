@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import './styles.css'; // Import the provided CSS file
+import {useNavigate} from "react-router-dom"; // Import the provided CSS file
+import './styles.css';
 
 const GroupsPage = () => {
     const [groups, setGroups] = useState([]);
+    // const navigate = useNavigate();
 
     useEffect(() => {
         const queryParams = new URLSearchParams({
