@@ -1,12 +1,10 @@
 package entities
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"log"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -24,6 +22,8 @@ type Contest struct {
 	Problems         []Problem
 }
 
+var FetchContestsFailed = fmt.Errorf("failed to fetch contests, please, try later")
+
 // FetchContests fetches the contests of the current group
 func FetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 	groupURL := "https://codeforces.com/group/" + groupCode
@@ -31,24 +31,28 @@ func FetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 	contestsURL := groupURL + "/contests"
 	req, err := http.NewRequest("GET", contestsURL, nil)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil, FetchContestsFailed
 	}
 	defer resp.Body.Close()
 
 	// Check if response status is OK
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch groups, status code: %d", resp.StatusCode)
+		logger.Error(fmt.Errorf("fetch contests status code: %d", resp.StatusCode))
+		return nil, FetchGroupsFailed
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil, FetchContestsFailed
 	}
 
 	var contests []Contest
@@ -89,16 +93,4 @@ func FetchContests(client *http.Client, groupCode string) ([]Contest, error) {
 	})
 
 	return contests, nil
-}
-
-func ContestListToJSON(contests []Contest) []byte {
-	data, err := json.Marshal(contests)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	file, _ := os.OpenFile("contests.json", os.O_CREATE|os.O_TRUNC, 0606)
-	file.Write(data)
-
-	return data
 }

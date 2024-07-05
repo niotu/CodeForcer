@@ -3,9 +3,7 @@ package cf_api_tools
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
-	"log"
 	"strings"
 )
 
@@ -14,38 +12,58 @@ type DataFromStatus struct {
 	Users            map[string]*entities.User
 }
 
-func getContestStatus(params *CFContestMethodParams) interface{} {
-	api := NewApiRequest(CONTEST_STATUS, params)
-	fmt.Println(api.ApiSig.Rand, params.Time)
+const (
+	BestSolutionMode = "best"
+	LastSolutionMode = "last"
+)
+
+func checkResponseError(comment string) error {
+	errorMsg := ""
+
+	if strings.Contains(comment, "Incorrect API key") {
+		errorMsg = "Incorrect API key"
+	} else if strings.Contains(comment, "asManager") || strings.Contains(comment, "Incorrect signature") {
+		errorMsg = "Incorrect API secret, please check it on the settings page\n"
+		errorMsg += "\tOR\n"
+		errorMsg += "You are not the manager of the contest. Be sure that on the page of contest you selected the following:\n" +
+			"Administration (block on the right) -> Enable manager mode."
+	} else {
+		return nil
+	}
+
+	return errors.New(errorMsg)
+}
+
+func getContestStatus(params *CFContestMethodParams) (interface{}, error) {
+	api := NewApiRequest(ContestStatus, params)
 
 	resp, err := api.MakeApiRequest()
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
 	var data interface{}
 	err = json.Unmarshal(resp, &data)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 
-	return data
+	return data, nil
 }
 
-func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandings *DataFromStandings) (*DataFromStatus, error) {
+func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandings *DataFromStandings, mode string) (*DataFromStatus, error) {
 	db := make(map[string]*entities.User)
+
+	if mode != LastSolutionMode && mode != BestSolutionMode {
+		return nil, errors.New("incorrect mode")
+	}
 
 	if resp := data.(map[string]interface{}); resp["status"].(string) == "FAILED" {
 		comment := resp["comment"].(string)
 
-		errorMsg := ""
-
-		if strings.Contains(comment, "asManager") {
-			errorMsg = "You are not the manager of contest or group. Be sure that on the page of contest you selected the following:\n" +
-				"Administration (block on the right) -> Enable manager mode."
+		if err := checkResponseError(comment); err != nil {
+			return nil, err
 		}
-
-		return nil, errors.New(errorMsg)
 	}
 
 	result := data.(map[string]interface{})["result"].([]interface{})
@@ -58,6 +76,7 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 		submissionJson := resultElem.(map[string]interface{})
 
 		username := submissionJson["author"].(map[string]interface{})["members"].([]interface{})[0].(map[string]interface{})["handle"].(string)
+
 		problemIdx := submissionJson["problem"].(map[string]interface{})["index"].(string)
 
 		//go fetchSubmission(nil)
@@ -79,12 +98,15 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 				Solutions: submissions,
 			}
 		}
-		if s, _ := db[username].Solutions[problemIdx]; s.SubmissionId == -1 {
-			_, exists := submissionJson["points"]
-			submissionPoints := 0.0
-			if exists {
-				submissionPoints = submissionJson["points"].(float64)
-			}
+
+		_, exists := submissionJson["points"]
+		submissionPoints := 0.0
+		if exists {
+			submissionPoints = submissionJson["points"].(float64)
+		}
+
+		if s, _ := db[username].Solutions[problemIdx]; s.SubmissionId == -1 || (mode == BestSolutionMode &&
+			submissionPoints > db[username].Solutions[problemIdx].Points) {
 
 			problemVerdict := submissionJson["verdict"].(string)
 			if value := dataStatus.ProblemMaxPoints[problemIdx]; problemVerdict == "OK" && value == 0.0 {
@@ -95,8 +117,6 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 
 			db[username].Solutions[problemIdx].Points = submissionPoints
 			db[username].Solutions[problemIdx].SubmissionId = id
-
-			//db[username].Solutions[problemIdx].Solution = go entities.FetchSubmission(cf, groupCode, contestId, id)
 		}
 	}
 

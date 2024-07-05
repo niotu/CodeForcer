@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/googlesheets"
-	"log"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"sort"
 	"strconv"
 	"strings"
@@ -15,7 +15,7 @@ import (
 func EntitiesToJSON[T any](jsonData T) []byte {
 	data, err := json.Marshal(jsonData)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 
 	return data
@@ -29,9 +29,11 @@ func MakeCSVFile(data FinalJSONData, headers []string) (*bytes.Buffer, [][]strin
 	writer := csv.NewWriter(buff)
 	writer.Comma = ';'
 
-	writer.Write(headers)
+	_ = writer.Write(headers)
 
 	var rows [][]string
+
+	count := 1
 
 	for _, user := range data.Users {
 		var comment []string
@@ -45,16 +47,17 @@ func MakeCSVFile(data FinalJSONData, headers []string) (*bytes.Buffer, [][]strin
 			if id == -1 {
 				comment = append(comment, fmt.Sprintf("%s: %d (no submission)", idx, 0))
 			} else {
-				comment = append(comment, fmt.Sprintf("%s: %d;", idx, int(submission.Points)))
+				comment = append(comment, fmt.Sprintf("%s: %d", idx, int(submission.Points)))
 			}
 		}
 
 		sort.Strings(comment)
 
-		row := []string{user.Handle, strconv.Itoa(int(points)), strings.Join(comment, ", ")}
+		row := []string{fmt.Sprintf("User%d", count), strconv.Itoa(int(points)), strings.Join(comment, "; ")}
 		rows = append(rows, row)
+		count++
 
-		writer.Write(row)
+		_ = writer.Write(row)
 	}
 
 	writer.Flush()
@@ -63,19 +66,25 @@ func MakeCSVFile(data FinalJSONData, headers []string) (*bytes.Buffer, [][]strin
 }
 
 func MakeGoogleSheet(name string, headers []string, data [][]string) (string, error) {
-	_, err := googlesheets.CreateSpreadsheet(name)
+	ss, err := googlesheets.CreateSpreadsheet(name, "ramazanatzuf10@gmail.com")
 	if err != nil {
 		return "", err
 	}
 
-	googlesheets.WriteHeaders(googlesheets.ToInterfaceSlice(headers))
+	err = ss.WriteHeaders(googlesheets.ToInterfaceSlice(headers))
+	if err != nil {
+		return "", err
+	}
 
 	var rows [][]interface{}
 	for _, row := range data {
 		rows = append(rows, googlesheets.ToInterfaceSlice(row))
 	}
 
-	googlesheets.WriteData(rows)
+	err = ss.WriteData(rows)
+	if err != nil {
+		return "", err
+	}
 
-	return googlesheets.GetSpreadsheetURL(), nil
+	return ss.GetSpreadsheetURL(), nil
 }

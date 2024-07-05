@@ -2,98 +2,97 @@ package cf_api_tools
 
 import (
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
-	"log"
 	"net/http"
 	"sync"
 	"time"
 )
 
 var (
-	CONTEST_STATUS    = "contest.status"
-	CONTEST_STANDINGS = "contest.standings"
+	ContestStatus    = "contest.status"
+	ContestStandings = "contest.standings"
 )
 
 type Client struct {
-	apiKey    string
-	apiSecret string
-	handle    string
-	password  string
+	apiKey     string
+	apiSecret  string
+	Handle     string
+	password   string
+	authClient *http.Client
 }
 
-func NewClient() *Client {
-	return &Client{}
+func NewClient(apiKey, apiSecret, handle, password string) (*Client, error) {
+	authClient, err := entities.Login(handle, password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{
+		apiKey:     apiKey,
+		apiSecret:  apiSecret,
+		Handle:     handle,
+		password:   password,
+		authClient: authClient,
+	}, nil
 }
 
-func (c *Client) SetApiKey(apiKey string) {
-	c.apiKey = apiKey
+func (c *Client) Authenticate() error {
+	if c.authClient == nil || entities.IsCookieExpired(c.authClient) {
+		client, err := entities.Login(c.Handle, c.password)
+		if err != nil {
+			return err
+		}
+		c.authClient = client
+	}
+	return nil
 }
 
-func (c *Client) SetApiSecret(apiSecret string) {
-	c.apiSecret = apiSecret
-}
-
-func (c *Client) SetHandle(handle string) {
-	c.handle = handle
-}
-
-func (c *Client) SetPassword(password string) {
-	c.password = password
-}
-
-func (c *Client) GetGroupsList(client *http.Client) ([]entities.Group, *http.Client) {
+func (c *Client) GetGroupsList() ([]entities.Group, error) {
 	var err error
 
-	if client == nil {
-		client, err = entities.Login(c.handle, c.password)
-		if err != nil {
-			log.Printf("Login failed: %v", err)
-		}
+	if err = c.Authenticate(); err != nil {
+		return nil, err
 	}
 
-	groups, err := entities.FetchGroups(client)
+	groups, err := entities.FetchGroups(c.authClient)
 	if err != nil {
-		log.Printf("Failed to fetch groups: %v", err)
+		return nil, err
 	}
 
-	return groups, client
+	return groups, nil
 }
 
-func (c *Client) GetContestsList(client *http.Client, groupCode string) ([]entities.Contest, *http.Client) {
+func (c *Client) GetContestsList(groupCode string) ([]entities.Contest, error) {
 	var err error
 
-	if client == nil {
-		client, err = entities.Login(c.handle, c.password)
-		if err != nil {
-			log.Printf("Login failed: %v", err)
-		}
+	if err = c.Authenticate(); err != nil {
+		return nil, err
 	}
 
-	contests, err := entities.FetchContests(client, groupCode)
+	contests, err := entities.FetchContests(c.authClient, groupCode)
 	if err != nil {
-		log.Printf("Failed to fetch groups: %v", err)
+		return nil, err
 	}
 
-	return contests, client
+	return contests, nil
 }
 
-func (c *Client) GetSubmissionCode(client *http.Client, ch chan entities.SubmissionCodeChanObject,
-	mutex *sync.Mutex, groupCode string, contestId, submissionId int64) {
+func (c *Client) GetSubmissionCode(ch chan entities.SubmissionCodeChanObject,
+	mutex *sync.Mutex, groupCode string, contestId, submissionId int64) error {
 	var err error
 
-	if client == nil {
-		client, err = entities.Login(c.handle, c.password)
-		if err != nil {
-			log.Fatalf("Login failed: %v", err)
-		}
+	if err = c.Authenticate(); err != nil {
+		return err
 	}
 
-	entities.FetchSubmission(client, ch, mutex, groupCode, contestId, submissionId)
+	entities.FetchSubmission(c.authClient, ch, mutex, groupCode, contestId, submissionId)
 	if err != nil {
-		log.Printf("Failed to fetch submission: %v", err)
+		return err
 	}
+
+	return nil
 }
 
-func (c *Client) GetStatistics(client *http.Client, groupCode string, contestId int64, count int, weights []int) []byte {
+func (c *Client) GetStatistics(groupCode string, contestId int64, count int, weights []int) (FinalJSONData, error) {
 	params := &CFContestMethodParams{
 		GroupCode: groupCode,
 		ContestId: contestId,
@@ -104,7 +103,10 @@ func (c *Client) GetStatistics(client *http.Client, groupCode string, contestId 
 		Count:     count,
 	}
 
-	finalData := parseAndFormEntities(params)
+	finalData, err := parseAndFormEntities(params, weights)
+	if err != nil {
+		return FinalJSONData{}, err
+	}
 
 	//submissionCodeChan := make(map[int64]chan entities.SubmissionCodeChanObject)
 
@@ -115,7 +117,7 @@ func (c *Client) GetStatistics(client *http.Client, groupCode string, contestId 
 
 	//var err error
 	//if client == nil {
-	//	client, err = entities.Login(c.handle, c.password)
+	//	client, err = entities.Login(c.Handle, c.password)
 	//	if err != nil {
 	//		log.Fatalf("Login failed: %v", err)
 	//	}
@@ -156,6 +158,6 @@ func (c *Client) GetStatistics(client *http.Client, groupCode string, contestId 
 	//	}
 	//}
 
-	return EntitiesToJSON(finalData)
+	return *finalData, nil
 
 }

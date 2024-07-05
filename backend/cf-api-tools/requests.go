@@ -5,10 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/go-querystring/query"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/url"
 )
+
+var ApiRequestError = errors.New("an error occured, please, re-try later")
 
 type RequestParams interface {
 	GetKey() string
@@ -22,7 +26,6 @@ type ApiRequest struct {
 }
 
 func NewApiRequest(method string, params RequestParams) *ApiRequest {
-
 	return &ApiRequest{
 		Method: method,
 		Params: params,
@@ -47,8 +50,6 @@ func (a *ApiRequest) GetApiSigHash() string {
 	sha := sha512.New()
 	sha.Write([]byte(res))
 
-	fmt.Printf("%x\n", sha.Sum(nil))
-
 	return fmt.Sprintf("%x", sha.Sum(nil))
 }
 
@@ -57,7 +58,7 @@ func (a *ApiRequest) GetApiSig() string {
 }
 
 func (a *ApiRequest) MakeApiRequest() ([]byte, error) {
-	if a.Method != CONTEST_STATUS && a.Method != CONTEST_STANDINGS {
+	if a.Method != ContestStatus && a.Method != ContestStandings {
 		return nil, errors.New("no such api request method")
 	}
 
@@ -69,18 +70,22 @@ func (a *ApiRequest) MakeApiRequest() ([]byte, error) {
 
 	u.RawQuery = params.Encode()
 
-	fmt.Println(u.String())
-
 	resp, err := http.Get(u.String())
 	if err != nil {
-		return nil, err
+		logger.Logger().Error("Failed CF API request.",
+			zap.String("URL", u.String()))
+		return nil, ApiRequestError
 	}
+
+	logger.Logger().Info("Successful CF API request.",
+		zap.String("URL", u.String()))
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil, ApiRequestError
 	}
 
 	return body, nil
