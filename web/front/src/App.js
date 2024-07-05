@@ -1,5 +1,5 @@
 import React from 'react';
-import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import LoginPage from './components/LoginPage.jsx';
 import GroupsPage from './components/GroupsPage.jsx';
 import ContestsPage from './components/ContestsPage.jsx';
@@ -14,24 +14,24 @@ const App = () => {
                 <Route path="/" element={<LoginPage/>}/>
 
                 {/* Protected Routes (with Redirection) */}
-                {localStorage.getItem('isAuthorized') === false ? (
-                    <>
-                        <Route path="/groups" element={<GroupsPage/>}/>
-                        <Route path="/contests/:groupCode" element={<ContestsPage/>}/>
-                        <Route
-                            path="/contest-details/:groupCode/:contestId"
-                            element={<ContestDetails/>}
-                        />
-                        <Route
-                            path="/weightsDistr/:GroupCode/:contestId"
-                            element={<WeightsDistrPage/>}
-                        />
-                    </>
-                ) : (
+                {localStorage.getItem('isAuthorized') ? (
+                    <Route path="/groups" element={<GroupsPage/>}/>) : (
+                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
+                )}
+                {localStorage.getItem('isAuthorized')? (
+                    <Route path="/contests/:groupCode" element={<ContestsPage/>}/>) : (
+                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
+                )}
+                {localStorage.getItem('isAuthorized') ? (
+                    <Route path="/contests/:groupCode/:contestId" element={<ContestDetails/>}/>) : (
+                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
+                )}
+                {localStorage.getItem('isAuthorized') ? (
                     <Route
-                        path="*" // Catch-all route for unauthorized access
-                        element={<Navigate to="/" replace={true}/>} // Redirect to the default route
-                    />
+                        path="/weightsDistr/:GroupCode/:contestId"
+                        element={<WeightsDistrPage/>}
+                    />) : (
+                    <Route path="/" element={<LoginPage/>}/> // Redirect to the default route
                 )}
             </Routes>
         </Router>

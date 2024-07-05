@@ -3,7 +3,6 @@ import {useNavigate} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const LoginPage = () => {
-    localStorage.setItem('isAuthorized', false);
     const [handle, setHandle] = useState('');
     const [password, setPassword] = useState('');
     const [key, setKey] = useState('');
@@ -30,10 +29,10 @@ const LoginPage = () => {
         let resp_json = await ((response.json()).then(r => r));
         console.log(resp_json);
         status = resp_json.status;
-        if (response.ok) {
+        if (status === 'OK') {
             id = resp_json.id;
             console.log(id);
-            localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
+            localStorage.setItem('isAuthorized', true); // Store the authorization status in local storage
             localStorage.setItem('userId', id); // Store the user ID in local storage
             navigate('/groups');
             console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
@@ -84,6 +83,7 @@ const LoginPage = () => {
                         </form>
                     </div>
                 </div>
+                <p>{comment}</p>
             </div>
             <button className={'logout'} onSubmit={(e) => logout()}>Logout</button>
         </div>
