@@ -14,12 +14,12 @@ const App = () => {
                 <Route path="/" element={<LoginPage/>}/>
 
                 {/* Protected Routes (with Redirection) */}
-                {localStorage.getItem('isAuthorized') && (
-                    <Route path="/groups" element={<GroupsPage/>}/>)}
-                {localStorage.getItem('isAuthorized') && (
-                    <Route path="/contests/:groupCode" element={<ContestsPage/>}/>)}
-                {localStorage.getItem('isAuthorized') && (
-                    <Route path="/contests/:groupCode/:contestId" element={<ContestDetails/>}/>)}
+                {localStorage.getItem('isAuthorized') &&
+                    <Route path="/groups" element={<GroupsPage/>}/>}
+                {localStorage.getItem('isAuthorized') &&
+                    <Route path="/contests/:groupCode" element={<ContestsPage/>}/>}
+                {localStorage.getItem('isAuthorized') &&
+                    <Route path="/contest-details/:groupCode/:contestId" element={<ContestDetails/>}/>}
                 {localStorage.getItem('isAuthorized') &&
                     <Route path="/weights-distribution/:groupCode/:contestId" element={<WeightsDistrPage/>}/>}
             </Routes>
