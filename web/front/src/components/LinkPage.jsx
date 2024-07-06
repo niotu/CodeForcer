@@ -99,7 +99,11 @@ const LinkPage = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={(e) => {localStorage.clear()}}>Logout</button>
+                        <button className={'logout'} onClick={() => {
+                            localStorage.clear();
+                            sessionStorage.clear();
+                        }}>Logout
+                        </button>
                     </a>
                 </div>
             </div>

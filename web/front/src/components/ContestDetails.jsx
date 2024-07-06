@@ -9,7 +9,8 @@ const ContestDetails = () => {
     const [csvData, setCsvData] = useState('');
     const [submissionsData, setSubmissionsData] = useState('');
     const [loading, setLoading] = useState(true); // Add a loading state
-    const [taskWeights, setWeignts] = localStorage.getItem('weights')
+    const [taskWeights, setWeignts] = sessionStorage.getItem('weights')
+    const [mode, setMode] = sessionStorage.getItem('mode')
 
     useEffect(() => {
         const fetchContestDetails = async () => {
@@ -18,7 +19,8 @@ const ContestDetails = () => {
                     groupCode: groupCode,
                     contestId: contestId,
                     userID: localStorage.getItem('userId'),
-                    weights: taskWeights.replace(',', '-')
+                    weights: taskWeights.replace(',', '-'),
+                    mode: mode
                 });
 
                 const response = await fetch(`/api/proceed?${queryParams}`);
@@ -105,8 +107,9 @@ const ContestDetails = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={(e) => {
-                            localStorage.clear()
+                        <button className={'logout'} onClick={() => {
+                            localStorage.clear();
+                            sessionStorage.clear();
                         }}>Logout
                         </button>
                     </a>

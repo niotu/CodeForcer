@@ -8,6 +8,7 @@ const WeightsDistrPage = () => {
     const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
     const [weights, setWeights] = useState([]);
+    const [mode, setMode] = useState('last');
 
     function logout() {
         localStorage.setItem('isAuthorized', 'false');
@@ -19,7 +20,8 @@ const WeightsDistrPage = () => {
 
         console.log(`Weights: [ ${weights.join('-')} ]`)
 
-        localStorage.setItem('weights', weights);
+        sessionStorage.setItem('weights', weights);
+        sessionStorage.setItem('mode', mode)
 
         navigate(`/contest-details/${groupCode}/${contestId}`);
     };
@@ -48,8 +50,11 @@ const WeightsDistrPage = () => {
 
 
     }, [])
-    return (
+    // const setMode = (value) => {
+    //     mode = useState(value);
+    // };
 
+    return (
         <div className='page-active'>
             <div className="wizard">
                 <div className="panel">
@@ -75,6 +80,11 @@ const WeightsDistrPage = () => {
                                             </li>
                                         ))
                                     }
+                                    <label className='task'>Mode: </label>
+                                    <select id='mode' onChange={(e) => setMode(e.target.value)} defaultValue='last'>
+                                        <option value='last'>Last</option>
+                                        <option value='best'>Best</option>
+                                    </select>
                                 </ul>
                             </nav>
 
@@ -96,7 +106,11 @@ const WeightsDistrPage = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={(e) => {localStorage.clear()}}>Logout</button>
+                        <button className={'logout'} onClick={() => {
+                            localStorage.clear();
+                            sessionStorage.clear();
+                        }}>Logout
+                        </button>
                     </a>
                 </div>
             </div>

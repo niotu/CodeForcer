@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {redirect, useNavigate} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const LoginPage = () => {
@@ -66,16 +66,6 @@ const LoginPage = () => {
                     </div>
                     <div className="right-part">
                         <form onSubmit={handleSubmit} autoComplete='on'>
-                            {/*<label htmlFor="handle">Handle:</label>*/}
-                            {/*<input type="text" id="handle" value={handle} onChange={(e) => setHandle(e.target.value)}*/}
-                            {/*       required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>*/}
-
-                            {/*<label htmlFor="password">Password:</label>*/}
-                            {/*<input type="password" id="password" value={password}*/}
-                            {/*       onChange={(e) => setPassword(e.target.value)} required*/}
-                            {/*       className={isCorrect ? 'correct' : 'incorrect'}*/}
-                            {/*       autoComplete='current-password'/><br/><br/>*/}
-
                             <label htmlFor="key">Key:</label>
                             <input type="password" id="key" value={key} onChange={(e) => setKey(e.target.value)}
                                    required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
@@ -96,7 +86,11 @@ const LoginPage = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={(e) => {localStorage.clear()}}>Logout</button>
+                        <button className={'logout'} onClick={() => {
+                            localStorage.clear();
+                            sessionStorage.clear();
+                        }}>Logout
+                        </button>
                     </a>
                 </div>
             </div>
