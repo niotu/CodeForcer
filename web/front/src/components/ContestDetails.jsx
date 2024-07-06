@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
-import './styles.css'; // Import the provided CSS file
+import './styles.css';
+import Cookies from "js-cookie"; // Import the provided CSS file
 
 const ContestDetails = () => {
     let comment = 'Congratulations!'
@@ -110,6 +111,7 @@ const ContestDetails = () => {
                         <button className={'logout'} onClick={() => {
                             localStorage.clear();
                             sessionStorage.clear();
+                            Cookies.clear()
                         }}>Logout
                         </button>
                     </a>

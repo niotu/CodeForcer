@@ -13,7 +13,7 @@ const LoginPage = () => {
         e.preventDefault();
 
         let id = 0;
-        let status = '';
+        let status;
 
         const queryParams = new URLSearchParams({
             key,
@@ -46,19 +46,8 @@ const LoginPage = () => {
 
     const [isCorrect, setIsCorrect] = useState(false)
 
-    function logout(e) {
-        e.preventDefault()
-        console.log('** logout');
-        localStorage.setItem('isAuthorized', 'false');
-        localStorage.setItem('userId', null);
-    }
-
     console.log('fef')
 
-    function readJson(file) {
-        console.log(file);
-        console.log('file read')
-    }
 
     return (
         <div className="page-active">
@@ -97,6 +86,7 @@ const LoginPage = () => {
                         <button className={'logout'} onClick={() => {
                             localStorage.clear();
                             sessionStorage.clear();
+                            Cookies.clear()
                         }}>Logout
                         </button>
                     </a>

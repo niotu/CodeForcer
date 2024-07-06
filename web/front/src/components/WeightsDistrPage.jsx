@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import './styles.css'; // Import the provided CSS file
+import './styles.css';
+import Cookies from "js-cookie"; // Import the provided CSS file
 
 const WeightsDistrPage = () => {
     let comment = 'The task weights must be in percentage (0-100%)'
@@ -109,6 +110,7 @@ const WeightsDistrPage = () => {
                         <button className={'logout'} onClick={() => {
                             localStorage.clear();
                             sessionStorage.clear();
+                            Cookies.clear()
                         }}>Logout
                         </button>
                     </a>

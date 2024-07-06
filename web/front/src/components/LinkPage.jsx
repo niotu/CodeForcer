@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom"; // Import the provided CSS file
 import './styles.css';
+import Cookies from "js-cookie";
 
 const LinkPage = () => {
     // const [key, setKey] = useState('');
@@ -102,6 +103,7 @@ const LinkPage = () => {
                         <button className={'logout'} onClick={() => {
                             localStorage.clear();
                             sessionStorage.clear();
+                            Cookies.clear()
                         }}>Logout
                         </button>
                     </a>
