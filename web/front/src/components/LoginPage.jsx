@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {redirect, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
+import Cookies from 'js-cookie';
 import './styles.css'; // Import the provided CSS file
 
 const LoginPage = () => {
-    const [key, setKey] = useState('');
-    const [secret, setSecret] = useState('');
+    const [key, setKey] = Cookies.get('userKey') ? Cookies.get('userKey') : useState('');
+    const [secret, setSecret] = Cookies.get('userSecret') ? Cookies.get('userSecret') : useState('');
     const navigate = useNavigate();
     let comment = 'here will be comment';
 
@@ -28,6 +29,8 @@ const LoginPage = () => {
         console.log(resp_json);
         status = resp_json.status;
         if (status === 'OK') {
+            Cookies.set('userKey', key);
+            Cookies.set('userSecret', secret);
             id = resp_json.id;
             console.log(id);
             localStorage.setItem('isAuthorized', true); // Store the authorization status in local storage
@@ -67,11 +70,16 @@ const LoginPage = () => {
                     <div className="right-part">
                         <form onSubmit={handleSubmit} autoComplete='on'>
                             <label htmlFor="key">Key:</label>
-                            <input type="password" id="key" value={key} onChange={(e) => setKey(e.target.value)}
+                            <input type="password"
+                                   id="key"
+                                   value={key}
+                                   onChange={(e) => setKey(e.target.value)}
                                    required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
 
                             <label htmlFor="secret">Secret:</label>
-                            <input type="password" id="secret" value={secret}
+                            <input type="password"
+                                   id="secret"
+                                   value={secret}
                                    onChange={(e) => setSecret(e.target.value)}
                                    required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
                             <button type="submit">Submit</button>
