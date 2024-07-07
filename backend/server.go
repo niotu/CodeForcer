@@ -211,7 +211,7 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 		zap.String("GroupCode", groupCode),
 		zap.Int64("ContestID", contestId))
 
-	data, err := client.GetTasks(groupCode, contestId)
+	data, err := client.GetContestData(groupCode, contestId)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))
 		return
@@ -221,14 +221,50 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func parseWeights(weightsString string) ([]int, error) {
+	weightsSplitted := strings.Split(weightsString, "-")
+	var weights []int
+	for _, s := range weightsSplitted {
+		weight, err := strconv.Atoi(s)
+		if err != nil {
+			return nil, err
+		}
+		weights = append(weights, weight)
+	}
+
+	return weights, nil
+}
+
 func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("userID")
 	groupCode := r.URL.Query().Get("groupCode")
 	contestId, errId := strconv.ParseInt(r.URL.Query().Get("contestId"), 10, 64)
+
 	count, errCount := strconv.Atoi(r.URL.Query().Get("count"))
-	weightsString := r.URL.Query().Get("weights")
 	if errCount != nil {
 		count = 0
+	}
+
+	weightsString := r.URL.Query().Get("weights")
+	headersString := r.URL.Query().Get("headers")
+
+	penalty, errPenalty := strconv.Atoi(r.URL.Query().Get("penalty"))
+	if errPenalty != nil {
+		penalty = 0
+	}
+
+	mode := r.URL.Query().Get("mode")
+	if mode == "last" {
+		mode = cf_api_tools.LastSolutionMode
+	} else {
+		mode = cf_api_tools.BestSolutionMode
+	}
+
+	lateSubmTimeString := r.URL.Query().Get("late")
+	lateSubmissionSeconds, err := strconv.ParseInt(lateSubmTimeString, 10, 64)
+	if err != nil {
+		_, _ = w.Write(statusFailedResponse("Incorrect Unix format of `late` parameter"))
+		return
 	}
 
 	client := getClient(userID)
@@ -238,16 +274,20 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	}
 	if errId != nil {
 		_, _ = w.Write(statusFailedResponse("Incorrect contest ID"))
+		return
 	}
-	weightsSplitted := strings.Split(weightsString, "-")
-	var weights []int
-	for _, s := range weightsSplitted {
-		weight, err := strconv.Atoi(s)
-		if err != nil {
-			_, _ = w.Write(statusFailedResponse("Incorrect weights"))
-			return
-		}
-		weights = append(weights, weight)
+
+	weights, err := parseWeights(weightsString)
+	if err != nil {
+		_, _ = w.Write(statusFailedResponse("Incorrect weights"))
+		return
+	}
+
+	var headers []string
+	if headersString == "" {
+		headers = []string{}
+	} else {
+		headers = strings.Split(headersString, "-")
 	}
 
 	logger.Logger().Info("Proceeding:",
@@ -256,7 +296,15 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		zap.String("GroupCode", groupCode),
 		zap.Int64("ContestID", contestId))
 
-	data, err := client.GetStatistics(groupCode, contestId, count, weights)
+	extraParams := cf_api_tools.ParsingParameters{
+		TasksWeights:          weights,
+		ExtraHeaders:          headers,
+		LatePenalty:           penalty,
+		LateTime:              lateSubmissionSeconds,
+		SubmissionParsingMode: mode,
+	}
+
+	data, err := client.GetStatistics(groupCode, contestId, count, extraParams)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))
 		return
@@ -267,7 +315,12 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	logger.Init()
-	defer logger.Logger().Sync()
+	defer func(logger *zap.Logger) {
+		err := logger.Sync()
+		if err != nil {
+			logger.Error(err.Error())
+		}
+	}(logger.Logger())
 
 	_ = godotenv.Load()
 
@@ -291,8 +344,8 @@ func main() {
 
 	mux.HandleFunc("/api/setAdmin", setAdminData).Methods("GET")
 	mux.HandleFunc("/api/getTasks", getTasks).Methods("GET")
-	//mux.HandleFunc("/api/getGroups", getGroups).Methods("GET")
-	//mux.HandleFunc("/api/getContests", getContests).Methods("GET")
+	mux.HandleFunc("/api/getGroups", getGroups).Methods("GET")
+	mux.HandleFunc("/api/getContests", getContests).Methods("GET")
 	mux.HandleFunc("/api/proceed", proceedProcess).Methods("GET")
 
 	http.Handle("/", mux)

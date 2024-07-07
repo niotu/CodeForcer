@@ -71,9 +71,11 @@ func (a *ApiRequest) MakeApiRequest() ([]byte, error) {
 	u.RawQuery = params.Encode()
 
 	resp, err := http.Get(u.String())
-	if err != nil {
+
+	if err != nil || resp.StatusCode != http.StatusOK {
 		logger.Logger().Error("Failed CF API request.",
-			zap.String("URL", u.String()))
+			zap.String("URL", u.String()),
+			zap.Int("StatusCode", resp.StatusCode))
 		return nil, ApiRequestError
 	}
 
