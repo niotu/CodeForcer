@@ -15,6 +15,7 @@ type Submission struct {
 	SubmissionId   int64
 	ProgramLang    string
 	SubmissionTime int64
+	Late           bool
 }
 
 type Problem struct {

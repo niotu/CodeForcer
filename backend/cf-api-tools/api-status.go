@@ -89,6 +89,7 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 				submissions[p.Index] = &entities.Submission{
 					Index:          p.Index,
 					SubmissionId:   -1,
+					Late:           false,
 					ProgramLang:    submissionJson["programmingLanguage"].(string),
 					SubmissionTime: int64(submissionJson["creationTimeSeconds"].(float64)),
 				}
@@ -107,8 +108,10 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 			submissionPoints = submissionJson["points"].(float64)
 		}
 
-		if s, _ := db[username].Solutions[problemIdx]; s.SubmissionId == -1 || (mode == BestSolutionMode &&
-			submissionPoints > db[username].Solutions[problemIdx].Points) {
+		currUser := db[username]
+
+		if s, _ := currUser.Solutions[problemIdx]; s.SubmissionId == -1 || (mode == BestSolutionMode &&
+			submissionPoints > currUser.Solutions[problemIdx].Points) {
 
 			problemVerdict := submissionJson["verdict"].(string)
 			if value := dataStatus.ProblemMaxPoints[problemIdx]; problemVerdict == "OK" && value == 0.0 {
@@ -117,12 +120,28 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 
 			id := int64(submissionJson["id"].(float64))
 
-			db[username].Solutions[problemIdx].Points = submissionPoints
-			db[username].Solutions[problemIdx].SubmissionId = id
+			if s.SubmissionTime > dataStandings.StartTimeSeconds+dataStandings.DurationSeconds {
+				currUser.Solutions[problemIdx].Late = true
+			}
+			currUser.Solutions[problemIdx].Points = submissionPoints
+			currUser.Solutions[problemIdx].SubmissionId = id
 		}
 	}
 
 	dataStatus.Users = db
+
+	return dataStatus, nil
+}
+
+func formattedStatus(params *CFContestMethodParams, dataStatus *DataFromStatus, dataStandings *DataFromStandings, mode string) (*DataFromStatus, error) {
+	status, err := getContestStatus(params)
+	if err != nil {
+		return nil, err
+	}
+	dataStatus, err = parseContestStatus(status, dataStatus, dataStandings, mode)
+	if err != nil {
+		return nil, err
+	}
 
 	return dataStatus, nil
 }
