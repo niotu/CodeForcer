@@ -1,5 +1,4 @@
 stages:
-  - login
   - lint
   - test
 
@@ -11,12 +10,11 @@ variables:
 before_script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-services:
-  - docker:dind
-
 linting:
   stage: lint
   image: golangci/golangci-lint:v1.44
+  services:
+    - docker:dind
   script:
     - golangci-lint run ./backend
   tags:
