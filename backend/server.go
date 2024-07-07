@@ -264,6 +264,7 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	lateSubmissionSeconds, err := strconv.ParseInt(lateSubmTimeString, 10, 64)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse("Incorrect Unix format of `late` parameter"))
+		return
 	}
 
 	client := getClient(userID)

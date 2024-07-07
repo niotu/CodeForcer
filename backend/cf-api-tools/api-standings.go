@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
+	"go.uber.org/zap"
 )
 
 type DataFromStandings struct {
@@ -24,6 +25,8 @@ func getContestStandings(params *CFContestMethodParams) (interface{}, error) {
 	var data interface{}
 	err = json.Unmarshal(resp, &data)
 	if err != nil {
+		logger.Logger().Error("Error CF API",
+			zap.String("URL", ""))
 		logger.Error(err)
 		return nil, ApiRequestError
 	}
