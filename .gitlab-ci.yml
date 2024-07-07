@@ -14,11 +14,6 @@ before_script:
 services:
   - docker:dind
 
-log in:
-  stage: login
-  script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
 linting:
   stage: lint
   image: golangci/golangci-lint:v1.44
