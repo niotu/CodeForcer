@@ -11,14 +11,13 @@ variables:
 linting:
   stage: lint
   image: golangci/golangci-lint:v1.44
-  services:
-    - docker:dind
   before_script:
     - docker info
     - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USERNAME" "$HARBOR_HOST" --password-stdin
+  services:
+    - docker:dind
 
   script:
-    - docker pull golangci/golangci-lint:v1.44 || true
     - golangci-lint run ./backend
   tags:
     - docker
