@@ -13,14 +13,14 @@ before_script:
 linting:
   stage: lint
   image: golangci/golangci-lint:v1.44
-  services:
-    - docker:dind
   script:
     - golangci-lint run ./backend
   tags:
     - docker
 
 testing:
+  needs:
+    - lint
   stage: test
   image: golang:1.21
   script:
