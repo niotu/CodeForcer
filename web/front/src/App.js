@@ -5,6 +5,7 @@ import ContestDetails from './components/ContestDetails.jsx';
 import WeightsDistrPage from "./components/WeightsDistrPage.jsx";
 import LinkPage from "./components/LinkPage.jsx";
 import LateSubmissionPage from "./components/LateSubmissionPage.jsx";
+import UploadCsvFilePage from "./components/UploadCsvFilePage.jsx";
 
 
 const App = () => {
@@ -37,6 +38,12 @@ const App = () => {
                        element={
                            localStorage.getItem('isAuthorized') ?
                                (<LateSubmissionPage/>) : (<Navigate to='/'/>)
+                       }
+                />
+                <Route path="/upload-csv/:groupCode/:contestId"
+                       element={
+                           localStorage.getItem('isAuthorized') ?
+                               (<UploadCsvFilePage/>) : (<Navigate to='/'/>)
                        }
                 />
                 {/*<Route path="*" element={<Navigate to="/" replace/>}/>*/}

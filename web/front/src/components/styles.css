@@ -87,6 +87,8 @@ body {
 /* Navigation buttons */
 .navigation button {
     font-size: 1.2vw;
+    box-shadow: 2px 2px 2px darkgray;
+
     padding: 10px 20px;
     border-radius: 25px;
     background-color: #4F63CB; /* Dark blue */
