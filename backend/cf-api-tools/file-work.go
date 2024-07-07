@@ -38,8 +38,8 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters) [][
 
 		var feedbackPart []string
 
-		for _, submission := range user.Solutions {
-
+		for _, p := range resultsData.Problems {
+			submission := user.Solutions[p.Index]
 			// codeforces task points
 			points = append(points, strconv.Itoa(int(submission.Points)))
 			// converted to moodle according to weight
