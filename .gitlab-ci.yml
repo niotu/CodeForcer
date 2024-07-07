@@ -16,8 +16,7 @@ linting:
 
   script:
     - golangci-lint run ./backend
-  tags:
-    - docker
+
 
 testing:
   stage: test
