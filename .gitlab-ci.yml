@@ -13,10 +13,12 @@ services:
 
 linting:
   stage: lint
-  image: golangci/golangci-lint:v1.44
   before_script:
     - docker info
     - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USERNAME" "$HARBOR_HOST" --password-stdin
+  services:
+    - name: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golangci/golangci-lint
+      alias: golangci-lint
 
   script:
     - golangci-lint run ./backend
