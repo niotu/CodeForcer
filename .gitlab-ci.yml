@@ -6,7 +6,6 @@ image: docker:latest
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
-  APP: "my-app"
 
 linting:
   stage: lint
@@ -14,8 +13,6 @@ linting:
   before_script:
     - docker info
     - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USERNAME" "$HARBOR_HOST" --password-stdin
-  services:
-    - docker:dind
 
   script:
     - golangci-lint run ./backend
