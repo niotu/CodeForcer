@@ -4,15 +4,31 @@ import './styles.css';
 import logout from "./globalFunctions.js";
 
 
+
 const ContestDetails = () => {
     const [comment, setComment] = useState('Congratulations!');
+
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
+
     const [googleSheetLink, setGoogleSheetLink] = useState('');
     const [csvData, setCsvData] = useState('');
     const [submissionsData, setSubmissionsData] = useState('');
     const [loading, setLoading] = useState(true); // Add a loading state
-    const [taskWeights, setWeignts] = sessionStorage.getItem('weights')
-    const [mode, setMode] = sessionStorage.getItem('mode')
+
+    const [taskWeights, setTaskWeights] = useState(sessionStorage.getItem('weights').replaceAll(',', '-') || '')
+    const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
+    const [late, setLate] = useState(sessionStorage.getItem('date').replaceAll('-', '') || '');
+    const [penalty, setPenalty] = useState(sessionStorage.getItem('penalty') || '');
+    const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
+
+    console.log(`groupCode ${groupCode}\n
+    contestId ${contestId}\n
+    userId ${userId}\n
+    taskWeights ${taskWeights}\n
+    late ${late}\n
+    penalty ${penalty}\n
+    mode ${mode}`);
+
 
     useEffect(() => {
         const fetchContestDetails = async () => {
@@ -20,8 +36,10 @@ const ContestDetails = () => {
                 const queryParams = new URLSearchParams({
                     groupCode: groupCode,
                     contestId: contestId,
-                    userID: localStorage.getItem('userId'),
-                    weights: taskWeights.replace(',', '-'),
+                    userID: userId,
+                    weights: taskWeights.replaceAll(',', '-'),
+                    late: late,
+                    penalty: penalty,
                     mode: mode
                 });
 
@@ -70,18 +88,28 @@ const ContestDetails = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>; // Render a loading indicator while data is being fetched
+        return (<div className="page-active">
+            <div className="wizard">
+                <div className="loading-spinner">
+                    <h1>Loading contest details...</h1>
+                    <img src={"/web/front/assets/loading.gif"} width={200} height={200} alt='loading'/>
+                </div>
+            </div>
+        </div>); // Render a loading indicator while data is being fetched
     }
 
-    history.goBack = () => {
-        history.go(-1)
-    };
     return (
         <div className="page-active">
             <div className="wizard">
                 <div className="panel">
                     <div className="left-part">
                         <h1>Contest Details</h1>
+                        <h4>
+                            weights: {taskWeights},
+                            late: {late},
+                            penalty: {penalty},
+                            mode: {mode}
+                        </h4>
                     </div>
                     <div className="right-part">
                         <div>

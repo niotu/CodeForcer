@@ -54,8 +54,8 @@ const LinkPage = () => {
         if (status === 'OK') {
             navigate(`/weights-distribution/${groupCode}/${contestId}`);
         } else if (status === 'FAILED') {
-            alert(comment);
             setComment(resp_json.comment);
+            alert(resp_json.comment);
         }
 
     }

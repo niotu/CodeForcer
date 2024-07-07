@@ -40,7 +40,7 @@ const WeightsDistrPage = () => {
         const fetchTasks = async () => {
             const response = await fetch(`/api/getTasks?${queryParams}`);
             const data = await response.json();
-            setTasks(data.result);
+            setTasks(data.result.Problems);
             console.log(data);
         };
 

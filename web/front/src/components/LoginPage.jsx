@@ -5,17 +5,18 @@ import './styles.css'; // Import the provided CSS file
 import logout from './globalFunctions.js'
 
 const LoginPage = () => {
+    const [isCorrect, setIsCorrect] = useState(false);
     const [key, setKey] = useState(Cookies.get('userKey') || '');
     const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
     const [comment, setComment] = useState('');
-    console.log(`UserKey: ${key}, secret: ${secret}`)
     const navigate = useNavigate();
+    const [id, setId] = useState('');
+    const [status, setStatus] = useState('')
 
+    console.log(`UserKey: ${key}, secret: ${secret}`)
     const handleSubmit = async (e) => {
-        e.preventDefault();
 
-        let id = 0;
-        let status;
+        e.preventDefault();
 
         const queryParams = new URLSearchParams({
             key,
@@ -23,35 +24,33 @@ const LoginPage = () => {
         });
 
         const response = await fetch(`/api/setAdmin?${queryParams}`, {
-            method: 'GET',
-            mode: 'no-cors'
+            method: 'GET'
         });
-
         let resp_json = await ((response.json()).then(r => r));
         console.log(resp_json);
-        status = resp_json.status;
+        setStatus(resp_json.status);
         if (status === 'OK') {
+            setId(resp_json.id);
+            console.log(`** id is ${id}`)
+
             Cookies.set('userKey', key);
-            console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
+            // console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
+
             Cookies.set('userSecret', secret);
-            console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
-            id = resp_json.id;
-            console.log(id);
-            localStorage.setItem('isAuthorized', true); // Store the authorization status in local storage
-            localStorage.setItem('userId', id); // Store the user ID in local storage
-            navigate('/link');
+
+            // console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
+            localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
+            localStorage.setItem('userId', resp_json.id); // Store the user ID in local storage
             console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
+
             console.log(`** userId is ${localStorage.getItem('userId')}`)
+            navigate('/link');
         } else if (status === 'FAILED') {
             setComment(resp_json.comment)
-            alert(comment);
+            alert(resp_json.comment);
         }
+
     };
-
-    const [isCorrect, setIsCorrect] = useState(false)
-
-    console.log('fef')
-
 
     return (
         <div className="page-active">
