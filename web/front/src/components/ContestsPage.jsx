@@ -3,14 +3,20 @@ import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css'; // Import the provided CSS file
 
 const ContestPage = () => {
+    let comment = 'here will be a comment';
     const {groupCode} = useParams();
     const navigate = useNavigate();
     const [contests, setContests] = useState([]);
 
+    function logout() {
+        localStorage.setItem('isAuthorized', 'false');
+        localStorage.setItem('userId', null);
+    }
+
     const queryParams = new URLSearchParams({
-            userID: localStorage.getItem('userId'),
-            groupCode: groupCode
-        });
+        userID: localStorage.getItem('userId'),
+        groupCode: groupCode
+    });
 
     useEffect(() => {
         const fetchContests = async () => {
@@ -49,6 +55,19 @@ const ContestPage = () => {
                             </ul>
                         </nav>
                     </div>
+                </div>
+            </div>
+            <div className="navigation">
+                <div className="left-navigation-part">
+                    <a href="/groups">
+                        <button className="previous-page">previous page</button>
+                    </a>
+                </div>
+                <p>{comment}</p>
+                <div className="right-navigation-part">
+                    <a href="/">
+                        <button className={'logout'} onSubmit={(e) => logout()}>Logout</button>
+                    </a>
                 </div>
             </div>
         </div>

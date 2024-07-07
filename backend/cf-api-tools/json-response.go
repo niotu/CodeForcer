@@ -1,7 +1,9 @@
 package cf_api_tools
 
 import (
+	"fmt"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/googlesheets"
 )
 
 type FinalJSONData struct {
@@ -11,13 +13,8 @@ type FinalJSONData struct {
 	GoogleSheets string             `json:"googleSheets"`
 }
 
-func parseAndFormEntities(params *CFContestMethodParams, weights []int) (*FinalJSONData, error) {
-	standings, err := getContestStandings(params)
-	if err != nil {
-		return nil, err
-	}
-
-	dataStandings, err := parseContestStandings(standings)
+func combineStatusAndStandings(params *CFContestMethodParams, tableExtraParams ParsingParameters) (*FinalJSONData, error) {
+	dataStandings, err := formattedStandings(params)
 	if err != nil {
 		return nil, err
 	}
@@ -31,11 +28,7 @@ func parseAndFormEntities(params *CFContestMethodParams, weights []int) (*FinalJ
 		dataStatus.ProblemMaxPoints[problem.Index] = 0.0
 	}
 
-	status, err := getContestStatus(params)
-	if err != nil {
-		return nil, err
-	}
-	dataStatus, err = parseContestStatus(status, dataStatus, dataStandings, LastSolutionMode)
+	dataStatus, err = formattedStatus(params, dataStatus, dataStandings, tableExtraParams.SubmissionParsingMode)
 	if err != nil {
 		return nil, err
 	}
@@ -59,16 +52,44 @@ func parseAndFormEntities(params *CFContestMethodParams, weights []int) (*FinalJ
 		Users:    u,
 	}
 
-	csvHeaders := []string{"handle", "points", "comment"}
-	csvBuff, csvData := MakeCSVFile(finalJsonData, csvHeaders)
-
-	finalJsonData.CSV = csvBuff.Bytes()
-
-	sheetURL, err := MakeGoogleSheet(dataStandings.Name, csvHeaders, csvData)
+	sheet, err := fillResultsToTable(dataStandings.Name, finalJsonData, tableExtraParams)
 	if err != nil {
 		return nil, err
 	}
-	finalJsonData.GoogleSheets = sheetURL
+
+	finalJsonData.CSV, err = sheet.GetSpreadsheetCSV()
+	if err != nil {
+		return nil, err
+	}
+
+	finalJsonData.GoogleSheets = sheet.GetSpreadsheetURL()
 
 	return &finalJsonData, nil
+}
+
+func fillResultsToTable(name string, resultsData FinalJSONData, extraParams ParsingParameters) (*googlesheets.Spreadsheet, error) {
+	var problemNames []string
+
+	for _, p := range resultsData.Problems {
+		problemNames = append(problemNames, fmt.Sprintf("Task %s - CodeForces", p.Index))
+		problemNames = append(problemNames, fmt.Sprintf("Task %s - Moodle", p.Index))
+	}
+
+	csvHeaders := append([]string{"email"}, problemNames...)
+	csvHeaders = append(csvHeaders, "Total points - Codeforces")
+	csvHeaders = append(csvHeaders, "Total points - Moodle")
+
+	if len(extraParams.ExtraHeaders) > 0 {
+		csvHeaders = append(csvHeaders, extraParams.ExtraHeaders...)
+	}
+	csvHeaders = append(csvHeaders, "Feedback")
+
+	csvData := MakeTableData(resultsData, extraParams)
+
+	sheet, err := MakeGoogleSheet(name, csvHeaders, csvData)
+	if err != nil {
+		return nil, err
+	}
+
+	return sheet, nil
 }

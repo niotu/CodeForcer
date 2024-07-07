@@ -15,6 +15,7 @@ type Submission struct {
 	SubmissionId   int64
 	ProgramLang    string
 	SubmissionTime int64
+	Late           bool
 }
 
 type Problem struct {
@@ -108,9 +109,7 @@ func FetchSubmission(client *http.Client, codeChan chan SubmissionCodeChanObject
 		return
 	}
 
-	var sub string
-
-	sub = doc.Find("#program-source-text").Text()
+	var sub = doc.Find("#program-source-text").Text()
 
 	codeChan <- SubmissionCodeChanObject{
 		Code:  sub,
@@ -120,6 +119,4 @@ func FetchSubmission(client *http.Client, codeChan chan SubmissionCodeChanObject
 
 	fmt.Println("fin ", count)
 	count++
-
-	return
 }

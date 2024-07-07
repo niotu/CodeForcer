@@ -1,0 +1,27 @@
+stages:
+  - lint
+  - test
+
+image: docker:latest
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
+linting:
+  stage: lint
+  image: golangci/golangci-lint:v1.44
+  before_script:
+    - docker info
+    - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USERNAME" "$HARBOR_HOST" --password-stdin
+
+  script:
+    - golangci-lint run ./backend
+
+
+testing:
+  stage: test
+  image: golang:1.21
+  script:
+    - go test -v ./backend/tests
+  tags:
+    - docker
