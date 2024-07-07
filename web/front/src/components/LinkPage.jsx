@@ -2,13 +2,14 @@ import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom"; // Import the provided CSS file
 import './styles.css';
 import Cookies from "js-cookie";
+import logout from "./globalFunctions.js";
 
 const LinkPage = () => {
     // const [key, setKey] = useState('');
     // const [secret, setSecret] = useState('');
     const [link, setUrl] = useState('');
     const navigate = useNavigate();
-    let comment = 'here will be comment';
+    const [comment, setComment] = useState('');
 
     const linkSubmit = async (e) => {
         e.preventDefault();
@@ -54,8 +55,8 @@ const LinkPage = () => {
         if (status === 'OK') {
             navigate(`/weights-distribution/${groupCode}/${contestId}`);
         } else if (status === 'FAILED') {
-            alert('Login failed');
-            comment = resp_json.comment;
+            alert(comment);
+            setComment(resp_json.comment);
         }
     }
 
@@ -100,11 +101,7 @@ const LinkPage = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={() => {
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            Cookies.clear()
-                        }}>Logout
+                        <button className={'logout'} onClick={() => logout()}>Logout
                         </button>
                     </a>
                 </div>

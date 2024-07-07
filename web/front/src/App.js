@@ -4,6 +4,7 @@ import LoginPage from './components/LoginPage.jsx';
 import ContestDetails from './components/ContestDetails.jsx';
 import WeightsDistrPage from "./components/WeightsDistrPage.jsx";
 import LinkPage from "./components/LinkPage.jsx";
+import Cookies from "js-cookie";
 
 const RequireAuth = ({children}) => {
     /* ... logic to check if user is logged in */

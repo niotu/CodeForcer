@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css';
-import Cookies from "js-cookie"; // Import the provided CSS file
+import logout from "./globalFunctions.js";
+
 
 const WeightsDistrPage = () => {
     let comment = 'The task weights must be in percentage (0-100%)'
@@ -11,10 +12,6 @@ const WeightsDistrPage = () => {
     const [weights, setWeights] = useState([]);
     const [mode, setMode] = useState('last');
 
-    function logout() {
-        localStorage.setItem('isAuthorized', 'false');
-        localStorage.setItem('userId', null);
-    }
 
     const handleWeights = async (e) => {
         e.preventDefault();
@@ -107,11 +104,7 @@ const WeightsDistrPage = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={() => {
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            Cookies.clear()
-                        }}>Logout
+                        <button className={'logout'} onClick={() => logout()}>Logout
                         </button>
                     </a>
                 </div>

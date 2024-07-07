@@ -2,9 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import './styles.css';
 import Cookies from "js-cookie"; // Import the provided CSS file
+import logout from "./globalFunctions.js";
+
 
 const ContestDetails = () => {
-    let comment = 'Congratulations!'
+    const [comment, setComment] = useState('Congratulations!');
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const [googleSheetLink, setGoogleSheetLink] = useState('');
     const [csvData, setCsvData] = useState('');
@@ -36,7 +38,8 @@ const ContestDetails = () => {
                 if (data.status === 'OK') {
                     // setSubmissionsData(data.Submissions);
                 } else if (data.status === 'FAILED') {
-                    comment = data.comment;
+                    setComment(data.comment);
+                    alert(data.comment);
                 }
             } catch (error) {
                 console.error('Error fetching contest details:', error);
@@ -108,11 +111,7 @@ const ContestDetails = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={() => {
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            Cookies.clear()
-                        }}>Logout
+                        <button className={'logout'} onClick={() => logout()}>Logout
                         </button>
                     </a>
                 </div>

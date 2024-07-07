@@ -2,12 +2,14 @@ import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
 import './styles.css'; // Import the provided CSS file
+import logout from './globalFunctions.js'
 
 const LoginPage = () => {
-    const [key, setKey] = Cookies.get('userKey') ? Cookies.get('userKey') : useState('');
-    const [secret, setSecret] = Cookies.get('userSecret') ? Cookies.get('userSecret') : useState('');
+    const [key, setKey] = useState(Cookies.get('userKey') || '');
+    const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
+    const [comment, setComment] = useState('here will be comment');
+    console.log(`UserKey: ${key}, secret: ${secret}`)
     const navigate = useNavigate();
-    let comment = 'here will be comment';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,8 +23,8 @@ const LoginPage = () => {
         });
 
         const response = await fetch(`/api/setAdmin?${queryParams}`, {
-            method: 'GET'
-            // mode: 'no-cors'
+            method: 'GET',
+            mode: 'no-cors'
         });
 
         let resp_json = await ((response.json()).then(r => r));
@@ -30,7 +32,9 @@ const LoginPage = () => {
         status = resp_json.status;
         if (status === 'OK') {
             Cookies.set('userKey', key);
+            console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
             Cookies.set('userSecret', secret);
+            console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
             id = resp_json.id;
             console.log(id);
             localStorage.setItem('isAuthorized', true); // Store the authorization status in local storage
@@ -39,8 +43,8 @@ const LoginPage = () => {
             console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
             console.log(`** userId is ${localStorage.getItem('userId')}`)
         } else if (status === 'FAILED') {
-            alert('Login failed');
-            comment = resp_json.comment;
+            setComment(resp_json.comment)
+            alert(comment);
         }
     };
 
@@ -83,11 +87,7 @@ const LoginPage = () => {
                 <p>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
-                        <button className={'logout'} onClick={() => {
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            Cookies.clear()
-                        }}>Logout
+                        <button className={'logout'} onClick={() => logout()}>Logout
                         </button>
                     </a>
                 </div>
