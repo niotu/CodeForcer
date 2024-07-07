@@ -20,7 +20,7 @@ linting:
 
 testing:
   needs:
-    - lint
+    - linting
   stage: test
   image: golang:1.21
   script:
