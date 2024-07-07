@@ -7,6 +7,10 @@ image: docker:latest
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
 
+services:
+    - name: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/docker:stable-dind
+      alias: docker
+
 linting:
   stage: lint
   image: golangci/golangci-lint:v1.44
