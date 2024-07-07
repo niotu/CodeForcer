@@ -44,7 +44,6 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters) [][
 			points = append(points, strconv.Itoa(int(submission.Points)))
 			// converted to moodle according to weight
 			moodlePoints := submission.Points / resultsData.Problems[i].MaxPoints * float64(extraParams.TasksWeights[i])
-			points = append(points, strconv.Itoa(int(moodlePoints)))
 
 			id := submission.SubmissionId
 			taskStatus := ""
@@ -57,6 +56,8 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters) [][
 				taskStatus = "(no submission)"
 				submission.Solution = ""
 			}
+
+			points = append(points, strconv.Itoa(int(moodlePoints)))
 
 			feedbackPart = append(feedbackPart, fmt.Sprintf("Task %s: %d/%d %s",
 				submission.Index, int(submission.Points), int(resultsData.Problems[i].MaxPoints), taskStatus))

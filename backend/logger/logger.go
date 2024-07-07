@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"path/filepath"
@@ -22,7 +21,10 @@ func Init() {
 	config.OutputPaths = []string{p}
 	var err error
 	logger, err = config.Build()
-	fmt.Println(err)
+	if err != nil {
+		config.OutputPaths = nil
+		logger, err = config.Build()
+	}
 }
 
 func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

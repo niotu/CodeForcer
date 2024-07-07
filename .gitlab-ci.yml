@@ -2,17 +2,14 @@ stages:
   - lint
   - test
 
-image: docker:latest
-
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
 
+image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/docker:stable-dind
+
 linting:
   stage: lint
-  image: golangci/golangci-lint:v1.44
-  before_script:
-    - docker info
-    - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USERNAME" "$HARBOR_HOST" --password-stdin
+  image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golangci/golangci-lint
 
   script:
     - golangci-lint run ./backend
@@ -20,8 +17,7 @@ linting:
 
 testing:
   stage: test
-  image: golang:1.21
+  image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golang:1.21
   script:
     - go test -v ./backend/tests
-  tags:
-    - docker
+
