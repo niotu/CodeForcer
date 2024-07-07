@@ -22,7 +22,7 @@ const LateSubmissionPage = () => {
         console.log(formattedDate);
         sessionStorage.setItem('date', formattedDate);
 
-        navigate(`/upload-csv/${groupCode}/${contestId}`);
+        navigate(`/contest-details/${groupCode}/${contestId}`);
 
     }
 
