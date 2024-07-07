@@ -14,9 +14,9 @@ const ContestPage = () => {
     }
 
     const queryParams = new URLSearchParams({
-            userID: localStorage.getItem('userId'),
-            groupCode: groupCode
-        });
+        userID: localStorage.getItem('userId'),
+        groupCode: groupCode
+    });
 
     useEffect(() => {
         const fetchContests = async () => {

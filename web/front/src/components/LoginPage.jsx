@@ -7,7 +7,7 @@ import logout from './globalFunctions.js'
 const LoginPage = () => {
     const [key, setKey] = useState(Cookies.get('userKey') || '');
     const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
-    const [comment, setComment] = useState('here will be comment');
+    const [comment, setComment] = useState('');
     console.log(`UserKey: ${key}, secret: ${secret}`)
     const navigate = useNavigate();
 

@@ -4,19 +4,7 @@ import LoginPage from './components/LoginPage.jsx';
 import ContestDetails from './components/ContestDetails.jsx';
 import WeightsDistrPage from "./components/WeightsDistrPage.jsx";
 import LinkPage from "./components/LinkPage.jsx";
-import Cookies from "js-cookie";
-
-const RequireAuth = ({children}) => {
-    /* ... logic to check if user is logged in */
-    const isAuthenticated = localStorage.getItem('isAuthorized') === true
-
-    if (!isAuthenticated) {
-        // Redirect to login if not authenticated
-        return <Navigate to="/"/>;
-    }
-
-    return children; // Render the protected component if authenticated
-};
+import LateSubmissionPage from "./components/LateSubmissionPage.jsx";
 
 
 const App = () => {
@@ -43,6 +31,12 @@ const App = () => {
                        element={
                            localStorage.getItem('isAuthorized') ?
                                (<WeightsDistrPage/>) : (<Navigate to='/'/>)
+                       }
+                />
+                <Route path="/late-submissions/:groupCode/:contestId"
+                       element={
+                           localStorage.getItem('isAuthorized') ?
+                               (<LateSubmissionPage/>) : (<Navigate to='/'/>)
                        }
                 />
                 {/*<Route path="*" element={<Navigate to="/" replace/>}/>*/}

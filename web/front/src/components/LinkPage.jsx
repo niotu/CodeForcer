@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom"; // Import the provided CSS file
 import './styles.css';
-import Cookies from "js-cookie";
 import logout from "./globalFunctions.js";
 
 const LinkPage = () => {
@@ -10,30 +9,31 @@ const LinkPage = () => {
     const [link, setUrl] = useState('');
     const navigate = useNavigate();
     const [comment, setComment] = useState('');
+    const [isCorrect, setIsCorrect] = useState(true)
 
     const linkSubmit = async (e) => {
         e.preventDefault();
         console.log('** processing...')
+
         let id = 0,
             status,
             groupCode,
             contestId;
-
         // Extract groupCode and contestId from the link
         console.log(link);
         const url = new URL(link);
         // const params = new URLSearchParams(url.search);
+
         const components = url.toString().split('/')
-
         groupCode = components[4]
+
         contestId = components[6]
-
         console.log(groupCode);
+
         console.log(contestId);
-
-
         // Make a request to the backend to proceed with the login
         // Replace '/api/proceed' with the actual API endpoint for the login
+
         // Make sure to pass the necessary parameters and handle the response appropriately
 
         const queryParams = new URLSearchParams({
@@ -46,28 +46,22 @@ const LinkPage = () => {
             method: 'GET',
             mode: 'no-cors'
         });
-
         let resp_json = await ((response.json()).then(r => r));
         console.log(resp_json);
         status = resp_json.status;
-        console.log(status);
 
+        console.log(status);
         if (status === 'OK') {
             navigate(`/weights-distribution/${groupCode}/${contestId}`);
         } else if (status === 'FAILED') {
             alert(comment);
             setComment(resp_json.comment);
         }
+
     }
 
     console.log('** process');
 
-    const [isCorrect, setIsCorrect] = useState(true)
-
-    function logout() {
-        localStorage.setItem('isAuthorized', 'false');
-        localStorage.setItem('userId', null);
-    }
 
     return (
         <div className="page-active">

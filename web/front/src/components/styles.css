@@ -230,6 +230,7 @@ input {
 .right-part button:hover {
     background-color: #4556AA; /* Darker blue on hover */
 }
+
 .navigation p {
     text-align: center;
 }

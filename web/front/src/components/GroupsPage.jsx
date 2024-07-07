@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {useNavigate} from "react-router-dom"; // Import the provided CSS file
 import './styles.css';
 
 const GroupsPage = () => {
@@ -10,6 +9,7 @@ const GroupsPage = () => {
         localStorage.setItem('isAuthorized', 'false');
         localStorage.setItem('userId', null);
     }
+
     // const navigate = useNavigate();
 
     useEffect(() => {

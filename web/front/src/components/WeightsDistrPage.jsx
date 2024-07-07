@@ -21,7 +21,7 @@ const WeightsDistrPage = () => {
         sessionStorage.setItem('weights', weights);
         sessionStorage.setItem('mode', mode)
 
-        navigate(`/contest-details/${groupCode}/${contestId}`);
+        navigate(`/late-submissions/${groupCode}/${contestId}`);
     };
 
     const setTaskWeights = (value, index) => {

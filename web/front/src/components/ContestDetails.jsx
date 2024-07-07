@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import './styles.css';
-import Cookies from "js-cookie"; // Import the provided CSS file
 import logout from "./globalFunctions.js";
 
 
