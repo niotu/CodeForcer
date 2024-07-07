@@ -1,14 +1,14 @@
-package backend_test
+package cf_api_tools_test
 
 import (
-	cfapitools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
+	cf_api_tools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"testing"
 )
 
 func TestAuthorization(t *testing.T) {
 	logger.Init()
-	_, err := cfapitools.NewClientWithAuth(
+	_, err := cf_api_tools.NewClientWithAuth(
 		"33bcdcdcf956dc632a5aa98fa94697a1bb06406c",
 		"4c0942196312bbf66eb019fd4f2dfec6534d8c1w",
 		"rammao",
