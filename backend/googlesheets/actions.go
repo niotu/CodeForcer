@@ -135,9 +135,7 @@ func (s *Spreadsheet) WriteData(data [][]interface{}) error {
 	ctx := context.Background()
 	var vr sheets.ValueRange
 
-	for _, row := range data {
-		vr.Values = append(vr.Values, row)
-	}
+	vr.Values = append(vr.Values, data...)
 
 	sheetName, err := s.getNthSheetName(1)
 	if err != nil {

@@ -29,6 +29,9 @@ func combineStatusAndStandings(params *CFContestMethodParams, tableExtraParams P
 	}
 
 	dataStatus, err = formattedStatus(params, dataStatus, dataStandings, tableExtraParams.SubmissionParsingMode)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, problem := range dataStandings.Problems {
 		problem.MaxPoints = dataStatus.ProblemMaxPoints[problem.Index]

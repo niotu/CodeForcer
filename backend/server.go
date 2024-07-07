@@ -314,7 +314,12 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	logger.Init()
-	defer logger.Logger().Sync()
+	defer func(logger *zap.Logger) {
+		err := logger.Sync()
+		if err != nil {
+			logger.Error(err.Error())
+		}
+	}(logger.Logger())
 
 	_ = godotenv.Load()
 
@@ -338,8 +343,8 @@ func main() {
 
 	mux.HandleFunc("/api/setAdmin", setAdminData).Methods("GET")
 	mux.HandleFunc("/api/getTasks", getTasks).Methods("GET")
-	//mux.HandleFunc("/api/getGroups", getGroups).Methods("GET")
-	//mux.HandleFunc("/api/getContests", getContests).Methods("GET")
+	mux.HandleFunc("/api/getGroups", getGroups).Methods("GET")
+	mux.HandleFunc("/api/getContests", getContests).Methods("GET")
 	mux.HandleFunc("/api/proceed", proceedProcess).Methods("GET")
 
 	http.Handle("/", mux)

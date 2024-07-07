@@ -110,7 +110,7 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 
 		currUser := db[username]
 
-		if s, _ := currUser.Solutions[problemIdx]; s.SubmissionId == -1 || (mode == BestSolutionMode &&
+		if s := currUser.Solutions[problemIdx]; s.SubmissionId == -1 || (mode == BestSolutionMode &&
 			submissionPoints > currUser.Solutions[problemIdx].Points) {
 
 			problemVerdict := submissionJson["verdict"].(string)
