@@ -1,7 +1,6 @@
-package backend
+package cf_api_tools
 
 import (
-	cfapitools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"testing"
 )
@@ -9,7 +8,7 @@ import (
 func TestGetGroups(t *testing.T) {
 	logger.Init()
 
-	client, err := cfapitools.NewClientWithAuth(
+	client, err := NewClientWithAuth(
 		"33bcdcdcf956dc632a5aa98fa94697a1bb06406c",
 		"4c0942196312bbf66eb019fd4f2dfec6534d8c1w",
 		"ramzestwo",
