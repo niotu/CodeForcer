@@ -12,7 +12,6 @@ services:
 linting:
   stage: lint
   before_script:
-    - docker info
     - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USERNAME" "$HARBOR_HOST" --password-stdin
   services:
     - name: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golangci/golangci-lint
@@ -25,7 +24,6 @@ linting:
 testing:
   stage: test
   before_script:
-    - docker info
     - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USERNAME" "$HARBOR_HOST" --password-stdin
   services:
     - name: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golang:1.21
