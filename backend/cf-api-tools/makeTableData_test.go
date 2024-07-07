@@ -1,14 +1,13 @@
-package backend
+package cf_api_tools
 
 import (
-	cfapitools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
 	"slices"
 	"testing"
 )
 
 func TestMakeTableData(t *testing.T) {
-	resData := cfapitools.FinalJSONData{
+	resData := FinalJSONData{
 		Problems: []entities.Problem{
 			{
 				Name:      "Task 1",
@@ -71,7 +70,7 @@ func TestMakeTableData(t *testing.T) {
 		},
 	}
 
-	extra := cfapitools.ParsingParameters{
+	extra := ParsingParameters{
 		TasksWeights:          []int{10, 10},
 		ExtraHeaders:          nil,
 		LatePenalty:           50,
@@ -79,7 +78,7 @@ func TestMakeTableData(t *testing.T) {
 		SubmissionParsingMode: "best",
 	}
 
-	actual := cfapitools.MakeTableData(resData, extra)
+	actual := MakeTableData(resData, extra)
 
 	expected := [][]string{
 		{"User1", "4", "8", "2", "4", "6", "12"},

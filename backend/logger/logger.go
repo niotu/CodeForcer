@@ -3,7 +3,6 @@ package logger
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"path/filepath"
 	"time"
 )
 
@@ -16,15 +15,15 @@ func Init() {
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	config.EncoderConfig.EncodeTime = customTimeEncoder
 
-	p, _ := filepath.Abs("./logs/server.log")
+	//p, _ := filepath.Abs("./logs/server.log")
 
-	config.OutputPaths = []string{p}
-	var err error
-	logger, err = config.Build()
-	if err != nil {
-		config.OutputPaths = nil
-		logger, err = config.Build()
-	}
+	//config.OutputPaths = []string{p}
+	//var err error
+	logger, _ = config.Build()
+	//if err != nil {
+	//	config.OutputPaths = nil
+	//	logger, _ = config.Build()
+	//}
 }
 
 func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
