@@ -4,6 +4,8 @@ stages:
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
+  
+image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/docker:stable-dind
 
 services:
   - name: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/docker:stable-dind
