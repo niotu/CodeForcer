@@ -1,4 +1,5 @@
 stages:
+  - login
   - lint
   - test
 
@@ -7,10 +8,19 @@ image: docker:latest
 variables:
   DOCKER_DRIVER: overlay2
 
+before_script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+services:
+  - docker:dind
+
+log in:
+  stage: login
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
 linting:
   stage: lint
-  before_script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   image: golangci/golangci-lint:v1.44
   script:
     - golangci-lint run ./backend
@@ -18,8 +28,6 @@ linting:
     - docker
 
 testing:
-  needs:
-      - linting
   stage: test
   image: golang:1.21
   script:
