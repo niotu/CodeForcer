@@ -1,17 +1,20 @@
+stages:
+  - login
+  - lint
+  - test
+
 image: docker:latest
 
 variables:
   DOCKER_DRIVER: overlay2
 
-before_script:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+log in:
+  stage: login
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 services:
   - docker:dind
-
-stages:
-  - lint
-  - test
 
 linting:       # This job runs in the build stage, which runs first.
   stage: lint
