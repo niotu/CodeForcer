@@ -26,13 +26,12 @@ const LoginPage = () => {
         const response = await fetch(`/api/setAdmin?${queryParams}`, {
             method: 'GET'
         });
-        let resp_json = await ((response.json()).then(r => r));
+        let resp_json = await response.json();
         console.log(resp_json);
         setStatus(resp_json.status);
-        if (status === 'OK') {
+        if (resp_json.status === 'OK') {
             setId(resp_json.id);
             console.log(`** id is ${id}`)
-
             Cookies.set('userKey', key);
             // console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
 
@@ -45,7 +44,7 @@ const LoginPage = () => {
 
             console.log(`** userId is ${localStorage.getItem('userId')}`)
             navigate('/link');
-        } else if (status === 'FAILED') {
+        } else if (resp_json.status === 'FAILED') {
             setComment(resp_json.comment)
             alert(resp_json.comment);
         }
