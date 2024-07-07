@@ -1,13 +1,13 @@
 image: docker:latest
 
-services:
-  - docker:dind
-
 variables:
   DOCKER_DRIVER: overlay2
 
 before_script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+services:
+  - docker:dind
 
 stages:
   - lint
