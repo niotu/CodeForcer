@@ -1,16 +1,16 @@
 import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
-import logout from "./globalFunctions.js";
+import logout, {show404page} from "./globalFunctions.jsx";
 
 function dateToUnix(date) {
-  // Ensure we're working with a Date object
-  if (!(date instanceof Date)) {
-    throw new Error("Input must be a valid Date object.");
-  }
+    // Ensure we're working with a Date object
+    if (!(date instanceof Date)) {
+        throw new Error("Input must be a valid Date object.");
+    }
 
-  // Calculate the Unix timestamp (seconds since the Unix epoch)
-  return Math.floor(date.getTime() / 1000);
+    // Calculate the Unix timestamp (seconds since the Unix epoch)
+    return Math.floor(date.getTime() / 1000);
 }
 
 
@@ -19,9 +19,15 @@ const LateSubmissionPage = () => {
     const {groupCode, contestId} = useParams();
     const [date, setDate] = useState(new Date());
     const navigate = useNavigate();
+
     const [comment, setComment] = useState('');
+
     const [isCorrect, setIsCorrect] = useState(true);
     const [penalty, setPenalty] = useState(50);
+
+    if (!localStorage.getItem('isAuthorized')) {
+        return show404page();
+    }
 
     const lateSubmit = async (e) => {
         e.preventDefault();

@@ -1,14 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import './styles.css';
-import logout from "./globalFunctions.js";
-
+import logout, {show404page} from "./globalFunctions.jsx";
 
 
 const ContestDetails = () => {
     const [comment, setComment] = useState('Congratulations!');
 
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
+
+    if (!localStorage.getItem('isAuthorized')) {
+        return show404page();
+    }
 
     const [googleSheetLink, setGoogleSheetLink] = useState('');
     const [csvData, setCsvData] = useState('');

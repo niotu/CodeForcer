@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom"; // Import the provided CSS file
 import './styles.css';
-import logout from "./globalFunctions.js";
+import logout, {show404page} from "./globalFunctions.jsx";
 
 const LinkPage = () => {
     // const [key, setKey] = useState('');
@@ -11,9 +11,15 @@ const LinkPage = () => {
     const [comment, setComment] = useState('');
     const [isCorrect, setIsCorrect] = useState(true)
 
+    console.log(localStorage.getItem('isAuthorized'));
+
+    if (!localStorage.getItem('isAuthorized')) {
+        return show404page();
+    }
+
     const linkSubmit = async (e) => {
         e.preventDefault();
-        console.log('** processing...')
+        // console.log('** processing...')
 
         let id = 0,
             status,

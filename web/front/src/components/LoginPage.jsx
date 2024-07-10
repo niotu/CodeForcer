@@ -2,16 +2,16 @@ import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
 import './styles.css'; // Import the provided CSS file
-import logout from './globalFunctions.js'
+import logout from './globalFunctions.jsx'
 
 const LoginPage = () => {
     const [isCorrect, setIsCorrect] = useState(false);
     const [key, setKey] = useState(Cookies.get('userKey') || '');
     const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
-    const [comment, setComment] = useState('');
+    const [comment, setComment] = useState('We use Cookies to store your temporary data.');
     const navigate = useNavigate();
-    const [id, setId] = useState('');
-    const [status, setStatus] = useState('')
+    let id;
+    let status;
 
     console.log(`UserKey: ${key}, secret: ${secret}`)
     const handleSubmit = async (e) => {
@@ -28,9 +28,9 @@ const LoginPage = () => {
         });
         let resp_json = await response.json();
         console.log(resp_json);
-        setStatus(resp_json.status);
+        status = resp_json.status;
         if (resp_json.status === 'OK') {
-            setId(resp_json.id);
+            id = resp_json.id;
             console.log(`** id is ${id}`)
             Cookies.set('userKey', key);
             // console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
@@ -39,11 +39,11 @@ const LoginPage = () => {
 
             // console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
             localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
-            localStorage.setItem('userId', resp_json.id); // Store the user ID in local storage
-            console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
+            localStorage.setItem('userId', id); // Store the user ID in local storage
+            // console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
+            // console.log(`** userId is ${localStorage.getItem('userId')}`)
 
-            console.log(`** userId is ${localStorage.getItem('userId')}`)
-            navigate('/link');
+            navigate('/link')
         } else if (resp_json.status === 'FAILED') {
             setComment(resp_json.comment)
             alert(resp_json.comment);

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
-import logout from "./globalFunctions.js";
+import logout from "./globalFunctions.jsx";
 
 const UploadCsvFilePage = () => {
     const {groupCode, contestId} = useParams();

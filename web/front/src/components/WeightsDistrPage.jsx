@@ -1,16 +1,22 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css';
-import logout from "./globalFunctions.js";
+import logout, {show404page} from "./globalFunctions.jsx";
 
 
 const WeightsDistrPage = () => {
     let comment = 'The task weights must be in percentage (0-100%)'
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const navigate = useNavigate();
+
     const [tasks, setTasks] = useState([]);
+
     const [weights, setWeights] = useState([]);
-    const [mode, setMode] = useState('last');
+    const [mode, setMode] = useState('best');
+
+    if (!localStorage.getItem('isAuthorized')) {
+        return show404page();
+    }
 
 
     const handleWeights = async (e) => {
@@ -73,13 +79,15 @@ const WeightsDistrPage = () => {
                                                         setTaskWeights(e.target.value, index); // Pass the index
                                                     }}
                                                     min={0}
-                                                    max={task.MaxPoints}
                                                 />
                                             </li>
                                         ))
                                     }
                                     <label className='task'>Mode: </label>
-                                    <select id='mode' onChange={(e) => setMode(e.target.value)} defaultValue='last'>
+                                    <select id='mode'
+                                            onChange={(e) =>
+                                                setMode(e.target.value)}
+                                            defaultValue={mode}>
                                         <option value='last'>Last</option>
                                         <option value='best'>Best</option>
                                     </select>
