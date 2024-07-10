@@ -17,7 +17,7 @@ function dateToUnix(date) {
 const LateSubmissionPage = () => {
     // ... other state variables ...
     const {groupCode, contestId} = useParams();
-    const [date, setDate] = useState(new Date());
+    const [lateHours, setLateHours] = useState(12);
     const navigate = useNavigate();
 
     const [comment, setComment] = useState('');
@@ -33,12 +33,7 @@ const LateSubmissionPage = () => {
         e.preventDefault();
         console.log(' processing...')
 
-        // ... (Your logic to get groupCode, contestId, and userID) ...
-
-        // Convert the date to a string in ISO format for sending to the API
-        const formattedDate = dateToUnix(date); // Get only the date part
-        console.log(formattedDate);
-        sessionStorage.setItem('date', formattedDate);
+        sessionStorage.setItem('lateHours', lateHours);
         sessionStorage.setItem('penalty', penalty);
 
         navigate(`/contest-details/${groupCode}/${contestId}`);
@@ -55,12 +50,12 @@ const LateSubmissionPage = () => {
                     </div>
                     <div className="right-part">
                         <form onSubmit={lateSubmit} autoComplete='on'>
-                            <label htmlFor="date">Choose the date:</label>
+                            <label htmlFor="number">Enter the late submission hours:</label>
                             <input
-                                type="datetime-local" // Change to "date"
-                                id="date"
-                                value={date.toISOString().slice(0, 16)} // Format for date input
-                                onChange={(e) => setDate(new Date(e.target.value))}
+                                type="number" // Change to "date"
+                                id="hours"
+                                value={lateHours} // Format for date input
+                                onChange={(e) => setLateHours(e.target.value)}
                                 required
                                 className={isCorrect ? 'correct' : 'incorrect'}
                             /><br/><br/>

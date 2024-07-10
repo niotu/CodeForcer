@@ -9,18 +9,19 @@ const ContestDetails = () => {
 
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
 
-    if (!localStorage.getItem('isAuthorized')) {
-        return show404page();
-    }
-
     const [googleSheetLink, setGoogleSheetLink] = useState('');
+
     const [csvData, setCsvData] = useState('');
     const [submissionsData, setSubmissionsData] = useState('');
     const [loading, setLoading] = useState(true); // Add a loading state
 
+    if (!localStorage.getItem('isAuthorized')) {
+        return show404page();
+    }
+
     const [taskWeights, setTaskWeights] = useState(sessionStorage.getItem('weights').replaceAll(',', '-') || '')
     const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
-    const [late, setLate] = useState(sessionStorage.getItem('date').replaceAll('-', '') || '');
+    const [late, setLate] = useState(sessionStorage.getItem('lateHours'));
     const [penalty, setPenalty] = useState(sessionStorage.getItem('penalty') || '');
     const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
 
