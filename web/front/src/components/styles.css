@@ -91,14 +91,14 @@ body {
 
     padding: 10px 20px;
     border-radius: 25px;
-    background-color: #4F63CB; /* Dark blue */
+    background-color: #32a852; /* Dark blue */
     color: white;
     border: none;
     cursor: pointer;
 }
 
 .navigation button:hover {
-    background-color: #4556AA; /* Darker blue on hover */
+    background-color: #3e9439; /* Darker blue on hover */
 }
 
 .left-part {
@@ -173,7 +173,7 @@ input {
 }
 
 .list-view li {
-    background-color: #4F63CB; /* Dark grey */
+    background-color: #32a852; /* Dark grey */
     color: white;
     border-radius: 25px;
     padding: 10px;
@@ -209,7 +209,7 @@ input {
 }
 
 .right-part a {
-    color: #4F63CB; /* Dark blue for links */
+    color: #32a852; /* Dark blue for links */
     /*text-decoration: none;*/
     margin-bottom: 10px;
 }
@@ -223,14 +223,14 @@ input {
     margin-top: 10px;
     padding: 10px 20px;
     border-radius: 25px;
-    background-color: #4F63CB; /* Dark blue */
+    background-color: #32a852; /* Dark blue */
     color: white;
     border: none;
     cursor: pointer;
 }
 
 .right-part button:hover {
-    background-color: #4556AA; /* Darker blue on hover */
+    background-color: #3e9439; /* Darker blue on hover */
 }
 
 .navigation p {
