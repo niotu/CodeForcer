@@ -26,7 +26,6 @@ func TestMakeTableData(t *testing.T) {
 				Solutions: map[string]*entities.Submission{
 					"A": {
 						Index:          "A",
-						Solution:       "",
 						Points:         4.0,
 						SubmissionId:   123456,
 						ProgramLang:    "GNU C++20",
@@ -35,7 +34,6 @@ func TestMakeTableData(t *testing.T) {
 					},
 					"B": {
 						Index:          "B",
-						Solution:       "",
 						Points:         2.0,
 						SubmissionId:   123459,
 						ProgramLang:    "GNU C++20",
@@ -49,7 +47,6 @@ func TestMakeTableData(t *testing.T) {
 				Solutions: map[string]*entities.Submission{
 					"A": {
 						Index:          "A",
-						Solution:       "",
 						Points:         5.0,
 						SubmissionId:   123450,
 						ProgramLang:    "Java 8",
@@ -58,7 +55,6 @@ func TestMakeTableData(t *testing.T) {
 					},
 					"B": {
 						Index:          "B",
-						Solution:       "",
 						Points:         5.0,
 						SubmissionId:   123459,
 						ProgramLang:    "GNU C++20",
@@ -78,11 +74,11 @@ func TestMakeTableData(t *testing.T) {
 		SubmissionParsingMode: "best",
 	}
 
-	actual := MakeTableData(resData, extra)
+	actual := MakeTableData(resData, extra, 8)
 
 	expected := [][]string{
-		{"User1", "4", "8", "2", "4", "6", "12"},
-		{"User2", "5", "10", "5", "5", "10", "15"},
+		{"User1", "r@gmatil.com", "4", "8", "2", "4", "6", "12"},
+		{"User2", "f@f.ru", "5", "10", "5", "5", "10", "15"},
 	}
 
 	for i, s := range actual {

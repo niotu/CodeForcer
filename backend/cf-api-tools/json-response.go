@@ -75,16 +75,19 @@ func fillResultsToTable(name string, resultsData FinalJSONData, extraParams Pars
 		problemNames = append(problemNames, fmt.Sprintf("Task %s - Moodle", p.Index))
 	}
 
-	csvHeaders := append([]string{"email"}, problemNames...)
+	csvHeaders := append([]string{"handle", "email"}, problemNames...)
 	csvHeaders = append(csvHeaders, "Total points - Codeforces")
 	csvHeaders = append(csvHeaders, "Total points - Moodle")
+
+	colsNumBeforeExtra := len(csvHeaders)
 
 	if len(extraParams.ExtraHeaders) > 0 {
 		csvHeaders = append(csvHeaders, extraParams.ExtraHeaders...)
 	}
+
 	csvHeaders = append(csvHeaders, "Feedback")
 
-	csvData := MakeTableData(resultsData, extraParams)
+	csvData := MakeTableData(resultsData, extraParams, colsNumBeforeExtra)
 
 	sheet, err := MakeGoogleSheet(name, csvHeaders, csvData)
 	if err != nil {

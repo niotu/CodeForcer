@@ -1,30 +1,70 @@
 package cf_api_tools
 
 import (
+	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/solutions"
+	"io"
 	"net/http"
-	"sync"
 	"time"
 )
 
 var (
 	ContestStatus    = "contest.status"
 	ContestStandings = "contest.standings"
+	key              = []byte("69RO9csdv2prbG249rz9Fg==")
 )
 
 type Client struct {
-	apiKey      string
-	apiSecret   string
+	apiKey      []byte
+	apiSecret   []byte
 	Handle      string
 	password    string
 	authClient  *http.Client
 	currContest *entities.Contest
 }
 
+func encryptClientData(data string) []byte {
+	block, _ := aes.NewCipher(key)
+	bsize := block.BlockSize()
+	dataBytes := []byte(data)
+
+	// Padding
+	dataPadding := bsize - len(dataBytes)%bsize
+	paddedData := append(dataBytes, bytes.Repeat([]byte{byte(dataPadding)}, dataPadding)...)
+
+	ciphertext := make([]byte, aes.BlockSize+len(paddedData))
+	iv := ciphertext[:aes.BlockSize]
+	io.ReadFull(rand.Reader, iv)
+
+	mode := cipher.NewCBCEncrypter(block, iv)
+	mode.CryptBlocks(ciphertext[aes.BlockSize:], paddedData)
+
+	return ciphertext
+}
+
+func decryptClientData(data []byte) []byte {
+	block, _ := aes.NewCipher(key)
+	iv := data[:aes.BlockSize]
+	ciphertext := data[aes.BlockSize:]
+
+	mode := cipher.NewCBCDecrypter(block, iv)
+	mode.CryptBlocks(ciphertext, ciphertext)
+
+	// Unpadding
+	paddingLen := int(ciphertext[len(ciphertext)-1])
+	unpaddedData := ciphertext[:len(ciphertext)-paddingLen]
+
+	return unpaddedData
+}
+
 func NewClient(apiKey, apiSecret string) (*Client, error) {
 	return &Client{
-		apiKey:    apiKey,
-		apiSecret: apiSecret,
+		apiKey:    encryptClientData(apiKey),
+		apiSecret: encryptClientData(apiSecret),
 	}, nil
 }
 
@@ -35,12 +75,20 @@ func NewClientWithAuth(apiKey, apiSecret, handle, password string) (*Client, err
 	}
 
 	return &Client{
-		apiKey:     apiKey,
-		apiSecret:  apiSecret,
+		apiKey:     encryptClientData(apiKey),
+		apiSecret:  encryptClientData(apiSecret),
 		Handle:     handle,
 		password:   password,
 		authClient: authClient,
 	}, nil
+}
+
+func (c *Client) DecodeApiKey() string {
+	return string(decryptClientData(c.apiKey))
+}
+
+func (c *Client) DecodeApiSecret() string {
+	return string(decryptClientData(c.apiSecret))
 }
 
 func (c *Client) Authenticate() error {
@@ -84,29 +132,13 @@ func (c *Client) GetContestsList(groupCode string) ([]entities.Contest, error) {
 	return contests, nil
 }
 
-func (c *Client) GetSubmissionCode(ch chan entities.SubmissionCodeChanObject,
-	mutex *sync.Mutex, groupCode string, contestId, submissionId int64) error {
-	var err error
-
-	if err = c.Authenticate(); err != nil {
-		return err
-	}
-
-	entities.FetchSubmission(c.authClient, ch, mutex, groupCode, contestId, submissionId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (c *Client) GetContestData(groupCode string, contestId int64) (*DataFromStandings, error) {
 	params := &CFContestMethodParams{
 		GroupCode: groupCode,
 		ContestId: contestId,
 		AsManager: true,
-		ApiKey:    c.apiKey,
-		ApiSecret: c.apiSecret,
+		ApiKey:    c.DecodeApiKey(),
+		ApiSecret: c.DecodeApiSecret(),
 		Time:      time.Now().Unix(),
 		Count:     1,
 	}
@@ -127,13 +159,13 @@ func (c *Client) GetContestData(groupCode string, contestId int64) (*DataFromSta
 	return data, nil
 }
 
-func (c *Client) GetStatistics(groupCode string, contestId int64, count int, tableParams ParsingParameters) (FinalJSONData, error) {
+func (c *Client) GetStatistics(groupCode string, contestId int64, count int, tableParams ParsingParameters, srcArchive string) (FinalJSONData, error) {
 	params := &CFContestMethodParams{
 		GroupCode: groupCode,
 		ContestId: contestId,
 		AsManager: true,
-		ApiKey:    c.apiKey,
-		ApiSecret: c.apiSecret,
+		ApiKey:    c.DecodeApiKey(),
+		ApiSecret: c.DecodeApiSecret(),
 		Time:      time.Now().Unix(),
 		Count:     count,
 	}
@@ -143,55 +175,20 @@ func (c *Client) GetStatistics(groupCode string, contestId int64, count int, tab
 		return FinalJSONData{}, err
 	}
 
-	//submissionCodeChan := make(map[int64]chan entities.SubmissionCodeChanObject)
+	submissonCodes := make(map[int64]entities.User)
 
-	//wg := &sync.WaitGroup{}
-	//defer wg.Wait()
-	//
-	//mutex := &sync.Mutex{}
+	for _, u := range finalData.Users {
+		for _, s := range u.Solutions {
+			if s.SubmissionId != -1 {
+				submissonCodes[s.SubmissionId] = u
+			}
+		}
+	}
 
-	//var err error
-	//if client == nil {
-	//	client, err = entities.Login(c.Handle, c.password)
-	//	if err != nil {
-	//		log.Fatalf("Login failed: %v", err)
-	//	}
-	//}
-	//
-	//for _, u := range finalData.Users {
-	//	for _, s := range u.Solutions {
-	//		if s.SubmissionId != -1 {
-	//			submissionCodeChan[s.SubmissionId] = make(chan entities.SubmissionCodeChanObject, 1)
-	//			ch := submissionCodeChan[s.SubmissionId]
-	//
-	//			wg.Add(1)
-	//			go func(group *sync.WaitGroup, channel chan entities.SubmissionCodeChanObject, id int64) {
-	//				defer group.Done()
-	//
-	//				c.GetSubmissionCode(client, channel, mutex,
-	//					groupCode, contestId, id)
-	//			}(wg, ch, s.SubmissionId)
-	//			time.Sleep(2100 * time.Millisecond)
-	//		}
-	//	}
-	//}
-	//
-	//wg.Wait()
-	//
-	//for _, u := range finalData.Users {
-	//	for key, sub := range u.Solutions {
-	//		if sub.SubmissionId == -1 {
-	//			continue
-	//		}
-	//		code := <-submissionCodeChan[sub.SubmissionId]
-	//
-	//		if code.Error != nil {
-	//			fmt.Println(code.Error)
-	//		} else {
-	//			u.Solutions[key].Solution = code.Code
-	//		}
-	//	}
-	//}
+	err = solutions.MakeSolutionsArchive(srcArchive, submissonCodes)
+	if err != nil {
+		return FinalJSONData{}, err
+	}
 
 	return *finalData, nil
 
