@@ -19,5 +19,6 @@ testing:
   stage: test
   image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golang:1.21
   script:
+    - go mod tidy
     - go test -v ./backend
 
