@@ -2,6 +2,7 @@ package cf_api_tools
 
 import (
 	"fmt"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/db"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/googlesheets"
 	"strconv"
 	"strings"
@@ -16,15 +17,17 @@ type ParsingParameters struct {
 }
 
 func feedbackFormulaPattern(start int) string {
-	startLetter := string(rune('A' + start - 1))
+	startLetter := string(rune('A' + start))
 	return fmt.Sprintf("& CHAR(10)&CHAR(10) & IF(COLUMN() <= %d, \"\", JOIN(CHAR(10)&CHAR(10), ARRAYFORMULA(\"$%s$1\":INDIRECT(ADDRESS(1, COLUMN()-1)) & \": \" & INDIRECT(\"$%s\"&ROW()):INDIRECT(ADDRESS(ROW(), COLUMN()-1)))))",
-		start, startLetter, startLetter)
+		start+1, startLetter, startLetter)
 }
 
 var FeedbackFormula string
 
-func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters) [][]string {
-	FeedbackFormula = feedbackFormulaPattern(4 + len(resultsData.Problems)*2)
+func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, mandatoryCols int) [][]string {
+	FeedbackFormula = feedbackFormulaPattern(mandatoryCols)
+
+	mapHandleToEmail := db.GetUsers()
 
 	var rows [][]string
 
@@ -54,7 +57,6 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters) [][
 				moodlePoints *= 1.0 - float64(extraParams.LatePenalty)/100
 			} else if submission.Late && submission.SubmissionTime > extraParams.LateTime {
 				taskStatus = "(no submission)"
-				submission.Solution = ""
 			}
 
 			points = append(points, strconv.Itoa(int(moodlePoints)))
@@ -68,7 +70,10 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters) [][
 			i++
 		}
 
-		row := append([]string{fmt.Sprintf("User%d", count)}, points...)
+		userEmail := mapHandleToEmail[user.Handle]
+
+		//row := append([]string{fmt.Sprintf("User%d", count)}, points...)
+		row := append([]string{user.Handle, userEmail}, points...)
 		row = append(row, strconv.Itoa(int(totalCF)), strconv.Itoa(int(totalMoodle)))
 		row = append(row, "=\"Passing test:\n"+strings.Join(feedbackPart, "; ")+"\""+FeedbackFormula)
 

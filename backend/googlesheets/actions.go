@@ -48,7 +48,7 @@ func setSpreadsheet(email string, client *Spreadsheet) {
 
 func initGoogleServices() error {
 	// Load the Google API credentials from your JSON file.
-	credsPath, err := filepath.Abs("./credentials.json")
+	credsPath, err := filepath.Abs("../credentials.json")
 	if err != nil {
 		logger.Error(fmt.Errorf("unable to get absolute path of credentials file: %w", err))
 		return Error
