@@ -1,9 +1,11 @@
 stages:
   - lint
   - test
+  - deploy
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
+  GIT_STRATEGY: clone
 
 image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/docker:stable-dind
 
@@ -19,5 +21,23 @@ testing:
   stage: test
   image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golang:1.21
   script:
-    - go test -v ./backend/tests
+    - go test -v ./backend
+
+deploying:
+
+  stage: deploy
+
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+  script:
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ramzannazmi@blxxdclxud.duckdns.org "git clone git@github.com:yourusername/your-repo.git"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ramzannazmi@blxxdclxud.duckdns.org "cd your-repo && docker build -t your-image-name ."
+
+  after_script:
+    - ssh-agent -k
 

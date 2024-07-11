@@ -6,9 +6,11 @@ import (
 	"github.com/google/uuid"
 	mx "github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
+	cfapitools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/db"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"go.uber.org/zap"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,21 +19,29 @@ import (
 )
 
 var clients sync.Map // Concurrent map to store clients
+var clientKeyToId sync.Map
 
-const (
-	EmptyParamsErrorMsg  = "Some parameters are empty"
-	UserNotFoundErrorMsg = "User not found"
-)
-
-func getClient(userID string) *cf_api_tools.Client {
+func getClient(userID string) *cfapitools.Client {
 	client, ok := clients.Load(userID)
 	if !ok {
 		return nil
 	}
-	return client.(*cf_api_tools.Client)
+	return client.(*cfapitools.Client)
 }
 
-func setClient(userID string, client *cf_api_tools.Client) {
+func getIdByClient(client *cfapitools.Client) string {
+	key := client.DecodeApiKey()
+
+	id, ok := clientKeyToId.Load(key)
+	if !ok {
+		return ""
+	}
+	return id.(string)
+}
+
+func setClient(userID string, client *cfapitools.Client) {
+	key := client.DecodeApiKey()
+	clientKeyToId.Store(key, userID)
 	clients.Store(userID, client)
 }
 
@@ -41,6 +51,7 @@ func panicLogMiddleware(next http.Handler) http.Handler {
 			if err := recover(); err != nil {
 				logger.Logger().Error("",
 					zap.Any("code", err))
+				_, _ = w.Write(statusFailedResponse("server error"))
 			}
 		}()
 		next.ServeHTTP(w, r)
@@ -55,53 +66,6 @@ func infoLogMiddleware(next http.Handler) http.Handler {
 			zap.String("Query", r.URL.Query().Encode()))
 		next.ServeHTTP(w, r)
 	})
-}
-
-type EntitiesResponseObject interface{}
-
-func statusFailedResponse(comment string) []byte {
-	resp := struct {
-		Status  string `json:"status"`
-		Comment string `json:"comment"`
-	}{Status: "FAILED", Comment: comment}
-
-	jsonResp, _ := json.Marshal(&resp)
-
-	return jsonResp
-}
-
-func statusOKResponse(obj EntitiesResponseObject) []byte {
-	resp := struct {
-		Status                 string `json:"status"`
-		EntitiesResponseObject `json:"result"`
-	}{Status: "OK", EntitiesResponseObject: obj}
-
-	jsonResp, _ := json.Marshal(&resp)
-
-	return jsonResp
-}
-
-func isEmptyParams(params ...string) bool {
-	for _, p := range params {
-		if p == "" {
-			return true
-		}
-	}
-	return false
-}
-
-func validateAndWrite(w http.ResponseWriter, client *cf_api_tools.Client, params ...string) bool {
-	if isEmptyParams(params...) {
-		_, _ = w.Write(statusFailedResponse(EmptyParamsErrorMsg))
-		return false
-	}
-
-	if client == nil {
-		_, _ = w.Write(statusFailedResponse(UserNotFoundErrorMsg))
-		return false
-	}
-
-	return true
 }
 
 func setAdminData(w http.ResponseWriter, r *http.Request) {
@@ -125,14 +89,18 @@ func setAdminData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := cf_api_tools.NewClient(apiKey, apiSecret)
+	client, err := cfapitools.NewClient(apiKey, apiSecret)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))
 		return
 	}
 
-	//userId := uuid.New().String()
-	setClient(userId, client)
+	if id := getIdByClient(client); id != "" {
+		userId = id
+	} else {
+		//userId := uuid.New().String()
+		setClient(userId, client)
+	}
 
 	jsonResp, _ := json.Marshal(&struct {
 		Status string `json:"status"`
@@ -221,20 +189,6 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func parseWeights(weightsString string) ([]int, error) {
-	weightsSplitted := strings.Split(weightsString, "-")
-	var weights []int
-	for _, s := range weightsSplitted {
-		weight, err := strconv.Atoi(s)
-		if err != nil {
-			return nil, err
-		}
-		weights = append(weights, weight)
-	}
-
-	return weights, nil
-}
-
 func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("userID")
 	groupCode := r.URL.Query().Get("groupCode")
@@ -255,9 +209,9 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 
 	mode := r.URL.Query().Get("mode")
 	if mode == "last" {
-		mode = cf_api_tools.LastSolutionMode
+		mode = cfapitools.LastSolutionMode
 	} else {
-		mode = cf_api_tools.BestSolutionMode
+		mode = cfapitools.BestSolutionMode
 	}
 
 	lateSubmTimeString := r.URL.Query().Get("late")
@@ -290,13 +244,20 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		headers = strings.Split(headersString, "-")
 	}
 
+	srcZip := "../submissions.zip"
+	err = getZipFile(r, srcZip)
+	if err != nil {
+		_, _ = w.Write(statusFailedResponse(err.Error()))
+		return
+	}
+
 	logger.Logger().Info("Proceeding:",
 		//zap.String("Handle", client.Handle),
 		zap.String("UserID", userID),
 		zap.String("GroupCode", groupCode),
 		zap.Int64("ContestID", contestId))
 
-	extraParams := cf_api_tools.ParsingParameters{
+	extraParams := cfapitools.ParsingParameters{
 		TasksWeights:          weights,
 		ExtraHeaders:          headers,
 		LatePenalty:           penalty,
@@ -304,13 +265,50 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		SubmissionParsingMode: mode,
 	}
 
-	data, err := client.GetStatistics(groupCode, contestId, count, extraParams)
+	data, err := client.GetStatistics(groupCode, contestId, count, extraParams, srcZip)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))
 		return
 	}
 
 	_, _ = w.Write(statusOKResponse(data))
+	createMultipart(w, statusOKResponse(data))
+}
+
+func uploadUsers(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(5 << 20)
+	if err != nil {
+		logger.Error(err)
+		_, _ = w.Write(statusFailedResponse("could not parse multipart form"))
+		return
+	}
+
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		logger.Error(err)
+		_, _ = w.Write(statusFailedResponse("could not get uploaded file"))
+		return
+	}
+	defer file.Close()
+
+	buff, err := io.ReadAll(file)
+	if err != nil {
+		logger.Error(err)
+		_, _ = w.Write(statusFailedResponse("could not read uploaded file"))
+		return
+	}
+
+	err = db.UploadUsersToFile(buff)
+	if err != nil {
+		_, _ = w.Write(statusFailedResponse(err.Error()))
+		return
+	}
+
+	logger.Logger().Info("Users file downloaded successfully",
+		zap.Int64("size", handler.Size),
+		zap.String("name", handler.Filename))
+
+	_, _ = w.Write(statusOKResponse("file uploaded successfully"))
 }
 
 func main() {
@@ -342,11 +340,12 @@ func main() {
 	mux.Use(panicLogMiddleware)
 	mux.Use(infoLogMiddleware)
 
-	mux.HandleFunc("/api/setAdmin", setAdminData).Methods("GET")
-	mux.HandleFunc("/api/getTasks", getTasks).Methods("GET")
-	mux.HandleFunc("/api/getGroups", getGroups).Methods("GET")
-	mux.HandleFunc("/api/getContests", getContests).Methods("GET")
-	mux.HandleFunc("/api/proceed", proceedProcess).Methods("GET")
+	mux.HandleFunc("/api/setAdmin", setAdminData).Methods(http.MethodGet)
+	mux.HandleFunc("/api/getTasks", getTasks).Methods(http.MethodGet)
+	mux.HandleFunc("/api/getGroups", getGroups).Methods(http.MethodGet)
+	mux.HandleFunc("/api/getContests", getContests).Methods(http.MethodGet)
+	mux.HandleFunc("/api/proceed", proceedProcess).Methods(http.MethodPost)
+	mux.HandleFunc("/api/uploadUsers", uploadUsers).Methods(http.MethodPost)
 
 	http.Handle("/", mux)
 

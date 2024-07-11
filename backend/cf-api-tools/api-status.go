@@ -90,7 +90,6 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 					Index:          p.Index,
 					SubmissionId:   -1,
 					Late:           false,
-					ProgramLang:    submissionJson["programmingLanguage"].(string),
 					SubmissionTime: int64(submissionJson["creationTimeSeconds"].(float64)),
 				}
 
@@ -110,7 +109,8 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 
 		currUser := db[username]
 
-		if s := currUser.Solutions[problemIdx]; s.SubmissionId == -1 || (mode == BestSolutionMode &&
+		//&& s.Points > 0.0
+		if s := currUser.Solutions[problemIdx]; (s.SubmissionId == -1) || (mode == BestSolutionMode &&
 			submissionPoints > currUser.Solutions[problemIdx].Points) {
 
 			problemVerdict := submissionJson["verdict"].(string)
@@ -125,6 +125,7 @@ func parseContestStatus(data interface{}, dataStatus *DataFromStatus, dataStandi
 			}
 			currUser.Solutions[problemIdx].Points = submissionPoints
 			currUser.Solutions[problemIdx].SubmissionId = id
+			currUser.Solutions[problemIdx].ProgramLang = submissionJson["programmingLanguage"].(string)
 		}
 	}
 
