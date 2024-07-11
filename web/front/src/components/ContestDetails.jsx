@@ -47,7 +47,17 @@ const ContestDetails = () => {
                     mode: mode
                 });
 
-                const response = await fetch(`/api/proceed?${queryParams}`);
+                const formData = new FormData();
+                const fileInput = document.querySelector('input[type="file"]');
+                formData.append('file', fileInput.files[0]);
+
+                fetch(`/api/proceed/${queryParams}`, {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => response.text())
+                    .then(data => console.log(data))
+                    .catch(error => console.error('Error:', error));
                 const data = await response.json();
 
                 console.log(data);

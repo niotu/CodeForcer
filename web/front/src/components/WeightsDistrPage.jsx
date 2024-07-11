@@ -78,6 +78,7 @@ const WeightsDistrPage = () => {
                                                     onChange={(e) => {
                                                         setTaskWeights(e.target.value, index); // Pass the index
                                                     }}
+                                                    required
                                                     min={0}
                                                 />
                                             </li>
