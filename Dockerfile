@@ -22,7 +22,6 @@ WORKDIR /app
 
 # Copy the Node.js application code
 COPY web/ ./web
-COPY db/ ./db
 RUN npm install --prefix ./web/front
 
 # Copy the built Go server binary from the first stage
