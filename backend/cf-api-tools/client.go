@@ -1,13 +1,11 @@
 package cf_api_tools
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/solutions"
-	"io"
 	"net/http"
 	"time"
 )
@@ -15,7 +13,7 @@ import (
 var (
 	ContestStatus    = "contest.status"
 	ContestStandings = "contest.standings"
-	key              = []byte("69RO9csdv2prbG249rz9Fg==")
+	key              = []byte("X0UcXcvv3hMj9XQpf584VlHxpWnoK7Vx")
 )
 
 type Client struct {
@@ -27,38 +25,30 @@ type Client struct {
 	currContest *entities.Contest
 }
 
-func encryptClientData(data string) []byte {
-	block, _ := aes.NewCipher(key)
-	bsize := block.BlockSize()
-	dataBytes := []byte(data)
+func encryptClientData(plaintext string) []byte {
+	aes, _ := aes.NewCipher(key)
 
-	// Padding
-	dataPadding := bsize - len(dataBytes)%bsize
-	paddedData := append(dataBytes, bytes.Repeat([]byte{byte(dataPadding)}, dataPadding)...)
+	gcm, _ := cipher.NewGCM(aes)
 
-	ciphertext := make([]byte, aes.BlockSize+len(paddedData))
-	iv := ciphertext[:aes.BlockSize]
-	io.ReadFull(rand.Reader, iv)
+	nonce := make([]byte, gcm.NonceSize())
+	_, _ = rand.Read(nonce)
 
-	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext[aes.BlockSize:], paddedData)
+	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
 
 	return ciphertext
 }
 
-func decryptClientData(data []byte) []byte {
-	block, _ := aes.NewCipher(key)
-	iv := data[:aes.BlockSize]
-	ciphertext := data[aes.BlockSize:]
+func decryptClientData(ciphertext []byte) string {
+	aes, _ := aes.NewCipher(key)
 
-	mode := cipher.NewCBCDecrypter(block, iv)
-	mode.CryptBlocks(ciphertext, ciphertext)
+	gcm, _ := cipher.NewGCM(aes)
 
-	// Unpadding
-	paddingLen := int(ciphertext[len(ciphertext)-1])
-	unpaddedData := ciphertext[:len(ciphertext)-paddingLen]
+	nonceSize := gcm.NonceSize()
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
 
-	return unpaddedData
+	plaintext, _ := gcm.Open(nil, nonce, ciphertext, nil)
+
+	return string(plaintext)
 }
 
 func NewClient(apiKey, apiSecret string) (*Client, error) {
@@ -84,11 +74,11 @@ func NewClientWithAuth(apiKey, apiSecret, handle, password string) (*Client, err
 }
 
 func (c *Client) DecodeApiKey() string {
-	return string(decryptClientData(c.apiKey))
+	return decryptClientData(c.apiKey)
 }
 
 func (c *Client) DecodeApiSecret() string {
-	return string(decryptClientData(c.apiSecret))
+	return decryptClientData(c.apiSecret)
 }
 
 func (c *Client) Authenticate() error {
