@@ -31,6 +31,7 @@ func getClient(userID string) *cfapitools.Client {
 
 func getIdByClient(client *cfapitools.Client) string {
 	key := client.DecodeApiKey()
+	fmt.Println(key)
 
 	id, ok := clientKeyToId.Load(key)
 	if !ok {
@@ -76,14 +77,6 @@ func setAdminData(w http.ResponseWriter, r *http.Request) {
 	//userId := "123"
 	userId := uuid.New().String()
 
-	logger.Logger().Info("Setting admin:",
-		//zap.String("Handle", handle),
-		//zap.String("Password", password),
-		zap.String("ApiKey", apiKey),
-		zap.String("ApiSecret", apiSecret),
-		zap.String("UserID", userId),
-	)
-
 	if isEmptyParams(apiSecret, apiKey) {
 		_, _ = w.Write(statusFailedResponse(EmptyParamsErrorMsg))
 		return
@@ -101,6 +94,14 @@ func setAdminData(w http.ResponseWriter, r *http.Request) {
 		//userId := uuid.New().String()
 		setClient(userId, client)
 	}
+
+	logger.Logger().Info("Setting admin:",
+		//zap.String("Handle", handle),
+		//zap.String("Password", password),
+		zap.String("ApiKey", apiKey),
+		zap.String("ApiSecret", apiSecret),
+		zap.String("UserID", userId),
+	)
 
 	jsonResp, _ := json.Marshal(&struct {
 		Status string `json:"status"`
