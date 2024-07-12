@@ -15,7 +15,7 @@ import (
 	"sync"
 )
 
-var ResultZipName = "../result.zip"
+var ResultZipName = "./result.zip"
 var SolutionArchiveError = errors.New("unable to proceed operations with archive, check the correctness of .zip and try later")
 
 func getFileNameAndExtension(filePath string) (string, string) {
@@ -83,8 +83,8 @@ func getTaskIndex(authors map[int64]entities.User, path string) string {
 }
 
 func MakeSolutionsArchive(srcArchive string, authors map[int64]entities.User) error {
-	dest := "../temp"
-	unarchived := "../solutions"
+	dest := "./temp"
+	unarchived := "./solutions"
 
 	err := unzipArchive(srcArchive, dest)
 	if err != nil {

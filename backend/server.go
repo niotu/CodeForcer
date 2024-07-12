@@ -244,7 +244,7 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		headers = strings.Split(headersString, "-")
 	}
 
-	srcZip := "../submissions.zip"
+	srcZip := "./submissions.zip"
 	err = getZipFile(r, srcZip)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))

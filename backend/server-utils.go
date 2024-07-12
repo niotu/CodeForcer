@@ -128,7 +128,9 @@ func createMultipart(w http.ResponseWriter, jsonData []byte) {
 
 	writer.Close()
 
-	_ = os.Remove(solutions.ResultZipName)
+	go func() {
+		_ = os.Remove(solutions.ResultZipName)
+	}()
 }
 
 func getZipFile(r *http.Request, srcZip string) error {

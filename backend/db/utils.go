@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-var usersFilePath = "../db/users.json"
+var usersFilePath = "./db/users.json"
 
 func UploadUsersToFile(table []byte) error {
 	reader := bytes.NewReader(table)
