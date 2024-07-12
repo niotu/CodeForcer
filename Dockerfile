@@ -1,38 +1,40 @@
-# Stage 1: Setup Node.js environment
-FROM node:20-alpine as frontend
+# Use the Go 1.21 base image
+FROM golang:1.21 as base
 
-# Set the working directory for the Node.js application
-WORKDIR /app
+# Install Node.js
+RUN apt-get update && apt-get install -y curl \
+  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+  && apt-get install -y nodejs \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
-# Copy the Node.js application code
-COPY web/front/ ./web/front/
-RUN npm install --prefix ./web/front
-
-# Stage 2: Build the Go application
-FROM golang:1.21
-
-# Set the working directory for the Go application
+# Set the working directory for the application
 WORKDIR /app
 
 # Copy go module files and download dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy the rest of the Go application code
+# Copy the rest of the Go application code except web/ directory
 COPY ./ ./
 
 # Build the Go application
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/server ./backend
 
-COPY --from=frontend /app/ ./
+# Setup Node.js environment
+WORKDIR /app/web/front
+RUN npm install
+
+# Move back to the app directory
+WORKDIR /app
 
 # Ensure the server binary is executable
 RUN chmod +x ./server
 
-# Make the script executable
+# Copy the start script and ensure it is executable
 RUN chmod +x ./start.sh
 
-# Expose port 8080
+# Expose ports
 EXPOSE 8080
 EXPOSE 80
 
