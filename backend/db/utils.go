@@ -68,6 +68,7 @@ func UploadUsersToFile(table []byte) error {
 func GetUsers() map[string]string {
 	file, err := os.Open(usersFilePath)
 	if err != nil {
+		_ = os.MkdirAll(filepath.Dir(usersFilePath), 0606)
 		file, _ = os.OpenFile(usersFilePath, os.O_CREATE|os.O_RDONLY|os.O_TRUNC, 0606)
 
 		data, _ := json.Marshal(map[string]string{})
