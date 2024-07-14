@@ -25,10 +25,10 @@ const UploadCsvFilePage = () => {
 
         // Convert the date to a string in ISO format for sending to the API
         const formData = new FormData();
-        formData.append('csvFile', csvFile);
+        formData.append('file', csvFile);
 
         try {
-            const response = await fetch(`/api/uploadUsers?${groupCode}/${contestId}`, {
+            const response = await fetch(`/api/uploadUsers`, {
                 method: 'POST',
                 body: formData,
             });

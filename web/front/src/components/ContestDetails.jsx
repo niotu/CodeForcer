@@ -2,7 +2,44 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
-import Cookies from "js-cookie";
+import localForage from "localforage";
+
+function getBoundary(contentType) {
+    const boundaryPrefix = 'boundary=';
+    const start = contentType.indexOf(boundaryPrefix) + boundaryPrefix.length;
+    let end = contentType.indexOf(';', start);
+    if (end === -1) end = contentType.length;
+    return contentType.substring(start, end).trim();
+}
+
+async function parseMultipart(blob, boundary) {
+    const text = await blob.text();
+    const parts = [];
+    const delimiter = `--${boundary}`;
+    const closeDelimiter = `--${boundary}--`;
+    const splitParts = text.split(delimiter);
+
+    for (let part of splitParts) {
+        if (part === '' || part === closeDelimiter || part === '--') continue;
+
+        const headersEndIndex = part.indexOf('\r\n\r\n');
+        const headersText = part.slice(0, headersEndIndex);
+        const bodyText = part.slice(headersEndIndex + 4);
+
+        const headers = {};
+        headersText.split('\r\n').forEach(header => {
+            const [key, value] = header.split(': ');
+            headers[key] = value;
+        });
+
+        parts.push({
+            headers,
+            body: bodyText,
+        });
+    }
+
+    return parts;
+}
 
 
 const ContestDetails = () => {
@@ -13,8 +50,9 @@ const ContestDetails = () => {
     const [googleSheetLink, setGoogleSheetLink] = useState('');
 
     const [csvData, setCsvData] = useState('');
-    const [submissionsData, setSubmissionsData] = useState('');
+    const [submissionsData, setSubmissionsData] = useState(null);
     const [loading, setLoading] = useState(true); // Add a loading state
+    const [result, setResult] = useState(null);
 
     if (!localStorage.getItem('isAuthorized')) {
         return show404page();
@@ -25,15 +63,17 @@ const ContestDetails = () => {
     const [late, setLate] = useState(sessionStorage.getItem('lateHours'));
     const [penalty, setPenalty] = useState(sessionStorage.getItem('penalty') || '');
     const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
-
-    console.log(`groupCode ${groupCode}\n
-    contestId ${contestId}\n
-    userId ${userId}\n
-    taskWeights ${taskWeights}\n
-    late ${late}\n
-    penalty ${penalty}\n
-    mode ${mode}`);
-
+    //
+    // console.log(`
+    //     groupCode ${groupCode}
+    //     contestId ${contestId}
+    //     userId ${userId}
+    //     taskWeights ${taskWeights}
+    //     late ${late}
+    //     penalty ${penalty}
+    //     mode ${mode}`
+    // );
+    //
 
     useEffect(() => {
         const fetchContestDetails = async () => {
@@ -49,29 +89,61 @@ const ContestDetails = () => {
                 });
 
                 const formData = new FormData();
-                const fileInput = Cookies.get('zip-file');
+                const fileInput = await localForage.getItem('zipFile');
                 formData.append('file', fileInput);
+                console.log(fileInput);
 
-                fetch(`/api/proceed/${queryParams}`, {
+                const response = await fetch(`/api/proceed?${queryParams}`, {
                     method: 'POST',
                     body: formData,
                 })
-                    .then(response => response.text())
-                    .then(data => console.log(data))
-                    .catch(error => console.error('Error:', error));
-                const data = await response.json();
+                // .then(response => response.text())
+                // .then(data => {
+                //     console.log(data);
+                //     setResult(data.result)
+                // })
+                // .catch(error => console.error('Error:', error));
+                // console.log(await response.text());
+                const responseBlob = await response.blob();
 
-                console.log(data);
+                // Parse the multipart response
+                // const boundary = getBoundary(response.headers.get('Content-Type'));
+                const parts = await parseMultipart(responseBlob, 'boundary');
 
-                setGoogleSheetLink(data.googleSheets);
-                setCsvData(data.csv);
-                setLoading(false); // Data fetching complete, set loading to false
+                console.log(parts);
 
-                if (data.status === 'OK') {
-                    // setSubmissionsData(data.Submissions);
-                } else if (data.status === 'FAILED') {
-                    setComment(data.comment);
-                    alert(data.comment);
+                // Process the parts
+                let jsonPart = null;
+                let zipFilePart = null;
+
+                parts.forEach(part => {
+                    const contentType = part.headers['Content-Type'];
+                    const contentDisposition = part.headers['Content-Disposition'];
+                    if (contentType) {
+                        if (contentType.includes('application/json')) {
+                            jsonPart = JSON.parse(part.body);
+                        } else if (contentType.includes('application/zip')) {
+                            zipFilePart = new Blob([part.body], {type: 'application/zip'});
+                        }
+                    }
+                });
+
+                if (jsonPart && zipFilePart) {
+                    console.log('JSON part:', jsonPart);
+                    const result = jsonPart.result;
+                    setGoogleSheetLink(result.googleSheets);
+                    setCsvData(result.csv);
+                    setLoading(false);
+
+                    // Create a download link for the zip file
+                    setSubmissionsData(zipFilePart);
+                }
+
+                if (jsonPart.status === 'OK') {
+                    alert('ok')
+                } else if (jsonPart.status === 'FAILED') {
+                    setComment(jsonPart.comment);
+                    alert(jsonPart.comment);
                 }
             } catch (error) {
                 console.error('Error fetching contest details:', error);

@@ -3,13 +3,19 @@ import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import Cookies from "js-cookie";
+import localForage from "localforage";
 
 const UploadZipFilePage = () => {
-    const {groupCode, contestId} = useParams();
+    const {group, contestId} = useParams();
     const navigate = useNavigate();
     const [comment, setComment] = useState('It is not required step, you can skip this page. Press "Submit"');
     const [isCorrect, setIsCorrect] = useState(true);
     const [zipFile, setZipFile] = useState(null); // State for the ZIP file
+
+
+    console.log(`group : ${group}`);
+    console.log(`contest : ${contestId}`);
+    console.log(useParams());
 
     if (!localStorage.getItem('isAuthorized')) {
         return show404page();
@@ -19,22 +25,20 @@ const UploadZipFilePage = () => {
         e.preventDefault();
         console.log(' processing...')
 
-        if (!zipFile) {
-            navigate(`/contest-details/${groupCode}/${contestId}`);
-            return;
-        }
-
         // Convert the date to a string in ISO format for sending to the API
         const formData = new FormData();
         formData.append('zipFile', zipFile);
-        Cookies.set('zip-file', zipFile);
+        await localForage.setItem('zipFile', zipFile);
 
-        navigate(`/contest-details/${groupCode}/${contestId}`);
+        console.log(`/contest-details/${group}/${contestId}`);
+
+        navigate(`/contest-details/${group}/${contestId}`);
 
     };
 
     const handleZipChange = (e) => {
         setZipFile(e.target.files[0]);
+        console.log('* changed file ', e.target.files[0]);
     };
 
     return (
