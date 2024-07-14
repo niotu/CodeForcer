@@ -126,3 +126,53 @@ For open source projects, say how it is licensed.
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has
 slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or
 owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+---- 
+
+# For Development
+
+The following application contains front end and back end development.
+The back end part of the application work on the Go programming language.
+The front end part of the application work on the React framework.
+
+## Front end Development
+
+The front end part of the application stores in the
+`/web/front` folder which is the React application template.
+
+In the `/web/front/src` folder lies the React application's files.
+
+In the `/web/front/src/components` folder lies the React files that contain the pages separately.
+
+In the `/web/front/assets` folder lies the sources.
+
+The file  `/web/front/package.json` contains the data for the front end application's work.
+
+### Getting Started
+
+Run this to change directory.
+
+```Shell
+cd /web/front
+```
+
+To start a development first, you need to pull the dependencies.
+Run the following command.
+
+```shell
+npm install
+```
+
+Then you are able to configure the `package.json` to choose your project's hosting address (default
+is ``http://localhost``).
+
+Then you can run the application with the following command
+
+```shell
+npm start
+```
+
+After this, you will be redirected to the browser.
+
+To terminate the process press `Cntr + C` in terminal and then choose `Yes` to entirely kill the process of running.
+
