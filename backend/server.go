@@ -107,6 +107,7 @@ func setAdminData(w http.ResponseWriter, r *http.Request) {
 		Status string `json:"status"`
 		Id     string `json:"id"`
 	}{"OK", userId})
+
 	_, _ = w.Write(jsonResp)
 }
 
