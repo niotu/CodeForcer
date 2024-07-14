@@ -2,6 +2,7 @@ package cf_api_tools
 
 import (
 	"fmt"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/db"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/googlesheets"
 	"strconv"
 	"strings"
@@ -26,7 +27,7 @@ var FeedbackFormula string
 func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, mandatoryCols int) [][]string {
 	FeedbackFormula = feedbackFormulaPattern(mandatoryCols)
 
-	//mapHandleToEmail := db.GetUsers()
+	mapHandleToEmail := db.GetUsers()
 
 	var rows [][]string
 
@@ -69,9 +70,10 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, man
 			i++
 		}
 
-		//userEmail := mapHandleToEmail[user.Handle]
+		userEmail := mapHandleToEmail[user.Handle]
 
-		row := append([]string{fmt.Sprintf("User%d", count)}, points...)
+		//row := append([]string{fmt.Sprintf("User%d", count)}, points...)
+		row := append([]string{fmt.Sprintf("User%d", count), userEmail}, points...)
 		//row := append([]string{user.Handle, userEmail}, points...)
 		row = append(row, strconv.Itoa(int(totalCF)), strconv.Itoa(int(totalMoodle)))
 		row = append(row, "=\"Passing test:\n"+strings.Join(feedbackPart, "; ")+"\""+FeedbackFormula)
