@@ -165,8 +165,7 @@ const ContestDetails = () => {
     };
 
     const downloadSubmissions = () => {
-        const blob = new Blob([atob(submissionsData)], {type: 'application/zip'});
-        const url = window.URL.createObjectURL(blob);
+        const url = window.URL.createObjectURL(submissionsData);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'submissions.zip';
