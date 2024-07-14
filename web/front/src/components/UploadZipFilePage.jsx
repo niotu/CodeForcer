@@ -2,13 +2,14 @@ import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
+import Cookies from "js-cookie";
 
-const UploadCsvFilePage = () => {
+const UploadZipFilePage = () => {
     const {groupCode, contestId} = useParams();
     const navigate = useNavigate();
     const [comment, setComment] = useState('It is not required step, you can skip this page. Press "Submit"');
     const [isCorrect, setIsCorrect] = useState(true);
-    const [csvFile, setCsvFile] = useState(null); // State for the CSV file
+    const [zipFile, setZipFile] = useState(null); // State for the ZIP file
 
     if (!localStorage.getItem('isAuthorized')) {
         return show404page();
@@ -18,37 +19,22 @@ const UploadCsvFilePage = () => {
         e.preventDefault();
         console.log(' processing...')
 
-        if (!csvFile) {
-            navigate(`/upload-zip/${groupCode}/${contestId}`);
+        if (!zipFile) {
+            navigate(`/contest-details/${groupCode}/${contestId}`);
             return;
         }
 
         // Convert the date to a string in ISO format for sending to the API
         const formData = new FormData();
-        formData.append('csvFile', csvFile);
+        formData.append('zipFile', zipFile);
+        Cookies.set('zip-file', zipFile);
 
-        try {
-            const response = await fetch(`/api/uploadUsers?${groupCode}/${contestId}`, {
-                method: 'POST',
-                body: formData,
-            });
+        navigate(`/contest-details/${groupCode}/${contestId}`);
 
-            const data = await response.json();
-
-            if (data.status === 'OK') {
-                navigate(`/upload-zip/${groupCode}/${contestId}`);
-            } else if (data.status === 'FAILED') {
-                setComment(data.comment);
-                alert(data.comment);
-            }
-        } catch (error) {
-            console.error('Error submitting late submission:', error);
-            alert('An error occurred. Please try again later.');
-        }
     };
 
-    const handleCsvChange = (e) => {
-        setCsvFile(e.target.files[0]);
+    const handleZipChange = (e) => {
+        setZipFile(e.target.files[0]);
     };
 
     return (
@@ -56,17 +42,18 @@ const UploadCsvFilePage = () => {
             <div className="wizard">
                 <div className="panel">
                     <div className="left-part">
-                        <h1>Set up the handle-email mapping</h1>
+                        <h1>Upload Submissions</h1>
                     </div>
                     <div className="right-part">
                         <form onSubmit={fileSubmit} autoComplete='on'>
-                            <label htmlFor="csvFile">Choose CSV file:</label>
+                            <label htmlFor="zipFile">Choose ZIP file:</label>
                             <input
                                 type="file"
-                                id="csvFile"
-                                accept=".csv"
-                                onChange={handleCsvChange}
-                            /><br/><br/>
+                                id="zipFile"
+                                accept=".zip"
+                                onChange={handleZipChange}
+                                required
+                            />
 
                             <button type="submit">Submit</button>
                         </form>
@@ -95,4 +82,5 @@ const UploadCsvFilePage = () => {
     );
 };
 
-export default UploadCsvFilePage;
+export default UploadZipFilePage;
+

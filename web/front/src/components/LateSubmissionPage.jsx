@@ -36,7 +36,7 @@ const LateSubmissionPage = () => {
         sessionStorage.setItem('lateHours', lateHours);
         sessionStorage.setItem('penalty', penalty);
 
-        navigate(`/contest-details/${groupCode}/${contestId}`);
+        navigate(`/upload-csv/${groupCode}/${contestId}`);
     };
 
     // ... (Rest of your component logic) ...

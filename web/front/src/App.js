@@ -1,11 +1,12 @@
 import React from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import LinkPage from "./components/LinkPage.jsx";
 import LoginPage from './components/LoginPage.jsx';
 import ContestDetails from './components/ContestDetails.jsx';
 import WeightsDistrPage from "./components/WeightsDistrPage.jsx";
-import LinkPage from "./components/LinkPage.jsx";
 import LateSubmissionPage from "./components/LateSubmissionPage.jsx";
 import UploadCsvFilePage from "./components/UploadCsvFilePage.jsx";
+import UploadZipFilePage from "./components/UploadZipFilePage.jsx";
 
 
 const App = () => {
@@ -50,6 +51,14 @@ const App = () => {
                            // : (<Navigate to='/'/>)
                        }
                 />
+                <Route path="/upload-zip/:group/:contestId"
+                       element={
+                           // localStorage.getItem('isAuthorized')?
+                           (<UploadZipFilePage/>)
+                           // : (<Navigate to='/'/>)
+                       }
+                />
+
                 {/*<Route path="*" element={<Navigate to="/" replace/>}/>*/}
             </Routes>
         </Router>

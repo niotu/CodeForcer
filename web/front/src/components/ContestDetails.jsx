@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
+import Cookies from "js-cookie";
 
 
 const ContestDetails = () => {
@@ -48,8 +49,8 @@ const ContestDetails = () => {
                 });
 
                 const formData = new FormData();
-                const fileInput = document.querySelector('input[type="file"]');
-                formData.append('file', fileInput.files[0]);
+                const fileInput = Cookies.get('zip-file');
+                formData.append('file', fileInput);
 
                 fetch(`/api/proceed/${queryParams}`, {
                     method: 'POST',

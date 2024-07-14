@@ -23,30 +23,50 @@ const LoginPage = () => {
             secret,
         });
 
-        const response = await fetch(`/api/setAdmin?${queryParams}`, {
-            method: 'GET'
+        console.log(process.env.REACT_APP_BACKEND_URL)
+
+        const url =
+            // process.env.REACT_APP_BACKEND_URL +
+            '/api/setAdmin?' + queryParams;
+
+        console.log(url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'no-cors'
         });
-        let resp_json = await response.json();
-        console.log(resp_json);
-        status = resp_json.status;
-        if (resp_json.status === 'OK') {
-            id = resp_json.id;
-            console.log(`** id is ${id}`)
-            Cookies.set('userKey', key);
-            // console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
 
-            Cookies.set('userSecret', secret);
+        console.log(response);
+        try {
+            // Handle non-200 status codes
+            if (!response.ok) {
+                throw new Error(`Request failed: ${response.ok}`);
+            }
+            const resp_json = await response.json();
+            console.log(resp_json);
+            status = resp_json.status;
+            if (resp_json.status === 'OK') {
+                id = resp_json.id;
+                console.log(`** id is ${id}`)
+                Cookies.set('userKey', key);
+                // console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
 
-            // console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
-            localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
-            localStorage.setItem('userId', id); // Store the user ID in local storage
-            // console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
-            // console.log(`** userId is ${localStorage.getItem('userId')}`)
+                Cookies.set('userSecret', secret);
 
-            navigate('/link')
-        } else if (resp_json.status === 'FAILED') {
-            setComment(resp_json.comment)
-            alert(resp_json.comment);
+                // console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
+                localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
+                localStorage.setItem('userId', id); // Store the user ID in local storage
+                // console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
+                // console.log(`** userId is ${localStorage.getItem('userId')}`)
+
+                navigate('/link')
+            } else if (resp_json.status === 'FAILED') {
+                setComment(resp_json.comment)
+                alert(resp_json.comment);
+            }
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+            // Display an error message to the user
         }
 
     };
@@ -73,7 +93,7 @@ const LoginPage = () => {
                                    value={secret}
                                    onChange={(e) => setSecret(e.target.value)}
                                    required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
-                            <button type="submit">Submit</button>
+                            <button type="submit">Log In</button>
                         </form>
                     </div>
                 </div>

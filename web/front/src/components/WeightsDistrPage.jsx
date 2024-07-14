@@ -18,7 +18,6 @@ const WeightsDistrPage = () => {
         return show404page();
     }
 
-
     const handleWeights = async (e) => {
         e.preventDefault();
 
