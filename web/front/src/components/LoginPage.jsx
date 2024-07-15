@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
 import './styles.css'; // Import the provided CSS file
 import logout from './globalFunctions.jsx'
 
 const LoginPage = () => {
-    const [isCorrect, setIsCorrect] = useState(false);
+    const [isCorrect, setIsCorrect] = useState(true);
     const [key, setKey] = useState(Cookies.get('userKey') || '');
     const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
     const [comment, setComment] = useState('We use Cookies to store your temporary data.');
@@ -15,6 +15,12 @@ const LoginPage = () => {
     let isAuth = localStorage.getItem('isAuthorized');
 
     console.log(`UserKey: ${key}, secret: ${secret}`)
+
+    useEffect(() => {
+        if (isAuth) {
+            navigate('/link');
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
 
@@ -68,6 +74,8 @@ const LoginPage = () => {
             }
         } catch (error) {
             console.error('Error fetching data: ', error);
+            setComment('Error fetching data');
+            setIsCorrect(false);
             // Display an error message to the user
         }
 
@@ -87,14 +95,16 @@ const LoginPage = () => {
                                    id="key"
                                    value={key}
                                    onChange={(e) => setKey(e.target.value)}
-                                   required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                                   required
+                                   className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
 
                             <label htmlFor="secret">Secret:</label>
                             <input type="password"
                                    id="secret"
                                    value={secret}
                                    onChange={(e) => setSecret(e.target.value)}
-                                   required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                                   required
+                                   className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
                             <button type="submit">Log In</button>
                         </form>
                     </div>
@@ -104,7 +114,7 @@ const LoginPage = () => {
                 <div className="left-navigation-part">
 
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
                         <button className={'logout'} onClick={() => logout()}>Logout

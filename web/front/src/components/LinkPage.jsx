@@ -48,12 +48,15 @@ const LinkPage = () => {
             userID: localStorage.getItem('userId')
         });
 
-        const response = await fetch(`/api/getTasks?${queryParams}`, {
-            method: 'GET',
-            mode: 'no-cors'
+        let url0 = process.env.REACT_APP_BACKEND_URL +
+            '/api/getTasks?' + queryParams;
+
+        const response = await fetch(url0, {
+            method: 'GET'
         });
-        let resp_json = await ((response.json()).then(r => r));
-        console.log(resp_json);
+        console.log(response);
+        let resp_json = await response.json();
+        // console.log(resp_json);
         status = resp_json.status;
 
         console.log(status);

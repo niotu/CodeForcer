@@ -27,8 +27,11 @@ const UploadCsvFilePage = () => {
         const formData = new FormData();
         formData.append('file', csvFile);
 
+        let url = process.env.REACT_APP_BACKEND_URL +
+            '/api/uploadUsers'
+
         try {
-            const response = await fetch(`/api/uploadUsers`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 body: formData,
             });
