@@ -118,6 +118,10 @@ Finally you get the coveted page with the result of the program, here you can se
 
 ![Final Page](images/FinalPage.png)
 
+We have tried to make our application as flexible as possible, because if it is impossible to fully automate the checking of works and still some points need to be checked manually, then in Google sheet you can create an additional column, name it as you like, and give additional points to students. This will also be taken into account in feedback.
+
+![Google Sheet](images/GoogleSheet.png)
+
 ## Used stack
 
 ---
