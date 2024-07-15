@@ -5,7 +5,7 @@ import logout, {show404page} from "./globalFunctions.jsx";
 
 
 const WeightsDistrPage = () => {
-    let comment = 'The task weights must be in percentage (0-100%)'
+    let comment = 'The task weights minimum value is 0'
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const navigate = useNavigate();
 
@@ -13,6 +13,7 @@ const WeightsDistrPage = () => {
 
     const [weights, setWeights] = useState([]);
     const [mode, setMode] = useState('best');
+    const [isCorrect, setIsCorrect] = useState(true)
 
     if (!localStorage.getItem('isAuthorized')) {
         return show404page();
@@ -43,7 +44,11 @@ const WeightsDistrPage = () => {
         });
 
         const fetchTasks = async () => {
-            const response = await fetch(`/api/getTasks?${queryParams}`);
+
+            let url = process.env.REACT_APP_BACKEND_URL +
+                '/api/getTasks?' + queryParams;
+
+            const response = await fetch(url);
             const data = await response.json();
             setTasks(data.result.Problems);
             console.log(data);
@@ -109,7 +114,7 @@ const WeightsDistrPage = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout

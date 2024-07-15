@@ -48,12 +48,15 @@ const LinkPage = () => {
             userID: localStorage.getItem('userId')
         });
 
-        const response = await fetch(`/api/getTasks?${queryParams}`, {
-            method: 'GET',
-            mode: 'no-cors'
+        let url0 = process.env.REACT_APP_BACKEND_URL +
+            '/api/getTasks?' + queryParams;
+
+        const response = await fetch(url0, {
+            method: 'GET'
         });
-        let resp_json = await ((response.json()).then(r => r));
-        console.log(resp_json);
+        console.log(response);
+        let resp_json = await response.json();
+        // console.log(resp_json);
         status = resp_json.status;
 
         console.log(status);
@@ -61,6 +64,7 @@ const LinkPage = () => {
             navigate(`/weights-distribution/${groupCode}/${contestId}`);
         } else if (status === 'FAILED') {
             setComment(resp_json.comment);
+            setIsCorrect(false);
             alert(resp_json.comment);
         }
 
@@ -98,7 +102,7 @@ const LinkPage = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout

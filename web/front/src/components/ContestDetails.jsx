@@ -63,6 +63,7 @@ const ContestDetails = () => {
     const [late, setLate] = useState(sessionStorage.getItem('lateHours'));
     const [penalty, setPenalty] = useState(sessionStorage.getItem('penalty') || '');
     const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
+    const [isCorrect, setIsCorrect] = useState(true)
     //
     // console.log(`
     //     groupCode ${groupCode}
@@ -93,7 +94,10 @@ const ContestDetails = () => {
                 formData.append('file', fileInput);
                 console.log(fileInput);
 
-                const response = await fetch(`/api/proceed?${queryParams}`, {
+                let url = process.env.REACT_APP_BACKEND_URL +
+                    '/api/proceed?' + queryParams;
+
+                const response = await fetch(url, {
                     method: 'POST',
                     body: formData,
                 })
@@ -107,8 +111,8 @@ const ContestDetails = () => {
                 const responseBlob = await response.blob();
 
                 // Parse the multipart response
-                // const boundary = getBoundary(response.headers.get('Content-Type'));
-                const parts = await parseMultipart(responseBlob, 'boundary');
+                const boundary = getBoundary(response.headers.get('Content-Type'));
+                const parts = await parseMultipart(responseBlob, boundary);
 
                 console.log(parts);
 
@@ -118,7 +122,7 @@ const ContestDetails = () => {
 
                 parts.forEach(part => {
                     const contentType = part.headers['Content-Type'];
-                    const contentDisposition = part.headers['Content-Disposition'];
+                    // const contentDisposition = part.headers['Content-Disposition'];
                     if (contentType) {
                         if (contentType.includes('application/json')) {
                             jsonPart = JSON.parse(part.body);
@@ -130,20 +134,36 @@ const ContestDetails = () => {
 
                 if (jsonPart && zipFilePart) {
                     console.log('JSON part:', jsonPart);
-                    const result = jsonPart.result;
-                    setGoogleSheetLink(result.googleSheets);
-                    setCsvData(result.csv);
-                    setLoading(false);
+                    console.log('ZIP part:', zipFilePart);
+                    if (jsonPart.status === 'OK') {
+                        const result = jsonPart.result;
+                        setGoogleSheetLink(result.googleSheets);
+                        setCsvData(result.csv);
+                        setSubmissionsData(zipFilePart);
 
-                    // Create a download link for the zip file
-                    setSubmissionsData(zipFilePart);
-                }
+                        setLoading(false);
+                    } else if (jsonPart.status === 'FAILED') {
+                        setComment(jsonPart.comment);
+                        setIsCorrect(false);
+                        alert(jsonPart.comment);
+                    }
+                } else if (jsonPart) {
+                    console.log('JSON part:', jsonPart);
+                    if (jsonPart.status === 'OK') {
+                        const result = jsonPart.result;
+                        setGoogleSheetLink(result.googleSheets);
+                        setCsvData(result.csv);
 
-                if (jsonPart.status === 'OK') {
-                    alert('ok')
-                } else if (jsonPart.status === 'FAILED') {
-                    setComment(jsonPart.comment);
-                    alert(jsonPart.comment);
+                        setLoading(false);
+                    } else if (jsonPart.status === 'FAILED') {
+                        setComment(jsonPart.comment);
+                        setIsCorrect(false);
+                        alert(jsonPart.comment);
+                    }
+                } else {
+                    setComment('Some error caught while processing response');
+                    alert(comment);
+                    return show404page();
                 }
             } catch (error) {
                 console.error('Error fetching contest details:', error);
@@ -178,7 +198,7 @@ const ContestDetails = () => {
             <div className="wizard">
                 <div className="loading-spinner">
                     <h1>Loading contest details...</h1>
-                    <img src={"/web/front/assets/loading.gif"} width={200} height={200} alt='loading'/>
+                    <img src="/web/front/assets/loading.gif" width={200} height={200} alt='loading'/>
                 </div>
             </div>
         </div>); // Render a loading indicator while data is being fetched
@@ -221,7 +241,7 @@ const ContestDetails = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout

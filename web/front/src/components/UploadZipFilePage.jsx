@@ -2,13 +2,12 @@ import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
-import Cookies from "js-cookie";
 import localForage from "localforage";
 
 const UploadZipFilePage = () => {
     const {group, contestId} = useParams();
     const navigate = useNavigate();
-    const [comment, setComment] = useState('It is not required step, you can skip this page. Press "Submit"');
+    const [comment, setComment] = useState('It is a required step, you cannot skip it.');
     const [isCorrect, setIsCorrect] = useState(true);
     const [zipFile, setZipFile] = useState(null); // State for the ZIP file
 
@@ -74,7 +73,7 @@ const UploadZipFilePage = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout

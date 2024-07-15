@@ -233,7 +233,7 @@ input {
     background-color: #3e9439; /* Darker blue on hover */
 }
 
-.navigation p {
+.navigation p.correct-comment {
     text-align: center;
 }
 
@@ -251,4 +251,9 @@ input {
     .right-part {
         width: 90%;
     }
+}
+
+.navigation p.incorrect-comment {
+    color: red;
+    text-align: center;
 }

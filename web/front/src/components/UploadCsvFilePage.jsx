@@ -27,8 +27,11 @@ const UploadCsvFilePage = () => {
         const formData = new FormData();
         formData.append('file', csvFile);
 
+        let url = process.env.REACT_APP_BACKEND_URL +
+            '/api/uploadUsers'
+
         try {
-            const response = await fetch(`/api/uploadUsers`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 body: formData,
             });
@@ -83,7 +86,7 @@ const UploadCsvFilePage = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout
