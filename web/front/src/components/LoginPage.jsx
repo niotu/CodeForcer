@@ -12,8 +12,10 @@ const LoginPage = () => {
     const navigate = useNavigate();
     let id;
     let status;
+    let isAuth = localStorage.getItem('isAuthorized');
 
     console.log(`UserKey: ${key}, secret: ${secret}`)
+
     const handleSubmit = async (e) => {
 
         e.preventDefault();
@@ -26,17 +28,17 @@ const LoginPage = () => {
         console.log(process.env.REACT_APP_BACKEND_URL)
 
         const url =
-            // process.env.REACT_APP_BACKEND_URL +
+            process.env.REACT_APP_BACKEND_URL +
             '/api/setAdmin?' + queryParams;
 
         console.log(url);
 
         const response = await fetch(url, {
-            method: 'GET',
-            mode: 'no-cors'
+            method: 'GET'
         });
 
         console.log(response);
+        // console.log(await response.text());
         try {
             // Handle non-200 status codes
             if (!response.ok) {
@@ -54,7 +56,7 @@ const LoginPage = () => {
                 Cookies.set('userSecret', secret);
 
                 // console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
-                localStorage.setItem('isAuthorized', 'true'); // Store the authorization status in local storage
+                localStorage.setItem('isAuthorized', true); // Store the authorization status in local storage
                 localStorage.setItem('userId', id); // Store the user ID in local storage
                 // console.log(`** is user auth ${localStorage.getItem('isAuthorized')}`)
                 // console.log(`** userId is ${localStorage.getItem('userId')}`)
@@ -104,10 +106,10 @@ const LoginPage = () => {
                 </div>
                 <p>{comment}</p>
                 <div className="right-navigation-part">
-                    <a href="/">
+                    {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
                         <button className={'logout'} onClick={() => logout()}>Logout
                         </button>
-                    </a>
+                    </a>) : (<a></a>)}
                 </div>
             </div>
         </div>
