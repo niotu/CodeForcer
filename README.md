@@ -37,7 +37,7 @@ SOFTWARE.
 - [Feature List](#feature-list)
 - [DEMO](#demo)
 - [Link to the up-to-date deployed version](#link-to-the-up-to-date-deployed-version)
-- [Usage Instructions / Short User Guide](#usage-instructions-short-user-guide)
+- [Usage Instructions / User Guide](#usage-instructions-user-guide)
 - [Used Stack](#used-stack)
    - [Backend](#backend)
    - [Frontend](#frontend)
@@ -80,7 +80,7 @@ CodeForcer automates grading of students, it automatically generates a table wit
 
 [Link](http://158.160.128.181:3000)
 
-## Usage Instructions / Short User Guide
+## Usage Instructions / User Guide
 
 ---
 
@@ -212,6 +212,8 @@ docker run -d -p 8080:8080 -p 3000:3000 codeforcer
 Now the web application runs on http://localhost:3000.
 
 ## Changelog
+
+---
 
 ### MVP3
 - Minor interface improvements.
