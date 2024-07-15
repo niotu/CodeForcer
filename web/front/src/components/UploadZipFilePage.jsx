@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
-import Cookies from "js-cookie";
 import localForage from "localforage";
 
 const UploadZipFilePage = () => {
@@ -74,7 +73,7 @@ const UploadZipFilePage = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout

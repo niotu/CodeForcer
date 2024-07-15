@@ -13,6 +13,7 @@ const WeightsDistrPage = () => {
 
     const [weights, setWeights] = useState([]);
     const [mode, setMode] = useState('best');
+    const [isCorrect, setIsCorrect] = useState(true)
 
     if (!localStorage.getItem('isAuthorized')) {
         return show404page();
@@ -113,7 +114,7 @@ const WeightsDistrPage = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout

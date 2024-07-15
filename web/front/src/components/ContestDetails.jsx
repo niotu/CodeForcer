@@ -63,6 +63,7 @@ const ContestDetails = () => {
     const [late, setLate] = useState(sessionStorage.getItem('lateHours'));
     const [penalty, setPenalty] = useState(sessionStorage.getItem('penalty') || '');
     const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
+    const [isCorrect, setIsCorrect] = useState(true)
     //
     // console.log(`
     //     groupCode ${groupCode}
@@ -121,7 +122,7 @@ const ContestDetails = () => {
 
                 parts.forEach(part => {
                     const contentType = part.headers['Content-Type'];
-                    const contentDisposition = part.headers['Content-Disposition'];
+                    // const contentDisposition = part.headers['Content-Disposition'];
                     if (contentType) {
                         if (contentType.includes('application/json')) {
                             jsonPart = JSON.parse(part.body);
@@ -133,6 +134,7 @@ const ContestDetails = () => {
 
                 if (jsonPart && zipFilePart) {
                     console.log('JSON part:', jsonPart);
+                    console.log('ZIP part:', zipFilePart);
                     if (jsonPart.status === 'OK') {
                         const result = jsonPart.result;
                         setGoogleSheetLink(result.googleSheets);
@@ -142,6 +144,20 @@ const ContestDetails = () => {
                         setLoading(false);
                     } else if (jsonPart.status === 'FAILED') {
                         setComment(jsonPart.comment);
+                        setIsCorrect(false);
+                        alert(jsonPart.comment);
+                    }
+                } else if (jsonPart) {
+                    console.log('JSON part:', jsonPart);
+                    if (jsonPart.status === 'OK') {
+                        const result = jsonPart.result;
+                        setGoogleSheetLink(result.googleSheets);
+                        setCsvData(result.csv);
+
+                        setLoading(false);
+                    } else if (jsonPart.status === 'FAILED') {
+                        setComment(jsonPart.comment);
+                        setIsCorrect(false);
                         alert(jsonPart.comment);
                     }
                 } else {
@@ -225,7 +241,7 @@ const ContestDetails = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout

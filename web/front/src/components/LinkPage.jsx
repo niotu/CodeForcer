@@ -64,6 +64,7 @@ const LinkPage = () => {
             navigate(`/weights-distribution/${groupCode}/${contestId}`);
         } else if (status === 'FAILED') {
             setComment(resp_json.comment);
+            setIsCorrect(false);
             alert(resp_json.comment);
         }
 
@@ -101,7 +102,7 @@ const LinkPage = () => {
                         </button>
                     </a>
                 </div>
-                <p>{comment}</p>
+                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                 <div className="right-navigation-part">
                     <a href="/">
                         <button className={'logout'} onClick={() => logout()}>Logout
