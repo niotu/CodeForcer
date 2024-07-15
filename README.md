@@ -90,33 +90,33 @@ When we open the site we are immediately taken to the authorization page, where 
 
 If you don't know what a key and secret is, and how to get it, you just need to follow this [link](https://codeforces.com/settings/api) to the codeforces api page, and just click on the green cross button "Add API Key".
 
-![Codeforces API](Codeforces_API.png)
+![Codeforces API](images/Codeforces_API.png)
 
 When you click on the Log in button, a page opens where you have to enter a link to the contest from which you want to get the scores.
 
-![Contest Link Page](ContestLinkPage.png)
+![Contest Link Page](images/ContestLinkPage.png)
 
 On the next page, a list of tasks to be evaluated with points awaits us. For example, if you plan to give 20 points for this assignment, and there are 2 tasks, you can divide the points equally, i.e. the first task will give the student 10 points, and the second task will also give the student 10 points. If there is only one task, then set the weight for it to 20 points.
 
 You can also choose whether the program will view the last or the best solution. In the first case, the program will simply take the last solution and look at its result. In the second case, the program will look for the solution with the highest score among all solutions, and if there are several of them, it will choose the last one from this list.
 
-![Weight Page](WeightPage.png)
+![Weight Page](images/WeightPage.png)
 
 On the next page, you will be able to configure the late submission policy. You need to specify how many hours you can be late in submitting the solution and what percentage of penalty you will be penalized for being late.
 
-![Late Submission Page](LateSubmissionPage.png)
+![Late Submission Page](images/LateSubmissionPage.png)
 
 On the next page, you are asked to attach a CSV file that contains the relationship between students' handles and their emails.
 
-![Mapping Page](MappingPage.png)
+![Mapping Page](images/MappingPage.png)
 
 Then you are asked to attach a ZIP archive with all student solutions, the program will process this archive and give you the same, but in a more convenient format "Task (folder) → Programming language (folder) → All student solutions signed with their full name (files)". You can also download the archive on the codeforces contest page.
 
-![Upload Submissions Page](UploadSubmissionsPage.png)
+![Upload Submissions Page](images/UploadSubmissionsPage.png)
 
 Finally you get the coveted page with the result of the program, here you can see the work of the program in Google Sheet, you can download CSV file or all submissions.
 
-![Final Page](FinalPage.png)
+![Final Page](images/FinalPage.png)
 
 ## Used stack
 
