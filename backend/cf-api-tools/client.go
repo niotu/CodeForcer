@@ -149,7 +149,7 @@ func (c *Client) GetContestData(groupCode string, contestId int64) (*DataFromSta
 	return data, nil
 }
 
-func (c *Client) GetStatistics(groupCode string, contestId int64, count int, tableParams ParsingParameters, srcArchive string) (FinalJSONData, error) {
+func (c *Client) GetStatistics(groupCode string, contestId int64, count int, tableParams ParsingParameters) (FinalJSONData, error) {
 	params := &CFContestMethodParams{
 		GroupCode: groupCode,
 		ContestId: contestId,
@@ -165,6 +165,11 @@ func (c *Client) GetStatistics(groupCode string, contestId int64, count int, tab
 		return FinalJSONData{}, err
 	}
 
+	return *finalData, nil
+
+}
+
+func GetSolutions(srcArchive, userId string, finalData FinalJSONData) error {
 	submissonCodes := make(map[int64]entities.User)
 
 	for _, u := range finalData.Users {
@@ -175,11 +180,9 @@ func (c *Client) GetStatistics(groupCode string, contestId int64, count int, tab
 		}
 	}
 
-	err = solutions.MakeSolutionsArchive(srcArchive, submissonCodes)
+	err := solutions.MakeSolutionsArchive(srcArchive, userId, submissonCodes)
 	if err != nil {
-		return FinalJSONData{}, err
+		return err
 	}
-
-	return *finalData, nil
-
+	return nil
 }

@@ -15,8 +15,14 @@ import (
 	"sync"
 )
 
-var ResultZipName = "./result.zip"
+var resultZipName = "./result.zip"
 var SolutionArchiveError = errors.New("unable to proceed operations with archive, check the correctness of .zip and try later")
+
+func GetResultZipName(userId string) string {
+	name, ext := getFileNameAndExtension(resultZipName)
+	base := filepath.Base(resultZipName)
+	return filepath.Join(base, name+"_"+userId+"."+ext)
+}
 
 func getFileNameAndExtension(filePath string) (string, string) {
 	fileName := filepath.Base(filePath)
@@ -82,9 +88,17 @@ func getTaskIndex(authors map[int64]entities.User, path string) string {
 	return ""
 }
 
-func MakeSolutionsArchive(srcArchive string, authors map[int64]entities.User) error {
-	dest := "./temp"
-	unarchived := "./solutions"
+func MakeSolutionsArchive(srcArchive string, userId string, authors map[int64]entities.User) error {
+	dest := "./temp_" + userId
+	unarchived := "./solutions_" + userId
+
+	defer func() {
+		go func() {
+			_ = os.RemoveAll(dest)
+			_ = os.RemoveAll(srcArchive)
+			_ = os.RemoveAll(unarchived)
+		}()
+	}()
 
 	err := unzipArchive(srcArchive, dest)
 	if err != nil {
@@ -119,19 +133,13 @@ func MakeSolutionsArchive(srcArchive string, authors map[int64]entities.User) er
 		}
 	}
 
-	err = arch.Archive([]string{unarchived}, ResultZipName)
+	err = arch.Archive([]string{unarchived}, GetResultZipName(userId))
 	if err != nil {
 		logger.Error(fmt.Errorf("failed to zip folder: %v", err))
 		return SolutionArchiveError
 	}
 
 	logger.Logger().Info("Folder successfully zipped!")
-
-	go func() {
-		_ = os.RemoveAll(dest)
-		_ = os.RemoveAll(srcArchive)
-		_ = os.RemoveAll(unarchived)
-	}()
 
 	return nil
 }

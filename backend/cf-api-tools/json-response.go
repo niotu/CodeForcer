@@ -85,7 +85,7 @@ func fillResultsToTable(name string, resultsData FinalJSONData, extraParams Pars
 		csvHeaders = append(csvHeaders, extraParams.ExtraHeaders...)
 	}
 
-	csvHeaders = append(csvHeaders, "Feedback")
+	csvHeaders = append(csvHeaders, "Total", "Feedback")
 
 	csvData := MakeTableData(resultsData, extraParams, colsNumBeforeExtra)
 

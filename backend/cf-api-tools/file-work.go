@@ -16,24 +16,26 @@ type ParsingParameters struct {
 	SubmissionParsingMode string
 }
 
-func feedbackFormulaPattern(start int) string {
-	startLetter := string(rune('A' + start))
-	return fmt.Sprintf("& CHAR(10)&CHAR(10) & IF(COLUMN() <= %d, \"\", JOIN(CHAR(10)&CHAR(10), ARRAYFORMULA(\"$%s$1\":INDIRECT(ADDRESS(1, COLUMN()-1)) & \": \" & INDIRECT(\"$%s\"&ROW()):INDIRECT(ADDRESS(ROW(), COLUMN()-1)))))",
-		start+1, startLetter, startLetter)
+func feedbackFormulaPattern(startCol, currRow int) string {
+	startLetter := string(rune('A' + startCol))
+	return fmt.Sprintf("& CHAR(10)&CHAR(10) & IF(COLUMN() <= %d, \"\", JOIN(CHAR(10)&CHAR(10), ARRAYFORMULA($%s$1:INDIRECT(ADDRESS(1, COLUMN()-1)) & \": \" & $%s%d:INDIRECT(ADDRESS(ROW(),COLUMN()-1)))))",
+		startCol+1, startLetter, startLetter, currRow)
 }
 
-var FeedbackFormula string
+func totalFormulaPattern(start int) string {
+	startLetter := string(rune('A' + start - 1))
+	return fmt.Sprintf("=SUM(INDIRECT(\"%s\" & ROW() & \":\" & ADDRESS(ROW(), COLUMN() - 1)))",
+		startLetter)
+}
 
 func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, mandatoryCols int) [][]string {
-	FeedbackFormula = feedbackFormulaPattern(mandatoryCols)
+	TotalField := totalFormulaPattern(mandatoryCols)
 
 	mapHandleToEmail := db.GetUsers()
 
 	var rows [][]string
 
-	count := 1
-
-	for _, user := range resultsData.Users {
+	for userIdx, user := range resultsData.Users {
 		totalCF := 0.0
 		totalMoodle := 0.0
 		var points []string
@@ -72,15 +74,16 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, man
 
 		userEmail := mapHandleToEmail[user.Handle]
 
-		//row := append([]string{fmt.Sprintf("User%d", count)}, points...)
-		row := append([]string{fmt.Sprintf("User%d", count), userEmail}, points...)
+		row := append([]string{fmt.Sprintf("User%d", userIdx+1), userEmail}, points...)
 		//row := append([]string{user.Handle, userEmail}, points...)
 		row = append(row, strconv.Itoa(int(totalCF)), strconv.Itoa(int(totalMoodle)))
-		row = append(row, "=\"Passing test:\n"+strings.Join(feedbackPart, "; ")+"\""+FeedbackFormula)
+		if len(extraParams.ExtraHeaders) > 0 {
+			row = append(row, make([]string, len(extraParams.ExtraHeaders))...)
+		}
+		row = append(row, TotalField)
+		row = append(row, "=\"Passing test:\n"+strings.Join(feedbackPart, "; ")+"\""+feedbackFormulaPattern(mandatoryCols, userIdx+2))
 
 		rows = append(rows, row)
-
-		count++
 
 	}
 
