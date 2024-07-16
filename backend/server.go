@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	mx "github.com/gorilla/mux"
@@ -44,6 +45,22 @@ func setClient(userID string, client *cfapitools.Client) {
 	key := client.DecodeApiKey()
 	clientKeyToId.Store(key, userID)
 	clients.Store(userID, client)
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight request
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func panicLogMiddleware(next http.Handler) http.Handler {
@@ -245,9 +262,9 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		headers = strings.Split(headersString, "-")
 	}
 
-	srcZip := "./submissions.zip"
-	err = getZipFile(r, srcZip)
-	if err != nil {
+	srcZip := fmt.Sprintf("./submissions_%s.zip", userID)
+	getZipErr := getZipFile(r, srcZip)
+	if getZipErr != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))
 		return
 	}
@@ -266,14 +283,17 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		SubmissionParsingMode: mode,
 	}
 
-	data, err := client.GetStatistics(groupCode, contestId, count, extraParams, srcZip)
+	data, err := client.GetStatistics(groupCode, contestId, count, extraParams)
 	if err != nil {
 		_, _ = w.Write(statusFailedResponse(err.Error()))
 		return
 	}
 
-	_, _ = w.Write(statusOKResponse(data))
-	createMultipart(w, statusOKResponse(data))
+	if !errors.Is(getZipErr, NoFileProvided) {
+		err = cfapitools.GetSolutions(srcZip, userID, data)
+
+		createMultipart(w, statusOKResponse(data), userID)
+	}
 }
 
 func uploadUsers(w http.ResponseWriter, r *http.Request) {
@@ -339,6 +359,7 @@ func main() {
 
 	mux := mx.NewRouter()
 	mux.Use(panicLogMiddleware)
+	mux.Use(corsMiddleware)
 	mux.Use(infoLogMiddleware)
 
 	mux.HandleFunc("/api/setAdmin", setAdminData).Methods(http.MethodGet)
