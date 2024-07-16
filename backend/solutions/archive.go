@@ -5,6 +5,7 @@ import (
 	"fmt"
 	arch "github.com/mholt/archiver/v3"
 	"github.com/xyproto/unzip"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/db"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/entities"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"io/fs"
@@ -20,8 +21,8 @@ var SolutionArchiveError = errors.New("unable to proceed operations with archive
 
 func GetResultZipName(userId string) string {
 	name, ext := getFileNameAndExtension(resultZipName)
-	base := filepath.Base(resultZipName)
-	return filepath.Join(base, name+"_"+userId+"."+ext)
+	base := filepath.Dir(resultZipName)
+	return filepath.Join(base, name+"_"+userId+ext)
 }
 
 func getFileNameAndExtension(filePath string) (string, string) {
@@ -51,7 +52,7 @@ func moveFile(src, dst string, wg *sync.WaitGroup) {
 }
 
 func ParseSubmissions(dir string, authors map[int64]entities.User) error {
-	dirStructure = make(map[string]map[string][]string)
+	dirStructure = make(map[string]map[string][]ArchiveObject)
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -113,25 +114,34 @@ func MakeSolutionsArchive(srcArchive string, userId string, authors map[int64]en
 	wg := sync.WaitGroup{}
 	finalDir, _ := filepath.Abs(unarchived)
 
+	handleEmailMap := db.GetUsers()
+
 	_ = os.Mkdir(finalDir, 0755)
-	for handle, submissions := range dirStructure {
-		curr := filepath.Join(finalDir, handle)
+	for taskName, submissions := range dirStructure {
+		curr := filepath.Join(finalDir, taskName)
 
 		_ = os.Mkdir(curr, 0755)
 
-		for lang, paths := range submissions {
+		for lang, fileObjects := range submissions {
 			langDir := filepath.Join(curr, lang)
 			_ = os.Mkdir(langDir, 0755)
-			for _, p := range paths {
-				_, ext := getFileNameAndExtension(p)
+			for _, obj := range fileObjects {
+				_, ext := getFileNameAndExtension(obj.Path)
+
+				userEmail, ok := handleEmailMap[obj.Handle]
+				if !ok {
+					userEmail = obj.Handle
+				}
 
 				wg.Add(1)
-				go moveFile(p,
-					filepath.Join(langDir, "Task "+getTaskIndex(authors, p)+ext),
+				go moveFile(obj.Path,
+					filepath.Join(langDir, userEmail+ext),
 					&wg)
 			}
 		}
 	}
+
+	wg.Wait()
 
 	err = arch.Archive([]string{unarchived}, GetResultZipName(userId))
 	if err != nil {

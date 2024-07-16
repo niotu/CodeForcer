@@ -19,7 +19,7 @@ var (
 type Client struct {
 	apiKey      []byte
 	apiSecret   []byte
-	Handle      string
+	Handle      string `json:"-"`
 	password    string
 	authClient  *http.Client
 	currContest *entities.Contest

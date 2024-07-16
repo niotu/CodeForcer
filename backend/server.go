@@ -1,5 +1,7 @@
 package main
 
+// server.go is entry point of this HTTP sever program
+
 import (
 	"encoding/json"
 	"errors"
@@ -19,9 +21,10 @@ import (
 	"sync"
 )
 
-var clients sync.Map // Concurrent map to store clients
-var clientKeyToId sync.Map
+var clients sync.Map       // Concurrent map to store clients ("userId":*cf_api_tools.Client)
+var clientKeyToId sync.Map // Concurrent map to store client (reversed version of clients) ("apiKey":"userId")
 
+// getClient returns pointer to cf_api_tools.Client object if found, nil otherwise
 func getClient(userID string) *cfapitools.Client {
 	client, ok := clients.Load(userID)
 	if !ok {
@@ -30,6 +33,7 @@ func getClient(userID string) *cfapitools.Client {
 	return client.(*cfapitools.Client)
 }
 
+// getIdByClient returns userID of given client if it is already existing
 func getIdByClient(client *cfapitools.Client) string {
 	key := client.DecodeApiKey()
 	fmt.Println(key)
@@ -41,12 +45,17 @@ func getIdByClient(client *cfapitools.Client) string {
 	return id.(string)
 }
 
+// setClient sets a pointer to the cf_api_tools.Client object to clients and updates database file
 func setClient(userID string, client *cfapitools.Client) {
 	key := client.DecodeApiKey()
 	clientKeyToId.Store(key, userID)
 	clients.Store(userID, client)
+
+	db.UploadClientsToFile(&clients)
 }
 
+// corsMiddleware is a middleware function that sets appropriate headers to http.ResponseWriter object
+// to allow origins for CORS policy
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
@@ -63,6 +72,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// panicLogMiddleware is a middleware function that returns corresponding message if server error occurred
 func panicLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -76,6 +86,7 @@ func panicLogMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// infoLogMiddleware is a middleware function that write to logs about every request to server
 func infoLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.Logger().Info("Request:",
@@ -86,6 +97,10 @@ func infoLogMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// setAdminData is a handler function for /setAdmin route.
+// It gets `key` and `secret` provided in request as parameters and creates new userId
+// if such user does not exist, or return existing userId otherwise.
+// returns {"status": "OK", "userId":userId}
 func setAdminData(w http.ResponseWriter, r *http.Request) {
 	apiKey := r.URL.Query().Get("key")
 	apiSecret := r.URL.Query().Get("secret")
@@ -115,8 +130,8 @@ func setAdminData(w http.ResponseWriter, r *http.Request) {
 	logger.Logger().Info("Setting admin:",
 		//zap.String("Handle", handle),
 		//zap.String("Password", password),
-		zap.String("ApiKey", apiKey),
-		zap.String("ApiSecret", apiSecret),
+		zap.String("apiKey", apiKey),
+		zap.String("apiSecret", apiSecret),
 		zap.String("UserID", userId),
 	)
 
@@ -128,6 +143,8 @@ func setAdminData(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(jsonResp)
 }
 
+// getGroups is a handler function for /getGroups route.
+// It returns json object with all CodeForces groups of given user
 func getGroups(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("userID")
 
@@ -151,6 +168,8 @@ func getGroups(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
+// getContests is a handler function for /getContests route.
+// It returns json object with all CodeForces contests of given group
 func getContests(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("userID")
 	groupCode := r.URL.Query().Get("groupCode")
@@ -176,6 +195,9 @@ func getContests(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
+// getTasks is a handler function for /getTasks route.
+// It returns json object with all problems of given contest
+// Requires `userID`, `groupCode`, and `contestId` parameters in query
 func getTasks(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("userID")
 	groupCode := r.URL.Query().Get("groupCode")
@@ -207,6 +229,25 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// proceedProcess is a handler function for /proceed route.
+// It handles all submissions of given contest, according to given parameters.
+// It returns json object with all tasks' details (entities.Problem), students' submissions (entities.Submission),
+// link to filled GoogleSheet, and its CSV version.
+// Requires:
+//
+//	`userID`, `groupCode`, `contestId`,
+//	`weights`: moodle weights of each problem in points, separated with "-";
+//	`mode`: best/last - which submission of student need to handle;
+//	`late`: late submission duration in hours;
+//	`penalty`: penalty of late submission in percents;
+//
+// Not required:
+//
+//	`headers`: additional columns in google sheets table
+//
+// Not required attachment:
+//
+//	.zip file in multipart/form-data, key is "file": archive with all submissions of given contest downloaded from CF
 func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("userID")
 	groupCode := r.URL.Query().Get("groupCode")
@@ -233,9 +274,9 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	}
 
 	lateSubmTimeString := r.URL.Query().Get("late")
-	lateSubmissionSeconds, err := strconv.ParseInt(lateSubmTimeString, 10, 64)
+	lateSubmissionHours, err := strconv.Atoi(lateSubmTimeString)
 	if err != nil {
-		_, _ = w.Write(statusFailedResponse("Incorrect Unix format of `late` parameter"))
+		_, _ = w.Write(statusFailedResponse("Incorrect format of `late` parameter"))
 		return
 	}
 
@@ -262,10 +303,11 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		headers = strings.Split(headersString, "-")
 	}
 
+	// try to get attached zip file and write to file `srcZip` in root directory
 	srcZip := fmt.Sprintf("./submissions_%s.zip", userID)
-	getZipErr := getZipFile(r, srcZip)
-	if getZipErr != nil {
-		_, _ = w.Write(statusFailedResponse(err.Error()))
+	getZipErr := getZipFile(r, srcZip) // if no file provided in multipart just continue without exiting with error
+	if getZipErr != nil && !errors.Is(getZipErr, NoFileProvided) {
+		_, _ = w.Write(statusFailedResponse(getZipErr.Error()))
 		return
 	}
 
@@ -279,7 +321,7 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		TasksWeights:          weights,
 		ExtraHeaders:          headers,
 		LatePenalty:           penalty,
-		LateTime:              lateSubmissionSeconds,
+		LateDurationSeconds:   int64(lateSubmissionHours) * 3600,
 		SubmissionParsingMode: mode,
 	}
 
@@ -289,13 +331,19 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if getZipErr is nil, then start handle submissions archive and write json and zip to multipart
 	if !errors.Is(getZipErr, NoFileProvided) {
 		err = cfapitools.GetSolutions(srcZip, userID, data)
 
 		createMultipart(w, statusOKResponse(data), userID)
+	} else { // otherwise just write json to standard body
+		_, _ = w.Write(statusOKResponse(data))
 	}
 }
 
+// uploadUsers is a handler function to /uploadUsers route.
+// It parses uploaded to multipart/form-data .csv file with handles and emails of all students
+// and writes them to database file in json format
 func uploadUsers(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(5 << 20)
 	if err != nil {
@@ -333,6 +381,7 @@ func uploadUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// initialize logger
 	logger.Init()
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
@@ -341,6 +390,7 @@ func main() {
 		}
 	}(logger.Logger())
 
+	// load environment variables
 	_ = godotenv.Load()
 
 	PORT := os.Getenv("PORT")
@@ -357,11 +407,13 @@ func main() {
 		zap.String("Host", HOST),
 		zap.String("Port", PORT))
 
+	// add middlewares
 	mux := mx.NewRouter()
 	mux.Use(panicLogMiddleware)
 	mux.Use(corsMiddleware)
 	mux.Use(infoLogMiddleware)
 
+	// set up routes
 	mux.HandleFunc("/api/setAdmin", setAdminData).Methods(http.MethodGet)
 	mux.HandleFunc("/api/getTasks", getTasks).Methods(http.MethodGet)
 	mux.HandleFunc("/api/getGroups", getGroups).Methods(http.MethodGet)

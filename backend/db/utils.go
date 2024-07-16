@@ -5,17 +5,20 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	//cfapitools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 var usersFilePath = "./db/users.json"
+var clientsFilePath = "./db/clients.json"
 
-func UploadUsersToFile(table []byte) error {
-	reader := bytes.NewReader(table)
+func UploadUsersToFile(csvTable []byte) error {
+	reader := bytes.NewReader(csvTable)
 
 	csvReader := csv.NewReader(reader)
 	csvReader.Comma = ';'
@@ -65,11 +68,48 @@ func UploadUsersToFile(table []byte) error {
 	return nil
 }
 
+func UploadClientsToFile(clients *sync.Map) {
+	//defaultMap := make(map[string]cfapitools.Client)
+	//
+	//clients.Range(func(userId, client any) bool {
+	//	key := userId.(string)
+	//	defaultMap[key] = *client.(*cfapitools.Client)
+	//	return true
+	//})
+	//
+	//fmt.Println(defaultMap)
+
+	//buff, err := json.Marshal(data)
+	//if err != nil {
+	//	logger.Error(err)
+	//	return fmt.Errorf("unable to upload csv file")
+	//}
+	//
+	//path, _ := filepath.Abs(usersFilePath)
+	//
+	//err = os.WriteFile(path, buff, 0606)
+	//
+	//if err != nil {
+	//	logger.Error(err)
+	//	return fmt.Errorf("unable to upload csv file")
+	//}
+	//
+	//return nil
+}
+
 func GetUsers() map[string]string {
-	file, err := os.Open(usersFilePath)
+	return getDB(usersFilePath)
+}
+
+func GetClients() map[string]string {
+	return getDB(clientsFilePath)
+}
+
+func getDB(filePath string) map[string]string {
+	file, err := os.Open(filePath)
 	if err != nil {
-		_ = os.MkdirAll(filepath.Dir(usersFilePath), 0606)
-		file, _ = os.OpenFile(usersFilePath, os.O_CREATE|os.O_RDONLY|os.O_TRUNC, 0606)
+		_ = os.MkdirAll(filepath.Dir(filePath), 0606)
+		file, _ = os.OpenFile(filePath, os.O_CREATE|os.O_RDONLY|os.O_TRUNC, 0606)
 
 		data, _ := json.Marshal(map[string]string{})
 		_, _ = file.Write(data)

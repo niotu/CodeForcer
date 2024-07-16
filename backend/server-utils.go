@@ -95,12 +95,7 @@ func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
 		}()
 	}()
 
-	// Generate a unique boundary
-	// You can generate this dynamically for uniqueness
-
 	body := &bytes.Buffer{}
-	// Set Content-Type header with the boundary
-	// Create a new multipart writer
 	writer := multipart.NewWriter(body)
 
 	w.Header().Set("Content-Type", "multipart/mixed; boundary="+writer.Boundary())
@@ -121,12 +116,14 @@ func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
 	}
 
 	// Write ZIP part
+
 	zipBytes, err := os.ReadFile(resultZipName)
 	if err != nil {
 		logger.Error(err)
 		_, _ = w.Write(statusFailedResponse(AttachZipError))
 		return
 	}
+
 	zipPart, err := writer.CreatePart(map[string][]string{
 		"Content-Type":        {"application/zip"},
 		"Content-Disposition": {fmt.Sprintf("attachment; filename=\"%s\"", resultZipName)},
@@ -142,12 +139,9 @@ func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
 		return
 	}
 
-	// Close the multipart writer to finish writing the multipart data
 	writer.Close()
 
 	w.Write(body.Bytes())
-
-	// Remove the ZIP file after it has been attached
 
 }
 

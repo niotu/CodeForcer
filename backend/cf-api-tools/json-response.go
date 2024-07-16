@@ -28,6 +28,9 @@ func combineStatusAndStandings(params *CFContestMethodParams, tableExtraParams P
 		dataStatus.ProblemMaxPoints[problem.Index] = 0.0
 	}
 
+	tableExtraParams.LateEndSeconds = dataStandings.StartTimeSeconds + dataStandings.DurationSeconds +
+		tableExtraParams.LateDurationSeconds
+
 	dataStatus, err = formattedStatus(params, dataStatus, dataStandings, tableExtraParams.SubmissionParsingMode)
 	if err != nil {
 		return nil, err

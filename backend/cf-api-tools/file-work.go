@@ -12,7 +12,8 @@ type ParsingParameters struct {
 	TasksWeights          []int
 	ExtraHeaders          []string
 	LatePenalty           int
-	LateTime              int64
+	LateEndSeconds        int64
+	LateDurationSeconds   int64
 	SubmissionParsingMode string
 }
 
@@ -54,10 +55,10 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, man
 			taskStatus := ""
 			if id == -1 {
 				taskStatus = "(no submission)"
-			} else if submission.Late && submission.SubmissionTime <= extraParams.LateTime {
+			} else if submission.Late && submission.SubmissionTime <= extraParams.LateEndSeconds {
 				taskStatus = fmt.Sprintf("(late submission: -%d%%)", extraParams.LatePenalty)
 				moodlePoints *= 1.0 - float64(extraParams.LatePenalty)/100
-			} else if submission.Late && submission.SubmissionTime > extraParams.LateTime {
+			} else if submission.Late && submission.SubmissionTime > extraParams.LateEndSeconds {
 				taskStatus = "(no submission)"
 			}
 

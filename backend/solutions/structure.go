@@ -5,24 +5,35 @@ import (
 	"strconv"
 )
 
-var dirStructure map[string]map[string][]string
+type ArchiveObject struct {
+	Handle string
+	Path   string
+}
+
+var dirStructure map[string]map[string][]ArchiveObject
 
 func addToDirStructure(filePath string, author entities.User) {
 	filename, _ := getFileNameAndExtension(filePath)
 
 	subId, _ := strconv.ParseInt(filename, 10, 64)
 
-	if _, ok := dirStructure[author.Handle]; !ok {
-		dirStructure[author.Handle] = make(map[string][]string)
-	}
+	var taskName, programLang string
 
 	for i, submission := range author.Solutions {
 		if submission.SubmissionId == subId {
-			programLang := author.Solutions[i].ProgramLang
+			programLang = author.Solutions[i].ProgramLang
+			taskName = "Task " + submission.Index
 
-			dirStructure[author.Handle][programLang] =
-				append(dirStructure[author.Handle][programLang], filePath)
 			break
 		}
 	}
+
+	if _, ok := dirStructure[taskName]; !ok {
+		dirStructure[taskName] = make(map[string][]ArchiveObject)
+	}
+	dirStructure[taskName][programLang] =
+		append(dirStructure[taskName][programLang], ArchiveObject{
+			Handle: author.Handle,
+			Path:   filePath,
+		})
 }
