@@ -18,6 +18,7 @@ async function parseMultipart(blob, boundary) {
     const delimiter = `--${boundary}`;
     const closeDelimiter = `--${boundary}--`;
     const splitParts = text.split(delimiter);
+    console.log(`splitParts: ${splitParts}`);
 
     for (let part of splitParts) {
         if (part === '' || part === closeDelimiter || part === '--') continue;
@@ -53,16 +54,16 @@ const ContestDetails = () => {
     const [submissionsData, setSubmissionsData] = useState(null);
     const [loading, setLoading] = useState(true); // Add a loading state
     const [result, setResult] = useState(null);
-
     if (!localStorage.getItem('isAuthorized')) {
+
         return show404page();
     }
-
     const [taskWeights, setTaskWeights] = useState(sessionStorage.getItem('weights').replaceAll(',', '-') || '')
     const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
     const [late, setLate] = useState(sessionStorage.getItem('lateHours'));
     const [penalty, setPenalty] = useState(sessionStorage.getItem('penalty') || '');
     const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
+    const [headers, setHeaders] = useState(sessionStorage.getItem('headers').replaceAll('\n', '-') || []);
     const [isCorrect, setIsCorrect] = useState(true)
     //
     // console.log(`
@@ -86,6 +87,7 @@ const ContestDetails = () => {
                     weights: taskWeights.replaceAll(',', '-'),
                     late: late,
                     penalty: penalty,
+                    headers: headers,
                     mode: mode
                 });
 
@@ -101,69 +103,65 @@ const ContestDetails = () => {
                     method: 'POST',
                     body: formData,
                 })
-                // .then(response => response.text())
-                // .then(data => {
-                //     console.log(data);
-                //     setResult(data.result)
-                // })
-                // .catch(error => console.error('Error:', error));
-                // console.log(await response.text());
-                const responseBlob = await response.blob();
 
-                // Parse the multipart response
-                const boundary = getBoundary(response.headers.get('Content-Type'));
-                const parts = await parseMultipart(responseBlob, boundary);
+                console.log(response);
 
-                console.log(parts);
-
-                // Process the parts
-                let jsonPart = null;
-                let zipFilePart = null;
-
-                parts.forEach(part => {
-                    const contentType = part.headers['Content-Type'];
-                    // const contentDisposition = part.headers['Content-Disposition'];
-                    if (contentType) {
-                        if (contentType.includes('application/json')) {
-                            jsonPart = JSON.parse(part.body);
-                        } else if (contentType.includes('application/zip')) {
-                            zipFilePart = new Blob([part.body], {type: 'application/zip'});
+                if (response.headers.get('Content-Type').includes('multipart/mixed')) {
+                    const responseBlob = await response.blob();
+                    console.log(`headers: ${response.headers.get('Content-Type')}`);
+                    // Parse the multipart response
+                    const boundary = getBoundary(response.headers.get('Content-Type'));
+                    const parts = await parseMultipart(responseBlob, boundary);
+                    console.log(parts);
+                    // Process the parts
+                    let jsonPart = null;
+                    let zipFilePart = null;
+                    parts.forEach(part => {
+                        const contentType = part.headers['Content-Type'];
+                        // const contentDisposition = part.headers['Content-Disposition'];
+                        if (contentType) {
+                            if (contentType.includes('application/json')) {
+                                jsonPart = JSON.parse(part.body);
+                            } else if (contentType.includes('application/zip')) {
+                                zipFilePart = new Blob([part.body], {type: 'application/zip'});
+                            }
                         }
-                    }
-                });
+                    });
+                    if (jsonPart && zipFilePart) {
+                        console.log('JSON part:', jsonPart);
+                        console.log('ZIP part:', zipFilePart);
+                        if (jsonPart.status === 'OK') {
+                            const result = jsonPart.result;
+                            setGoogleSheetLink(result.googleSheets);
+                            setCsvData(result.csv);
+                            setSubmissionsData(zipFilePart);
 
-                if (jsonPart && zipFilePart) {
-                    console.log('JSON part:', jsonPart);
-                    console.log('ZIP part:', zipFilePart);
-                    if (jsonPart.status === 'OK') {
-                        const result = jsonPart.result;
-                        setGoogleSheetLink(result.googleSheets);
-                        setCsvData(result.csv);
-                        setSubmissionsData(zipFilePart);
-
-                        setLoading(false);
-                    } else if (jsonPart.status === 'FAILED') {
-                        setComment(jsonPart.comment);
+                            setLoading(false);
+                        } else if (jsonPart.status === 'FAILED') {
+                            setComment(jsonPart.comment);
+                            setIsCorrect(false);
+                            alert(jsonPart.comment);
+                        }
+                    } else {
+                        setComment('Some error caught while processing response');
                         setIsCorrect(false);
-                        alert(jsonPart.comment);
-                    }
-                } else if (jsonPart) {
-                    console.log('JSON part:', jsonPart);
-                    if (jsonPart.status === 'OK') {
-                        const result = jsonPart.result;
-                        setGoogleSheetLink(result.googleSheets);
-                        setCsvData(result.csv);
-
-                        setLoading(false);
-                    } else if (jsonPart.status === 'FAILED') {
-                        setComment(jsonPart.comment);
-                        setIsCorrect(false);
-                        alert(jsonPart.comment);
+                        alert(comment);
+                        return show404page();
                     }
                 } else {
-                    setComment('Some error caught while processing response');
-                    alert(comment);
-                    return show404page();
+                    let jsonPart = await response.json();
+                    console.log(jsonPart);
+                    if (jsonPart.status === 'OK') {
+                        const result = jsonPart.result;
+                        setGoogleSheetLink(result.googleSheets);
+                        setCsvData(result.csv);
+
+                        setLoading(false);
+                    } else if (jsonPart.status === 'FAILED') {
+                        setComment(jsonPart.comment);
+                        setIsCorrect(false);
+                        alert(jsonPart.comment);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching contest details:', error);
@@ -198,7 +196,7 @@ const ContestDetails = () => {
             <div className="wizard">
                 <div className="loading-spinner">
                     <h1>Loading contest details...</h1>
-                    <img src="/web/front/assets/loading.gif" width={200} height={200} alt='loading'/>
+                    <img src={"/web/front/assets/loading.gif"} width={200} height={200} alt='loading'/>
                 </div>
             </div>
         </div>); // Render a loading indicator while data is being fetched
