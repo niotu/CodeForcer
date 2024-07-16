@@ -7,7 +7,7 @@ import localForage from "localforage";
 const UploadZipFilePage = () => {
     const {group, contestId} = useParams();
     const navigate = useNavigate();
-    const [comment, setComment] = useState('It is a required step, you cannot skip it.');
+    const [comment, setComment] = useState('It is a not required step, you can skip it. Just click "Submit"');
     const [isCorrect, setIsCorrect] = useState(true);
     const [zipFile, setZipFile] = useState(null); // State for the ZIP file
 
@@ -55,7 +55,6 @@ const UploadZipFilePage = () => {
                                 id="zipFile"
                                 accept=".zip"
                                 onChange={handleZipChange}
-                                required
                             />
 
                             <button type="submit">Submit</button>
