@@ -3,6 +3,8 @@ import {useParams} from 'react-router-dom';
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import localForage from "localforage";
+import logo from "../assets/logo.svg";
+import logoutIcon from "../assets/logout.png";
 
 function getBoundary(contentType) {
     const boundaryPrefix = 'boundary=';
@@ -65,6 +67,10 @@ const ContestDetails = () => {
     const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
     const [headers, setHeaders] = useState(sessionStorage.getItem('headers').replaceAll('\n', '-') || []);
     const [isCorrect, setIsCorrect] = useState(true)
+    const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuth') || true)
+
+    // const crypto = require('crypto');
+
     //
     // console.log(`
     //     groupCode ${groupCode}
@@ -76,6 +82,11 @@ const ContestDetails = () => {
     //     mode ${mode}`
     // );
     //
+
+    // const Blob = require('blob');
+
+    let jsonPart = null;
+    let zipFilePart = null;
 
     useEffect(() => {
         const fetchContestDetails = async () => {
@@ -96,7 +107,8 @@ const ContestDetails = () => {
                 formData.append('file', fileInput);
                 console.log(fileInput);
 
-                let url = process.env.REACT_APP_BACKEND_URL +
+                let url =
+                    process.env.REACT_APP_BACKEND_URL +
                     '/api/proceed?' + queryParams;
 
                 const response = await fetch(url, {
@@ -114,8 +126,7 @@ const ContestDetails = () => {
                     const parts = await parseMultipart(responseBlob, boundary);
                     console.log(parts);
                     // Process the parts
-                    let jsonPart = null;
-                    let zipFilePart = null;
+
                     parts.forEach(part => {
                         const contentType = part.headers['Content-Type'];
                         // const contentDisposition = part.headers['Content-Disposition'];
@@ -123,7 +134,16 @@ const ContestDetails = () => {
                             if (contentType.includes('application/json')) {
                                 jsonPart = JSON.parse(part.body);
                             } else if (contentType.includes('application/zip')) {
-                                zipFilePart = new Blob([part.body], {type: 'application/zip'});
+                                part.responseType = "arraybuffer";
+                                // console.log(part.body.length);
+                                // // const base64 = atob(part.body);
+                                // const conv = Iconv('windows-1251', 'utf8');
+                                // const text = conv.convert(part.body).toString();
+                                zipFilePart = new Blob([part.body],
+                                    {
+                                        type: "application/zip", endings: 'native'
+                                    }
+                                );
                             }
                         }
                     });
@@ -183,7 +203,13 @@ const ContestDetails = () => {
     };
 
     const downloadSubmissions = () => {
-        const url = window.URL.createObjectURL(submissionsData);
+        // submissionsData.lastModifiedDate = new Date();
+        // submissionsData.name = 'submissions'
+        // console.log(submissionsData);
+        const f = new File([submissionsData], 'submissions.zip');
+        // f.type = 'zip';
+        console.log(f);
+        const url = window.URL.createObjectURL(f);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'submissions.zip';
@@ -192,59 +218,85 @@ const ContestDetails = () => {
     };
 
     if (loading) {
-        return (<div className="page-active">
-            <div className="wizard">
-                <div className="loading-spinner">
-                    <h1>Loading contest details...</h1>
-                    <img src={"/web/front/assets/loading.gif"} width={200} height={200} alt='loading'/>
+        return (
+            <div className="content">
+
+                <div className="header">
+                    <img src={logo} height={50} alt={'logo'}/>
+                    {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                        <button className={'logout'} onClick={() => logout()}>
+                            <img src={logoutIcon} height={25}
+                                 alt='logout icon'/>
+                        </button>
+                    </a>) : (<a></a>)}
                 </div>
-            </div>
-        </div>); // Render a loading indicator while data is being fetched
+                <div className="page-active">
+
+                    <div className="wizard">
+                        <div className="loading-spinner">
+                            <h1>Loading contest details...</h1>
+                            <img src={loading} width={200} height={200} alt='loading'/>
+                        </div>
+                    </div>
+                </div>
+            </div>); // Render a loading indicator while data is being fetched
     }
 
     return (
-        <div className="page-active">
-            <div className="wizard">
-                <div className="panel">
-                    <div className="left-part">
-                        <h1>Contest Details</h1>
-                        <h4>
-                            weights: {taskWeights},
-                            late: {late},
-                            penalty: {penalty},
-                            mode: {mode}
-                        </h4>
-                    </div>
-                    <div className="right-part">
-                        <div>
-                            <label>Google Sheet: </label>
-                            <a href={googleSheetLink} target="_blank" rel="noopener noreferrer">See Google Sheet</a>
-                        </div>
-                        <div>
-                            <button onClick={downloadCsv}>Download CSV</button>
-                        </div>
-                        <div>
-                            <button onClick={downloadSubmissions}>Download Submissions</button>
-                        </div>
-                    </div>
-                </div>
+        <div className="content">
+
+            <div className="header">
+                <img src={logo} height={50} alt={'logo'}/>
+                {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                    <button className={'logout'} onClick={() => logout()}>
+                        <img src={logoutIcon} height={25}
+                             alt='logout icon'/>
+                    </button>
+                </a>) : (<a></a>)}
             </div>
-            <div className="navigation">
-                <div className="left-navigation-part">
-                    <a href="">
-                        <button className="previous-page" onClick={(e) => {
-                            e.preventDefault();
-                            history.go(-1);
-                        }}>Back
-                        </button>
-                    </a>
+            <div className="page-active">
+                <div className="wizard">
+                    <div className="panel">
+                        <div className="left-part">
+                            <h1>Contest Details</h1>
+                            <h4>
+                                weights: {taskWeights},
+                                late: {late},
+                                penalty: {penalty},
+                                mode: {mode}
+                            </h4>
+                        </div>
+                        <div className="right-part">
+                            <div>
+                                <label>Google Sheet: </label>
+                                <a href={googleSheetLink} target="_blank" rel="noopener noreferrer">See Google Sheet</a>
+                            </div>
+                            <div>
+                                <button onClick={downloadCsv}>Download CSV</button>
+                            </div>
+                            <div>
+                                <button onClick={downloadSubmissions}>Download Submissions</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                <div className="right-navigation-part">
-                    <a href="/">
-                        <button className={'logout'} onClick={() => logout()}>Logout
-                        </button>
-                    </a>
+                <div className="navigation">
+                    <div className="left-navigation-part">
+                        <a href="">
+                            <button className="previous-page" onClick={(e) => {
+                                e.preventDefault();
+                                history.go(-1);
+                            }}>Back
+                            </button>
+                        </a>
+                    </div>
+                    <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
+                    <div className="right-navigation-part">
+                        <a href="/">
+                            <button className={'logout'} onClick={() => logout()}>Logout
+                            </button>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

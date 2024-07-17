@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
+import logo from "../assets/logo.svg";
+import logoutIcon from "../assets/logout.png";
 
 
 const WeightsDistrPage = () => {
@@ -13,7 +15,8 @@ const WeightsDistrPage = () => {
     const [headers, setHeaders] = useState('');
     const [weights, setWeights] = useState([]);
     const [mode, setMode] = useState('best');
-    const [isCorrect, setIsCorrect] = useState(true)
+    const [isCorrect, setIsCorrect] = useState(true);
+    const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuthorized') || true);
 
     if (!localStorage.getItem('isAuthorized')) {
         return show404page();
@@ -64,31 +67,42 @@ const WeightsDistrPage = () => {
     // };
 
     return (
-        <div className='page-active'>
-            <div className="wizard">
-                <div className="panel">
-                    <div className="left-part">
-                        <h1>Set up tasks weights</h1>
-                    </div>
-                    <div className="right-part">
-                        <form onSubmit={handleWeights} autoComplete='on'>
-                            <nav className="list-view" id='distribution-form'>
-                                <ul>
-                                    {
-                                        tasks.map((task, index) => ( // Add the 'index' parameter here
-                                            <li key={task.Index}>
-                                                <label className='task'> {task.Name}</label>
-                                                <input
-                                                    type='number'
-                                                    onChange={(e) => {
-                                                        setTaskWeights(e.target.value, index); // Pass the index
-                                                    }}
-                                                    required
-                                                    min={1}
-                                                />
-                                            </li>
-                                        ))
-                                    }
+        <div className="content">
+
+            <div className="header">
+                <img src={logo} height={50} alt={'logo'}/>
+                {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                    <button className={'logout'} onClick={() => logout()}>
+                        <img src={logoutIcon} height={25}
+                             alt='logout icon'/>
+                    </button>
+                </a>) : (<a></a>)}
+            </div>
+            <div className='page-active'>
+                <div className="wizard">
+                    <div className="panel">
+                        <div className="left-part">
+                            <h1>Set up tasks weights</h1>
+                        </div>
+                        <div className="right-part">
+                            <form onSubmit={handleWeights} autoComplete='on'>
+                                <nav className="list-view" id='distribution-form'>
+                                    <ul>
+                                        {
+                                            tasks.map((task, index) => ( // Add the 'index' parameter here
+                                                <li key={task.Index}>
+                                                    <label className='task'> {task.Name}</label>
+                                                    <input
+                                                        type='number'
+                                                        onChange={(e) => {
+                                                            setTaskWeights(e.target.value, index); // Pass the index
+                                                        }}
+                                                        required
+                                                        min={1}
+                                                    />
+                                                </li>
+                                            ))
+                                        }
                                         <label className='headers'>Headers: </label>
                                         <textarea id='headers'
                                                   onChange={(e) =>
@@ -102,30 +116,28 @@ const WeightsDistrPage = () => {
                                             <option value='last'>Last</option>
                                             <option value='best'>Best</option>
                                         </select>
-                                </ul>
-                            </nav>
+                                    </ul>
+                                </nav>
 
-                            <button type='submit'>Submit</button>
-                        </form>
+                                <button type='submit'>Submit</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div className="navigation">
-                <div className="left-navigation-part">
-                    <a href="">
-                        <button className="previous-page" onClick={(e) => {
-                            e.preventDefault();
-                            history.go(-1);
-                        }}>Back
-                        </button>
-                    </a>
-                </div>
-                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                <div className="right-navigation-part">
-                    <a href="/">
-                        <button className={'logout'} onClick={() => logout()}>Logout
-                        </button>
-                    </a>
+                <div className="navigation">
+                    <div className="left-navigation-part">
+                        <a href="">
+                            <button className="previous-page" onClick={(e) => {
+                                e.preventDefault();
+                                history.go(-1);
+                            }}>Back
+                            </button>
+                        </a>
+                    </div>
+                    <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
+                    <div className="right-navigation-part">
+
+                    </div>
                 </div>
             </div>
         </div>

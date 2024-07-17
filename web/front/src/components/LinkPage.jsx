@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom"; // Import the provided CSS file
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
+import logo from "../assets/logo.svg";
+import logoutIcon from "../assets/logout.png";
 
 const LinkPage = () => {
     // const [key, setKey] = useState('');
@@ -10,6 +12,7 @@ const LinkPage = () => {
     const navigate = useNavigate();
     const [comment, setComment] = useState('');
     const [isCorrect, setIsCorrect] = useState(true)
+    const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuthorized') || true);
 
     console.log(localStorage.getItem('isAuthorized'));
 
@@ -74,40 +77,49 @@ const LinkPage = () => {
 
 
     return (
-        <div className="page-active">
-            <div className="wizard">
-                <div className="panel">
-                    <div className="left-part">
-                        <h1>Enter the link to a contest</h1>
-                    </div>
-                    <div className="right-part">
-                        <form onSubmit={linkSubmit} autoComplete='on'>
-
-                            <label htmlFor="link">Paste the link:</label>
-                            <input type="url" id="link" value={link}
-                                   onChange={(e) => setUrl(e.target.value)}
-                                   required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
-                            <button type="submit">Submit</button>
-                        </form>
-                    </div>
-                </div>
+        <div className="content">
+            <div className="header">
+                <img src={logo} height={50} alt={'logo'}/>
+                {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                    <button className={'logout'} onClick={() => logout()}>
+                        <img src={logoutIcon} height={25}
+                             alt='logout icon'/>
+                    </button>
+                </a>) : (<a></a>)}
             </div>
-            <div className="navigation">
-                <div className="left-navigation-part">
-                    <a href="">
-                        <button className="previous-page" onClick={(e) => {
-                            e.preventDefault();
-                            history.go(-1);
-                        }}>Back
-                        </button>
-                    </a>
+            <div className="page-active">
+
+                <div className="wizard">
+                    <div className="panel">
+                        <div className="left-part">
+                            <h1>Enter the link to a contest</h1>
+                        </div>
+                        <div className="right-part">
+                            <form onSubmit={linkSubmit} autoComplete='on'>
+
+                                <label htmlFor="link">Paste the link:</label>
+                                <input type="url" id="link" value={link}
+                                       onChange={(e) => setUrl(e.target.value)}
+                                       required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                <div className="right-navigation-part">
-                    <a href="/">
-                        <button className={'logout'} onClick={() => logout()}>Logout
-                        </button>
-                    </a>
+                <div className="navigation">
+                    <div className="left-navigation-part">
+                        <a href="">
+                            <button className="previous-page" onClick={(e) => {
+                                e.preventDefault();
+                                history.go(-1);
+                            }}>Back
+                            </button>
+                        </a>
+                    </div>
+                    <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
+                    <div className="right-navigation-part">
+
+                    </div>
                 </div>
             </div>
         </div>
