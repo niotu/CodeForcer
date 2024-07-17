@@ -5,6 +5,7 @@ import logout, {show404page} from "./globalFunctions.jsx";
 import localForage from "localforage";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
+import loadingGif from "../assets/loading.gif"
 
 function getBoundary(contentType) {
     const boundaryPrefix = 'boundary=';
@@ -235,7 +236,7 @@ const ContestDetails = () => {
                     <div className="wizard">
                         <div className="loading-spinner">
                             <h1>Loading contest details...</h1>
-                            <img src={loading} width={200} height={200} alt='loading'/>
+                            <img src={loadingGif} width={200} height={200} alt='loading'/>
                         </div>
                     </div>
                 </div>
