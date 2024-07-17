@@ -78,17 +78,6 @@ func ParseSubmissions(dir string, authors map[int64]entities.User) error {
 
 }
 
-func getTaskIndex(authors map[int64]entities.User, path string) string {
-	name, _ := getFileNameAndExtension(path)
-	subId, _ := strconv.ParseInt(name, 10, 64)
-	for _, subm := range authors[subId].Solutions {
-		if subm.SubmissionId == subId {
-			return subm.Index
-		}
-	}
-	return ""
-}
-
 func MakeSolutionsArchive(srcArchive string, userId string, authors map[int64]entities.User) error {
 	dest := "./temp_" + userId
 	unarchived := "./solutions_" + userId

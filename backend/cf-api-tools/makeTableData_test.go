@@ -70,7 +70,7 @@ func TestMakeTableData(t *testing.T) {
 		TasksWeights:          []int{10, 10},
 		ExtraHeaders:          nil,
 		LatePenalty:           50,
-		LateTime:              1720372124,
+		LateEndSeconds:        1720372124,
 		SubmissionParsingMode: "best",
 	}
 
