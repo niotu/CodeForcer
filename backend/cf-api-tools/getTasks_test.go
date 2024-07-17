@@ -19,7 +19,7 @@ func TestGetTasksFailure(t *testing.T) {
 
 	_, err = client.GetContestData("CsTlwuSxCL", 504401)
 	if err == nil {
-		t.Errorf("Should produce an error since apiKey is not correct")
+		t.Errorf("Should produce an error since ApiKey is not correct")
 		return
 	}
 

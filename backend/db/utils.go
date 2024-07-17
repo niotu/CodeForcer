@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 )
 
 var usersFilePath = "./db/users.json"
@@ -68,44 +67,58 @@ func UploadUsersToFile(csvTable []byte) error {
 	return nil
 }
 
-func UploadClientsToFile(clients *sync.Map) {
-	//defaultMap := make(map[string]cfapitools.Client)
-	//
-	//clients.Range(func(userId, client any) bool {
-	//	key := userId.(string)
-	//	defaultMap[key] = *client.(*cfapitools.Client)
-	//	return true
-	//})
-	//
-	//fmt.Println(defaultMap)
+func UploadClientsToFile(clients map[string]interface{}) {
+	buff, err := json.Marshal(clients)
+	if err != nil {
+		logger.Error(err)
+	}
 
-	//buff, err := json.Marshal(data)
-	//if err != nil {
-	//	logger.Error(err)
-	//	return fmt.Errorf("unable to upload csv file")
-	//}
-	//
-	//path, _ := filepath.Abs(usersFilePath)
-	//
-	//err = os.WriteFile(path, buff, 0606)
-	//
-	//if err != nil {
-	//	logger.Error(err)
-	//	return fmt.Errorf("unable to upload csv file")
-	//}
-	//
-	//return nil
+	path, _ := filepath.Abs(clientsFilePath)
+
+	err = os.WriteFile(path, buff, 0606)
+	if err != nil {
+		logger.Error(err)
+	}
 }
 
 func GetUsers() map[string]string {
-	return getDB(usersFilePath)
+	data := getDB(usersFilePath)
+
+	result := make(map[string]string)
+
+	for k, v := range data {
+		result[k] = v.(string)
+	}
+
+	return result
 }
 
-func GetClients() map[string]string {
-	return getDB(clientsFilePath)
+func GetClientsBytes() []byte {
+	b, _ := getDBBytes(clientsFilePath)
+	return b
 }
 
-func getDB(filePath string) map[string]string {
+func getDB(filePath string) map[string]interface{} {
+	buff, err := getDBBytes(filePath)
+	if err != nil {
+		return nil
+	}
+	if len(buff) == 0 {
+		return make(map[string]interface{})
+	}
+
+	var data map[string]interface{}
+
+	err = json.Unmarshal(buff, &data)
+	if err != nil {
+		logger.Error(err)
+		return nil
+	}
+
+	return data
+}
+
+func getDBBytes(filePath string) ([]byte, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		_ = os.MkdirAll(filepath.Dir(filePath), 0606)
@@ -115,23 +128,15 @@ func getDB(filePath string) map[string]string {
 		_, _ = file.Write(data)
 
 		file.Close()
-		return make(map[string]string)
+		return []byte{}, nil
 	}
 	defer file.Close()
 
 	buff, err := io.ReadAll(file)
 	if err != nil {
 		logger.Error(err)
-		return nil
+		return nil, err
 	}
 
-	var data map[string]string
-
-	err = json.Unmarshal(buff, &data)
-	if err != nil {
-		logger.Error(err)
-		return nil
-	}
-
-	return data
+	return buff, nil
 }

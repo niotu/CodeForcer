@@ -12,7 +12,7 @@ import (
 	"net/url"
 )
 
-var ApiRequestError = errors.New("an error occured, please, re-try later")
+var ApiRequestError = errors.New("an error occurred, please, re-try later")
 
 type RequestParams interface {
 	GetKey() string
@@ -83,10 +83,10 @@ func (a *ApiRequest) MakeApiRequest() ([]byte, error) {
 		logger.Logger().Error("Failed CF API request.",
 			zap.String("URL", u.String()),
 			zap.Int("StatusCode", resp.StatusCode))
+	} else {
+		logger.Logger().Info("Successful CF API request.",
+			zap.String("URL", u.String()))
 	}
-
-	logger.Logger().Info("Successful CF API request.",
-		zap.String("URL", u.String()))
 
 	defer resp.Body.Close()
 

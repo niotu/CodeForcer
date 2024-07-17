@@ -17,10 +17,10 @@ type ParsingParameters struct {
 	SubmissionParsingMode string
 }
 
-func feedbackFormulaPattern(startCol, currRow int) string {
+func feedbackFormulaPattern(startCol int) string {
 	startLetter := string(rune('A' + startCol))
-	return fmt.Sprintf("& CHAR(10)&CHAR(10) & IF(COLUMN() <= %d, \"\", JOIN(CHAR(10)&CHAR(10), ARRAYFORMULA($%s$1:INDIRECT(ADDRESS(1, COLUMN()-1)) & \": \" & $%s%d:INDIRECT(ADDRESS(ROW(),COLUMN()-1)))))",
-		startCol+1, startLetter, startLetter, currRow)
+	return fmt.Sprintf("& CHAR(10)&CHAR(10) & IF(COLUMN() <= %d, \"\", JOIN(CHAR(10)&CHAR(10), ARRAYFORMULA(INDIRECT(\"$%s$1\"):INDIRECT(ADDRESS(1, COLUMN()-1)) & \": \" & INDIRECT(\"$%s\"&ROW()):INDIRECT(ADDRESS(ROW(),COLUMN()-1)))))",
+		startCol+1, startLetter, startLetter)
 }
 
 func totalFormulaPattern(start int) string {
@@ -59,7 +59,8 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, man
 				taskStatus = fmt.Sprintf("(late submission: -%d%%)", extraParams.LatePenalty)
 				moodlePoints *= 1.0 - float64(extraParams.LatePenalty)/100
 			} else if submission.Late && submission.SubmissionTime > extraParams.LateEndSeconds {
-				taskStatus = "(no submission)"
+				taskStatus = "(submission after extended deadline => 0 points)"
+				moodlePoints = 0.0
 			}
 
 			points = append(points, strconv.Itoa(int(moodlePoints)))
@@ -82,7 +83,7 @@ func MakeTableData(resultsData FinalJSONData, extraParams ParsingParameters, man
 			row = append(row, make([]string, len(extraParams.ExtraHeaders))...)
 		}
 		row = append(row, TotalField)
-		row = append(row, "=\"Passing test:\n"+strings.Join(feedbackPart, "; ")+"\""+feedbackFormulaPattern(mandatoryCols, userIdx+2))
+		row = append(row, "=\"Passing test:\n"+strings.Join(feedbackPart, "; ")+"\""+feedbackFormulaPattern(mandatoryCols))
 
 		rows = append(rows, row)
 

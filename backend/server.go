@@ -24,6 +24,28 @@ import (
 var clients sync.Map       // Concurrent map to store clients ("userId":*cf_api_tools.Client)
 var clientKeyToId sync.Map // Concurrent map to store client (reversed version of clients) ("apiKey":"userId")
 
+func ConvertClientsToMap() map[string]interface{} {
+	defaultMap := make(map[string]interface{})
+
+	clients.Range(func(userId, client any) bool {
+		key := userId.(string)
+		defaultMap[key] = *client.(*cfapitools.Client)
+		return true
+	})
+
+	return defaultMap
+}
+
+func SetUpClientsFromFile(data []byte) {
+	defaultMap := make(map[string]cfapitools.Client)
+
+	_ = json.Unmarshal(data, &defaultMap)
+	for k, v := range defaultMap {
+		client := v
+		setClient(k, &client)
+	}
+}
+
 // getClient returns pointer to cf_api_tools.Client object if found, nil otherwise
 func getClient(userID string) *cfapitools.Client {
 	client, ok := clients.Load(userID)
@@ -36,7 +58,6 @@ func getClient(userID string) *cfapitools.Client {
 // getIdByClient returns userID of given client if it is already existing
 func getIdByClient(client *cfapitools.Client) string {
 	key := client.DecodeApiKey()
-	fmt.Println(key)
 
 	id, ok := clientKeyToId.Load(key)
 	if !ok {
@@ -51,7 +72,7 @@ func setClient(userID string, client *cfapitools.Client) {
 	clientKeyToId.Store(key, userID)
 	clients.Store(userID, client)
 
-	db.UploadClientsToFile(&clients)
+	db.UploadClientsToFile(ConvertClientsToMap())
 }
 
 // corsMiddleware is a middleware function that sets appropriate headers to http.ResponseWriter object
@@ -334,6 +355,10 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 	// if getZipErr is nil, then start handle submissions archive and write json and zip to multipart
 	if !errors.Is(getZipErr, NoFileProvided) {
 		err = cfapitools.GetSolutions(srcZip, userID, data)
+		if err != nil {
+			_, _ = w.Write(statusFailedResponse(err.Error()))
+			return
+		}
 
 		createMultipart(w, statusOKResponse(data), userID)
 	} else { // otherwise just write json to standard body
@@ -389,6 +414,9 @@ func main() {
 			logger.Error(err.Error())
 		}
 	}(logger.Logger())
+
+	// setUp clients from database file
+	SetUpClientsFromFile(db.GetClientsBytes())
 
 	// load environment variables
 	_ = godotenv.Load()

@@ -141,20 +141,19 @@ func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
 
 	writer.Close()
 
-	w.Write(body.Bytes())
+	_, _ = w.Write(body.Bytes())
 
 }
 
 func getZipFile(r *http.Request, srcZip string) error {
 	err := r.ParseMultipartForm(15 << 20)
 	if err != nil {
-		logger.Error(err)
-		return fmt.Errorf("could not parse multipart form")
+		logger.Logger().Info("NO FILE PROVIDED. IGNORE THIS STEP")
+		return NoFileProvided
 	}
 
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		logger.Error(err)
 		logger.Logger().Info("NO FILE PROVIDED. IGNORE THIS STEP")
 		return NoFileProvided
 	}

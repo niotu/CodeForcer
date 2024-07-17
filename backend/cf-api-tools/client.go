@@ -17,8 +17,8 @@ var (
 )
 
 type Client struct {
-	apiKey      []byte
-	apiSecret   []byte
+	ApiKey      []byte
+	ApiSecret   []byte
 	Handle      string `json:"-"`
 	password    string
 	authClient  *http.Client
@@ -53,8 +53,8 @@ func decryptClientData(ciphertext []byte) string {
 
 func NewClient(apiKey, apiSecret string) (*Client, error) {
 	return &Client{
-		apiKey:    encryptClientData(apiKey),
-		apiSecret: encryptClientData(apiSecret),
+		ApiKey:    encryptClientData(apiKey),
+		ApiSecret: encryptClientData(apiSecret),
 	}, nil
 }
 
@@ -65,8 +65,8 @@ func NewClientWithAuth(apiKey, apiSecret, handle, password string) (*Client, err
 	}
 
 	return &Client{
-		apiKey:     encryptClientData(apiKey),
-		apiSecret:  encryptClientData(apiSecret),
+		ApiKey:     encryptClientData(apiKey),
+		ApiSecret:  encryptClientData(apiSecret),
 		Handle:     handle,
 		password:   password,
 		authClient: authClient,
@@ -74,11 +74,11 @@ func NewClientWithAuth(apiKey, apiSecret, handle, password string) (*Client, err
 }
 
 func (c *Client) DecodeApiKey() string {
-	return decryptClientData(c.apiKey)
+	return decryptClientData(c.ApiKey)
 }
 
 func (c *Client) DecodeApiSecret() string {
-	return decryptClientData(c.apiSecret)
+	return decryptClientData(c.ApiSecret)
 }
 
 func (c *Client) Authenticate() error {
