@@ -11,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 	cfapitools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/db"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/fileio-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
 	"go.uber.org/zap"
 	"io"
@@ -360,10 +361,15 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		createMultipart(w, statusOKResponse(data), userID)
-	} else { // otherwise just write json to standard body
-		_, _ = w.Write(statusOKResponse(data))
+		zipLink, err := fileio_api_tools.StoreFile(GetFinalZip(userID))
+		if err != nil {
+			_, _ = w.Write(statusFailedResponse(err.Error()))
+			return
+		}
+		data.ZipLink = zipLink
 	}
+
+	_, _ = w.Write(statusOKResponse(data))
 }
 
 // uploadUsers is a handler function to /uploadUsers route.

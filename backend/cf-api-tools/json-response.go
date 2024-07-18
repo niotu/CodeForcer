@@ -11,6 +11,7 @@ type FinalJSONData struct {
 	Users        []entities.User    `json:"users"`
 	CSV          []byte             `json:"csv"`
 	GoogleSheets string             `json:"googleSheets"`
+	ZipLink      string             `json:"zipLink"`
 }
 
 func combineStatusAndStandings(params *CFContestMethodParams, tableExtraParams ParsingParameters) (*FinalJSONData, error) {

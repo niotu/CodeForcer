@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,7 +9,6 @@ import (
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/solutions"
 	"go.uber.org/zap"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -85,8 +83,7 @@ func parseWeights(weightsString string) ([]int, error) {
 	return weights, nil
 }
 
-func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
-	AttachZipError := "unable to attach zip file"
+func GetFinalZip(userId string) string {
 	resultZipName := solutions.GetResultZipName(userId)
 
 	defer func() {
@@ -95,55 +92,68 @@ func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
 		}()
 	}()
 
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
-	w.Header().Set("Content-Type", "multipart/mixed; boundary="+writer.Boundary())
-
-	// Write JSON part
-	jsonPart, err := writer.CreatePart(map[string][]string{
-		"Content-Type": {"application/json"},
-	})
-	if err != nil {
-		logger.Error(err)
-		_, _ = w.Write(statusFailedResponse(AttachZipError))
-		return
-	}
-	if _, err := jsonPart.Write(jsonData); err != nil {
-		logger.Error(err)
-		_, _ = w.Write(statusFailedResponse(AttachZipError))
-		return
-	}
-
-	// Write ZIP part
-
-	zipBytes, err := os.ReadFile(resultZipName)
-	if err != nil {
-		logger.Error(err)
-		_, _ = w.Write(statusFailedResponse(AttachZipError))
-		return
-	}
-
-	zipPart, err := writer.CreatePart(map[string][]string{
-		"Content-Type":        {"application/zip"},
-		"Content-Disposition": {fmt.Sprintf("attachment; filename=\"%s\"", resultZipName)},
-	})
-	if err != nil {
-		logger.Error(err)
-		_, _ = w.Write(statusFailedResponse(AttachZipError))
-		return
-	}
-	if _, err := zipPart.Write(zipBytes); err != nil {
-		logger.Error(err)
-		_, _ = w.Write(statusFailedResponse(AttachZipError))
-		return
-	}
-
-	writer.Close()
-
-	_, _ = w.Write(body.Bytes())
-
+	return resultZipName
 }
+
+//func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
+//	AttachZipError := "unable to attach zip file"
+//	resultZipName := solutions.GetResultZipName(userId)
+//
+//	defer func() {
+//		go func() {
+//			_ = os.Remove(resultZipName)
+//		}()
+//	}()
+//
+//	body := &bytes.Buffer{}
+//	writer := multipart.NewWriter(body)
+//
+//	w.Header().Set("Content-Type", "multipart/mixed; boundary="+writer.Boundary())
+//
+//	// Write JSON part
+//	jsonPart, err := writer.CreatePart(map[string][]string{
+//		"Content-Type": {"application/json"},
+//	})
+//	if err != nil {
+//		logger.Error(err)
+//		_, _ = w.Write(statusFailedResponse(AttachZipError))
+//		return
+//	}
+//	if _, err := jsonPart.Write(jsonData); err != nil {
+//		logger.Error(err)
+//		_, _ = w.Write(statusFailedResponse(AttachZipError))
+//		return
+//	}
+//
+//	// Write ZIP part
+//
+//	zipBytes, err := os.ReadFile(resultZipName)
+//	if err != nil {
+//		logger.Error(err)
+//		_, _ = w.Write(statusFailedResponse(AttachZipError))
+//		return
+//	}
+//
+//	zipPart, err := writer.CreatePart(map[string][]string{
+//		"Content-Type":        {"application/zip"},
+//		"Content-Disposition": {fmt.Sprintf("attachment; filename=\"%s\"", resultZipName)},
+//	})
+//	if err != nil {
+//		logger.Error(err)
+//		_, _ = w.Write(statusFailedResponse(AttachZipError))
+//		return
+//	}
+//	if _, err := zipPart.Write(zipBytes); err != nil {
+//		logger.Error(err)
+//		_, _ = w.Write(statusFailedResponse(AttachZipError))
+//		return
+//	}
+//
+//	writer.Close()
+//
+//	_, _ = w.Write(body.Bytes())
+//
+//}
 
 func getZipFile(r *http.Request, srcZip string) error {
 	err := r.ParseMultipartForm(15 << 20)
