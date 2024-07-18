@@ -13,6 +13,7 @@ import (
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/db"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/fileio-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
+	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/solutions"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -361,7 +362,10 @@ func proceedProcess(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		zipLink, err := fileio_api_tools.StoreFile(GetFinalZip(userID))
+		zipLink, err := fileio_api_tools.StoreFile(solutions.GetResultZipName(userID))
+		go func() {
+			_ = os.Remove(solutions.GetResultZipName(userID))
+		}()
 		if err != nil {
 			_, _ = w.Write(statusFailedResponse(err.Error()))
 			return

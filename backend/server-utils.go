@@ -6,7 +6,6 @@ import (
 	"fmt"
 	cfapitools "gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/cf-api-tools"
 	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/logger"
-	"gitlab.pg.innopolis.university/n.solomennikov/choosetwooption/backend/solutions"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -81,18 +80,6 @@ func parseWeights(weightsString string) ([]int, error) {
 	}
 
 	return weights, nil
-}
-
-func GetFinalZip(userId string) string {
-	resultZipName := solutions.GetResultZipName(userId)
-
-	defer func() {
-		go func() {
-			_ = os.Remove(resultZipName)
-		}()
-	}()
-
-	return resultZipName
 }
 
 //func createMultipart(w http.ResponseWriter, jsonData []byte, userId string) {
