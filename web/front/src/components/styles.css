@@ -35,13 +35,51 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    margin: calc(17vh) auto;
+    margin: calc(11vh) auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
+.header {
+    display: flex;
+    flex-direction: row;
+    /* background-color: #7AC58F; */
+    padding: 20px;
+    /* text-align: center; */
+    justify-content: space-between;
+    /* color: white; */
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    /*color: white;*/
+}
+
+.header button {
+    height: 45px;
+    width: 45px;
+    /*width: 100%;*/
+    /*height: 100%;*/
+    box-shadow: 2px 1px 1px #717171;
+    padding: 10px 10px;
+    border-radius: 1000px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: white;
+    border-color: transparent
+}
+
+form {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    align-content: center;
+    flex-wrap: nowrap;
+}
 
 /* Wizard layout */
 .wizard {
@@ -76,12 +114,15 @@ body {
 /* Navigation layout */
 .navigation {
     position: relative;
-    width: 70%;
+    width: 100%;
     bottom: 0;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     padding: 10px;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
 }
 
 /* Navigation buttons */
@@ -101,17 +142,7 @@ body {
     background-color: #3e9439; /* Darker blue on hover */
 }
 
-.left-part {
-    margin: 0 auto;
-    width: 40%;
-    max-height: 75%;
-    min-height: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.right-part {
+.right-part, .left-part {
     margin: 0 auto;
     width: 40%;
     max-height: 75%;
@@ -139,11 +170,6 @@ h1 {
 }
 
 /* Form styles */
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 
 label {
     font-weight: bold;

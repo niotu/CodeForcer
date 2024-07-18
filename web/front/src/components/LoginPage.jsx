@@ -3,6 +3,8 @@ import {useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
 import './styles.css'; // Import the provided CSS file
 import logout from './globalFunctions.jsx'
+import logo from '../assets/logo.svg'
+import logoutIcon from '../assets/logout.png'
 
 const LoginPage = () => {
     const [isCorrect, setIsCorrect] = useState(true);
@@ -82,44 +84,46 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="page-active">
-            <div className="wizard">
-                <div className="panel">
-                    <div className="left-part">
-                        <h1>Login to CodeForces</h1>
-                    </div>
-                    <div className="right-part">
-                        <form onSubmit={handleSubmit} autoComplete='on'>
-                            <label htmlFor="key">Key:</label>
-                            <input type="password"
-                                   id="key"
-                                   value={key}
-                                   onChange={(e) => setKey(e.target.value)}
-                                   required
-                                   className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+        <div className="content">
 
-                            <label htmlFor="secret">Secret:</label>
-                            <input type="password"
-                                   id="secret"
-                                   value={secret}
-                                   onChange={(e) => setSecret(e.target.value)}
-                                   required
-                                   className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
-                            <button type="submit">Log In</button>
-                        </form>
-                    </div>
-                </div>
+            <div className="header">
+                <img src={logo} height={50} alt={'logo'}/>
+                {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                    <button className={'logout'} onClick={() => logout()}>
+                        <img src={logoutIcon} height={25}
+                             alt='logout icon'/>
+                    </button>
+                </a>) : (<a></a>)}
             </div>
-            <div className="navigation">
-                <div className="left-navigation-part">
+            <div className='page-active'>
+                <div className="wizard">
+                    <div className="panel">
+                        <div className="left-part">
+                            <h1>Login to CodeForces</h1>
+                            <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
 
-                </div>
-                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                <div className="right-navigation-part">
-                    {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
-                        <button className={'logout'} onClick={() => logout()}>Logout
-                        </button>
-                    </a>) : (<a></a>)}
+                        </div>
+                        <div className="right-part">
+                            <form onSubmit={handleSubmit} autoComplete='on'>
+                                <label htmlFor="key">Key:</label>
+                                <input type="password"
+                                       id="key"
+                                       value={key}
+                                       onChange={(e) => setKey(e.target.value)}
+                                       required
+                                       className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+
+                                <label htmlFor="secret">Secret:</label>
+                                <input type="password"
+                                       id="secret"
+                                       value={secret}
+                                       onChange={(e) => setSecret(e.target.value)}
+                                       required
+                                       className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                                <button type="submit">Log In</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

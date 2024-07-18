@@ -3,13 +3,16 @@ import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import localForage from "localforage";
+import logo from "../assets/logo.svg";
+import logoutIcon from "../assets/logout.png";
 
 const UploadZipFilePage = () => {
     const {group, contestId} = useParams();
     const navigate = useNavigate();
     const [comment, setComment] = useState('It is a not required step, you can skip it. Just click "Submit"');
     const [isCorrect, setIsCorrect] = useState(true);
-    const [zipFile, setZipFile] = useState(null); // State for the ZIP file
+    const [zipFile, setZipFile] = useState(null);
+    const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuthorized') || true) // State for the ZIP file
 
 
     console.log(`group : ${group}`);
@@ -41,43 +44,54 @@ const UploadZipFilePage = () => {
     };
 
     return (
-        <div className="page-active">
-            <div className="wizard">
-                <div className="panel">
-                    <div className="left-part">
-                        <h1>Upload Submissions</h1>
-                    </div>
-                    <div className="right-part">
-                        <form onSubmit={fileSubmit} autoComplete='on'>
-                            <label htmlFor="zipFile">Choose ZIP file:</label>
-                            <input
-                                type="file"
-                                id="zipFile"
-                                accept=".zip"
-                                onChange={handleZipChange}
-                            />
+        <div className="content">
 
-                            <button type="submit">Submit</button>
-                        </form>
-                    </div>
-                </div>
+            <div className="header">
+                <img src={logo} height={50} alt={'logo'}/>
+                {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                    <button className={'logout'} onClick={() => logout()}>
+                        <img src={logoutIcon} height={25}
+                             alt='logout icon'/>
+                    </button>
+                </a>) : (<a></a>)}
             </div>
-            <div className="navigation">
-                <div className="left-navigation-part">
-                    <a href="">
-                        <button className="previous-page" onClick={(e) => {
-                            e.preventDefault();
-                            history.go(-1);
-                        }}>Back
-                        </button>
-                    </a>
-                </div>
-                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                <div className="right-navigation-part">
-                    <a href="/">
-                        <button className={'logout'} onClick={() => logout()}>Logout
-                        </button>
-                    </a>
+            <div className="page-active">
+                <div className="wizard">
+                    <div className="panel">
+                        <div className="left-part">
+                            <h1>Upload Submissions</h1>
+                            <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
+                        </div>
+                        <div className="right-part">
+                            <form onSubmit={fileSubmit} autoComplete='on'>
+                                <label htmlFor="zipFile">Choose ZIP file:</label>
+                                <input
+                                    type="file"
+                                    id="zipFile"
+                                    accept=".zip"
+                                    onChange={handleZipChange}
+                                />
+                                <div className="navigation">
+                                    <div className="left-navigation-part">
+                                        <a href="">
+                                            <button className="previous-page" onClick={(e) => {
+                                                e.preventDefault();
+                                                history.go(-1);
+                                            }}>Back
+                                            </button>
+                                        </a>
+                                    </div>
+
+                                    <div className="right-navigation-part">
+                                        <a>
+                                            <button type="submit" onSubmit={handleZipChange}>Submit</button>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

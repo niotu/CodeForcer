@@ -2,13 +2,16 @@ import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
+import logo from "../assets/logo.svg";
+import logoutIcon from "../assets/logout.png";
 
 const UploadCsvFilePage = () => {
     const {groupCode, contestId} = useParams();
     const navigate = useNavigate();
     const [comment, setComment] = useState('It is not required step, you can skip this page. Press "Submit"');
     const [isCorrect, setIsCorrect] = useState(true);
-    const [csvFile, setCsvFile] = useState(null); // State for the CSV file
+    const [csvFile, setCsvFile] = useState(null);
+    const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuthorized') || true) // State for the CSV file
 
     if (!localStorage.getItem('isAuthorized')) {
         return show404page();
@@ -55,43 +58,52 @@ const UploadCsvFilePage = () => {
     };
 
     return (
-        <div className="page-active">
-            <div className="wizard">
-                <div className="panel">
-                    <div className="left-part">
-                        <h1>Set up the handle-email mapping</h1>
-                    </div>
-                    <div className="right-part">
-                        <form onSubmit={fileSubmit} autoComplete='on'>
-                            <label htmlFor="csvFile">Choose CSV file:</label>
-                            <input
-                                type="file"
-                                id="csvFile"
-                                accept=".csv"
-                                onChange={handleCsvChange}
-                            /><br/><br/>
+        <div className="content">
 
-                            <button type="submit">Submit</button>
-                        </form>
-                    </div>
-                </div>
+            <div className="header">
+                <img src={logo} height={50} alt={'logo'}/>
+                {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                    <button className={'logout'} onClick={() => logout()}>
+                        <img src={logoutIcon} height={25}
+                             alt='logout icon'/>
+                    </button>
+                </a>) : (<a></a>)}
             </div>
-            <div className="navigation">
-                <div className="left-navigation-part">
-                    <a href="">
-                        <button className="previous-page" onClick={(e) => {
-                            e.preventDefault();
-                            history.go(-1);
-                        }}>Back
-                        </button>
-                    </a>
-                </div>
-                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                <div className="right-navigation-part">
-                    <a href="/">
-                        <button className={'logout'} onClick={() => logout()}>Logout
-                        </button>
-                    </a>
+            <div className="page-active">
+                <div className="wizard">
+                    <div className="panel">
+                        <div className="left-part">
+                            <h1>Set up the handle-email mapping</h1>
+                            <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
+                        </div>
+                        <div className="right-part">
+                            <form onSubmit={fileSubmit} autoComplete='on'>
+                                <label htmlFor="csvFile">Choose CSV file:</label>
+                                <input
+                                    type="file"
+                                    id="csvFile"
+                                    accept=".csv"
+                                    onChange={handleCsvChange}
+                                /><br/><br/>
+                                <div className="navigation">
+                                    <div className="left-navigation-part">
+                                        <a href="">
+                                            <button className="previous-page" onClick={(e) => {
+                                                e.preventDefault();
+                                                history.go(-1);
+                                            }}>Back
+                                            </button>
+                                        </a>
+                                    </div>
+                                    <div className="right-navigation-part">
+                                        <a>
+                                            <button type="submit" onSubmit={fileSubmit}>Submit</button>
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

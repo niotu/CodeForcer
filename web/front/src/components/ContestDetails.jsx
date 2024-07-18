@@ -3,6 +3,9 @@ import {useParams} from 'react-router-dom';
 import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import localForage from "localforage";
+import logo from "../assets/logo.svg";
+import logoutIcon from "../assets/logout.png";
+import loadingGif from "../assets/loading.gif"
 
 function getBoundary(contentType) {
     const boundaryPrefix = 'boundary=';
@@ -13,33 +16,56 @@ function getBoundary(contentType) {
 }
 
 async function parseMultipart(blob, boundary) {
-    const text = await blob.text();
     const parts = [];
     const delimiter = `--${boundary}`;
     const closeDelimiter = `--${boundary}--`;
-    const splitParts = text.split(delimiter);
-    console.log(`splitParts: ${splitParts}`);
 
-    for (let part of splitParts) {
-        if (part === '' || part === closeDelimiter || part === '--') continue;
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-        const headersEndIndex = part.indexOf('\r\n\r\n');
-        const headersText = part.slice(0, headersEndIndex);
-        const bodyText = part.slice(headersEndIndex + 4);
+        reader.onload = async function (e) {
+            try {
+                const responseText = e.target.result;
+                const splitParts = responseText.split(delimiter);
 
-        const headers = {};
-        headersText.split('\r\n').forEach(header => {
-            const [key, value] = header.split(': ');
-            headers[key] = value;
-        });
+                for (let i = 1; i < splitParts.length - 1; i++) {
+                    let part = splitParts[i].trim();
 
-        parts.push({
-            headers,
-            body: bodyText,
-        });
-    }
+                    if (part === closeDelimiter) continue;
 
-    return parts;
+                    // Handle headersEndIndex correctly
+                    const headersEndIndex = part.indexOf('\r\n\r\n');
+
+                    // Handle the case where headersEndIndex is -1
+                    const headersText = headersEndIndex !== -1 ? part.slice(0, headersEndIndex) : part;
+                    const bodyText = headersEndIndex !== -1 ? part.slice(headersEndIndex + 4) : '';
+
+                    const headers = {};
+
+                    headersText.split('\r\n').forEach(header => {
+                        const [key, value] = header.split(': ');
+                        headers[key] = value;
+                    });
+
+                    if (headers['Content-Type'] && headers['Content-Type'].includes('application/zip')) {
+                        const zipFilePart = new Blob([bodyText], {type: "application/zip"});
+                        parts.push({headers, body: zipFilePart});
+                    } else {
+                        parts.push({headers, body: bodyText});
+                    }
+                }
+                resolve(parts);
+            } catch (error) {
+                reject(error);
+            }
+        };
+
+        reader.onerror = (error) => {
+            reject(error);
+        };
+
+        reader.readAsText(blob);
+    });
 }
 
 
@@ -65,6 +91,10 @@ const ContestDetails = () => {
     const [mode, setMode] = useState(sessionStorage.getItem('mode') || '');
     const [headers, setHeaders] = useState(sessionStorage.getItem('headers').replaceAll('\n', '-') || []);
     const [isCorrect, setIsCorrect] = useState(true)
+    const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuth') || true)
+
+    // const crypto = require('crypto');
+
     //
     // console.log(`
     //     groupCode ${groupCode}
@@ -76,6 +106,11 @@ const ContestDetails = () => {
     //     mode ${mode}`
     // );
     //
+
+    // const Blob = require('blob');
+
+    let jsonPart = null;
+    let zipFilePart = null;
 
     useEffect(() => {
         const fetchContestDetails = async () => {
@@ -96,17 +131,28 @@ const ContestDetails = () => {
                 formData.append('file', fileInput);
                 console.log(fileInput);
 
-                let url = process.env.REACT_APP_BACKEND_URL +
+                let url =
+                    // process.env.REACT_APP_BACKEND_URL +
                     '/api/proceed?' + queryParams;
+
+                // const request = new Request(url, {
+                //     method: 'POST',
+                //     body: formData,
+                //     headers: {'Content-Type': 'multipart/form-data'}
+                // })
 
                 const response = await fetch(url, {
                     method: 'POST',
                     body: formData,
-                })
+                    responseType: 'blob'
+                    // headers: {'Content-Type': 'multipart/form-data'}
+                });
 
                 console.log(response);
 
                 if (response.headers.get('Content-Type').includes('multipart/mixed')) {
+                    // const type = response.headers.get('content-type')
+                    // response.headers.set('content-type', type.replace('mixed', 'form-data'))
                     const responseBlob = await response.blob();
                     console.log(`headers: ${response.headers.get('Content-Type')}`);
                     // Parse the multipart response
@@ -114,19 +160,20 @@ const ContestDetails = () => {
                     const parts = await parseMultipart(responseBlob, boundary);
                     console.log(parts);
                     // Process the parts
-                    let jsonPart = null;
-                    let zipFilePart = null;
+
                     parts.forEach(part => {
                         const contentType = part.headers['Content-Type'];
-                        // const contentDisposition = part.headers['Content-Disposition'];
+
                         if (contentType) {
                             if (contentType.includes('application/json')) {
                                 jsonPart = JSON.parse(part.body);
                             } else if (contentType.includes('application/zip')) {
-                                zipFilePart = new Blob([part.body], {type: 'application/zip'});
+                                zipFilePart = part.body;
                             }
                         }
                     });
+
+
                     if (jsonPart && zipFilePart) {
                         console.log('JSON part:', jsonPart);
                         console.log('ZIP part:', zipFilePart);
@@ -140,12 +187,13 @@ const ContestDetails = () => {
                         } else if (jsonPart.status === 'FAILED') {
                             setComment(jsonPart.comment);
                             setIsCorrect(false);
-                            alert(jsonPart.comment);
+                            return show404page();
+                            // alert(jsonPart.comment);
                         }
                     } else {
                         setComment('Some error caught while processing response');
                         setIsCorrect(false);
-                        alert(comment);
+                        // alert(comment);
                         return show404page();
                     }
                 } else {
@@ -160,12 +208,14 @@ const ContestDetails = () => {
                     } else if (jsonPart.status === 'FAILED') {
                         setComment(jsonPart.comment);
                         setIsCorrect(false);
-                        alert(jsonPart.comment);
+                        // alert(jsonPart.comment);
+                        return show404page();
                     }
                 }
             } catch (error) {
                 console.error('Error fetching contest details:', error);
                 setLoading(false); // Set loading to false even if there's an error
+                return show404page();
             }
         };
 
@@ -192,60 +242,87 @@ const ContestDetails = () => {
     };
 
     if (loading) {
-        return (<div className="page-active">
-            <div className="wizard">
-                <div className="loading-spinner">
-                    <h1>Loading contest details...</h1>
-                    <img src={"/web/front/assets/loading.gif"} width={200} height={200} alt='loading'/>
+        return (
+            <div className="content">
+
+                <div className="header">
+                    <img src={logo} height={50} alt={'logo'}/>
+                    {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                        <button className={'logout'} onClick={() => logout()}>
+                            <img src={logoutIcon} height={25}
+                                 alt='logout icon'/>
+                        </button>
+                    </a>) : (<a></a>)}
                 </div>
-            </div>
-        </div>); // Render a loading indicator while data is being fetched
+                <div className="page-active">
+
+                    <div className="wizard">
+                        <div className="loading-spinner">
+                            <h1>Loading contest details...</h1>
+                            <img src={loadingGif} width={200} height={200} alt='loading'/>
+                        </div>
+                    </div>
+                </div>
+            </div>); // Render a loading indicator while data is being fetched
     }
 
     return (
-        <div className="page-active">
-            <div className="wizard">
-                <div className="panel">
-                    <div className="left-part">
-                        <h1>Contest Details</h1>
-                        <h4>
-                            weights: {taskWeights},
-                            late: {late},
-                            penalty: {penalty},
-                            mode: {mode}
-                        </h4>
-                    </div>
-                    <div className="right-part">
-                        <div>
-                            <label>Google Sheet: </label>
-                            <a href={googleSheetLink} target="_blank" rel="noopener noreferrer">See Google Sheet</a>
-                        </div>
-                        <div>
-                            <button onClick={downloadCsv}>Download CSV</button>
-                        </div>
-                        <div>
-                            <button onClick={downloadSubmissions}>Download Submissions</button>
-                        </div>
-                    </div>
-                </div>
+        <div className="content">
+
+            <div className="header">
+                <img src={logo} height={50} alt={'logo'}/>
+                {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
+                    <button className={'logout'} onClick={() => logout()}>
+                        <img src={logoutIcon} height={25}
+                             alt='logout icon'/>
+                    </button>
+                </a>) : (<a></a>)}
             </div>
-            <div className="navigation">
-                <div className="left-navigation-part">
-                    <a href="">
-                        <button className="previous-page" onClick={(e) => {
-                            e.preventDefault();
-                            history.go(-1);
-                        }}>Back
-                        </button>
-                    </a>
+            <div className="page-active">
+                <div className="wizard">
+                    <div className="panel">
+                        <div className="left-part">
+                            <h1>Contest Details</h1>
+                            <h4>
+                                weights: {taskWeights},
+                                late: {late},
+                                penalty: {penalty},
+                                mode: {mode}
+                            </h4>
+                            <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
+                        </div>
+                        <div className="right-part">
+                            <div>
+                                <label>Google Sheet: </label>
+                                <a href={googleSheetLink} target="_blank" rel="noopener noreferrer">See Google Sheet</a>
+                            </div>
+                            <div>
+                                <button onClick={downloadCsv}>Download CSV</button>
+                            </div>
+                            <div>
+                                <button onClick={downloadSubmissions}>Download Submissions</button>
+                            </div>
+                            <div className="navigation">
+                                <div className="left-navigation-part">
+                                    <a href="">
+                                        <button className="previous-page" onClick={(e) => {
+                                            e.preventDefault();
+                                            history.go(-1);
+                                        }}>Back
+                                        </button>
+                                    </a>
+                                </div>
+                                <div className="right-navigation-part">
+                                    <a href="/">
+                                        <button className={'logout'} onClick={() => logout()}>Logout
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                <div className="right-navigation-part">
-                    <a href="/">
-                        <button className={'logout'} onClick={() => logout()}>Logout
-                        </button>
-                    </a>
-                </div>
+
             </div>
         </div>
     );
