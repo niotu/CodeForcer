@@ -60,6 +60,7 @@ const UploadZipFilePage = () => {
                     <div className="panel">
                         <div className="left-part">
                             <h1>Upload Submissions</h1>
+                            <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
                         </div>
                         <div className="right-part">
                             <form onSubmit={fileSubmit} autoComplete='on'>
@@ -70,25 +71,26 @@ const UploadZipFilePage = () => {
                                     accept=".zip"
                                     onChange={handleZipChange}
                                 />
+                                <div className="navigation">
+                                    <div className="left-navigation-part">
+                                        <a href="">
+                                            <button className="previous-page" onClick={(e) => {
+                                                e.preventDefault();
+                                                history.go(-1);
+                                            }}>Back
+                                            </button>
+                                        </a>
+                                    </div>
 
-                                <button type="submit">Submit</button>
+                                    <div className="right-navigation-part">
+                                        <a>
+                                            <button type="submit" onSubmit={handleZipChange}>Submit</button>
+                                        </a>
+                                    </div>
+                                </div>
+
                             </form>
                         </div>
-                    </div>
-                </div>
-                <div className="navigation">
-                    <div className="left-navigation-part">
-                        <a href="">
-                            <button className="previous-page" onClick={(e) => {
-                                e.preventDefault();
-                                history.go(-1);
-                            }}>Back
-                            </button>
-                        </a>
-                    </div>
-                    <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                    <div className="right-navigation-part">
-
                     </div>
                 </div>
             </div>

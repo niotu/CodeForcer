@@ -100,6 +100,8 @@ const LoginPage = () => {
                     <div className="panel">
                         <div className="left-part">
                             <h1>Login to CodeForces</h1>
+                            <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
+
                         </div>
                         <div className="right-part">
                             <form onSubmit={handleSubmit} autoComplete='on'>
@@ -121,14 +123,6 @@ const LoginPage = () => {
                                 <button type="submit">Log In</button>
                             </form>
                         </div>
-                    </div>
-                </div>
-                <div className="navigation">
-                    <div className="left-navigation-part">
-
-                    </div>
-                    <p className={isCorrect ? 'correct-comment' : 'incorrect-comment'}>{comment}</p>
-                    <div className="right-navigation-part">
                     </div>
                 </div>
             </div>

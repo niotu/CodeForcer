@@ -8,6 +8,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "blob": "^0.1.0",
+    "file-saver": "^2.0.5",
     "iconv": "^3.0.1",
     "localforage": "^1.10.0",
     "multipart-parser": "^0.0.2",
