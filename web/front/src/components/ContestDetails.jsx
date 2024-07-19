@@ -7,6 +7,8 @@ import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
 import loadingGif from "../assets/loading.gif"
 
+// import * as url from "node:url";
+
 function getBoundary(contentType) {
     const boundaryPrefix = 'boundary=';
     const start = contentType.indexOf(boundaryPrefix) + boundaryPrefix.length;
@@ -132,7 +134,7 @@ const ContestDetails = () => {
                 console.log(fileInput);
 
                 let url =
-                    // process.env.REACT_APP_BACKEND_URL +
+                    process.env.REACT_APP_BACKEND_URL +
                     '/api/proceed?' + queryParams;
 
                 // const request = new Request(url, {
@@ -144,73 +146,27 @@ const ContestDetails = () => {
                 const response = await fetch(url, {
                     method: 'POST',
                     body: formData,
-                    responseType: 'blob'
                     // headers: {'Content-Type': 'multipart/form-data'}
                 });
 
-                console.log(response);
 
-                if (response.headers.get('Content-Type').includes('multipart/mixed')) {
-                    // const type = response.headers.get('content-type')
-                    // response.headers.set('content-type', type.replace('mixed', 'form-data'))
-                    const responseBlob = await response.blob();
-                    console.log(`headers: ${response.headers.get('Content-Type')}`);
-                    // Parse the multipart response
-                    const boundary = getBoundary(response.headers.get('Content-Type'));
-                    const parts = await parseMultipart(responseBlob, boundary);
-                    console.log(parts);
-                    // Process the parts
+                jsonPart = await response.json();
 
-                    parts.forEach(part => {
-                        const contentType = part.headers['Content-Type'];
-
-                        if (contentType) {
-                            if (contentType.includes('application/json')) {
-                                jsonPart = JSON.parse(part.body);
-                            } else if (contentType.includes('application/zip')) {
-                                zipFilePart = part.body;
-                            }
-                        }
-                    });
-
-
-                    if (jsonPart && zipFilePart) {
-                        console.log('JSON part:', jsonPart);
-                        console.log('ZIP part:', zipFilePart);
-                        if (jsonPart.status === 'OK') {
-                            const result = jsonPart.result;
-                            setGoogleSheetLink(result.googleSheets);
-                            setCsvData(result.csv);
-                            setSubmissionsData(zipFilePart);
-
-                            setLoading(false);
-                        } else if (jsonPart.status === 'FAILED') {
-                            setComment(jsonPart.comment);
-                            setIsCorrect(false);
-                            return show404page();
-                            // alert(jsonPart.comment);
-                        }
-                    } else {
-                        setComment('Some error caught while processing response');
-                        setIsCorrect(false);
-                        // alert(comment);
-                        return show404page();
-                    }
-                } else {
-                    let jsonPart = await response.json();
-                    console.log(jsonPart);
-                    if (jsonPart.status === 'OK') {
-                        const result = jsonPart.result;
-                        setGoogleSheetLink(result.googleSheets);
-                        setCsvData(result.csv);
-
-                        setLoading(false);
-                    } else if (jsonPart.status === 'FAILED') {
-                        setComment(jsonPart.comment);
-                        setIsCorrect(false);
-                        // alert(jsonPart.comment);
-                        return show404page();
-                    }
+                console.log('JSON part:', jsonPart);
+                if (jsonPart.status === 'OK') {
+                    const result = jsonPart.result;
+                    zipFilePart = result.zipLink;
+                    setGoogleSheetLink(result.googleSheets);
+                    setCsvData(result.csv);
+                    setSubmissionsData(zipFilePart);
+                    setIsFinished(true);
+                    setLoading(false);
+                } else if (jsonPart.status === 'FAILED') {
+                    setComment(jsonPart.comment);
+                    setIsCorrect(false);
+                    setIsFinished(true);
+                    // setLoading(false);
+                    // alert(jsonPart.comment);
                 }
             } catch (error) {
                 console.error('Error fetching contest details:', error);
@@ -233,12 +189,11 @@ const ContestDetails = () => {
     };
 
     const downloadSubmissions = () => {
-        const url = window.URL.createObjectURL(submissionsData);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = submissionsData;
         a.download = 'submissions.zip';
         a.click();
-        window.URL.revokeObjectURL(url);
+        // window.URL.revokeObjectURL(url);
     };
 
     if (loading) {
@@ -255,13 +210,15 @@ const ContestDetails = () => {
                     </a>) : (<a></a>)}
                 </div>
                 <div className="page-active">
-
                     <div className="wizard">
+                        <div className={'filler'}></div>
                         <div className="loading-spinner">
                             <h1>Loading contest details...</h1>
                             <img src={loadingGif} width={200} height={200} alt='loading'/>
                         </div>
+                        <div className={'navigation'}></div>
                     </div>
+
                 </div>
             </div>); // Render a loading indicator while data is being fetched
     }
@@ -280,6 +237,9 @@ const ContestDetails = () => {
             </div>
             <div className="page-active">
                 <div className="wizard">
+                    <div className={'filler'}>
+
+                    </div>
                     <div className="panel">
                         <div className="left-part">
                             <h1>Contest Details</h1>
@@ -302,23 +262,25 @@ const ContestDetails = () => {
                             <div>
                                 <button onClick={downloadSubmissions}>Download Submissions</button>
                             </div>
-                            <div className="navigation">
-                                <div className="left-navigation-part">
-                                    <a href="">
-                                        <button className="previous-page" onClick={(e) => {
-                                            e.preventDefault();
-                                            history.go(-1);
-                                        }}>Back
-                                        </button>
-                                    </a>
-                                </div>
-                                <div className="right-navigation-part">
-                                    <a href="/">
-                                        <button className={'logout'} onClick={() => logout()}>Logout
-                                        </button>
-                                    </a>
-                                </div>
-                            </div>
+
+                        </div>
+                    </div>
+                    <div className="navigation">
+                        <div className="left-navigation-part">
+
+                        </div>
+                        <div className="right-navigation-part">
+                            <a href="">
+                                <button className="previous-page" onClick={(e) => {
+                                    e.preventDefault();
+                                    history.go(-1);
+                                }}>Back
+                                </button>
+                            </a>
+                            <a href="/">
+                                <button className={'home'}>Home
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>

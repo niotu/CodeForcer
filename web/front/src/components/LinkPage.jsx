@@ -22,7 +22,16 @@ const LinkPage = () => {
 
     const linkSubmit = async (e) => {
         e.preventDefault();
-        // console.log('** processing...')
+
+        if (link === '') {
+            setIsCorrect(false);
+            setComment('Link is required');
+            return;
+        }
+        else {
+            setIsCorrect(true);
+        }
+        console.log('** clicked...')
 
         let id = 0,
             status,
@@ -90,6 +99,9 @@ const LinkPage = () => {
             <div className="page-active">
 
                 <div className="wizard">
+                    <div className={'filler'}>
+
+                    </div>
                     <div className="panel">
                         <div className="left-part">
                             <h1>Enter the link to a contest</h1>
@@ -97,28 +109,31 @@ const LinkPage = () => {
                         </div>
                         <div className="right-part">
                             <form onSubmit={linkSubmit} autoComplete='on'>
-
                                 <label htmlFor="link">Paste the link:</label>
                                 <input type="url" id="link" value={link}
+                                       placeholder={isCorrect ? 'link' : 'link is required'}
                                        onChange={(e) => setUrl(e.target.value)}
-                                       required className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
-                                <div className="navigation">
-                                    <div className="left-navigation-part">
-                                        <a href="">
-                                            <button className="previous-page" onClick={(e) => {
-                                                e.preventDefault();
-                                                history.go(-1);
-                                            }}>Back
-                                            </button>
-                                        </a>
-                                    </div>
-                                    <div className="right-navigation-part">
-                                        <a>
-                                            <button type="submit" onSubmit={linkSubmit}>Submit</button>
-                                        </a>
-                                    </div>
-                                </div>
+                                       required
+                                       className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
                             </form>
+                        </div>
+
+                    </div>
+                    <div className="navigation">
+                        <div className="left-navigation-part">
+
+                        </div>
+                        <div className="right-navigation-part">
+                            <a href="">
+                                <button className="previous-page" onClick={(e) => {
+                                    e.preventDefault();
+                                    history.go(-1);
+                                }}>Back
+                                </button>
+                            </a>
+                            <a>
+                                <button type="submit" onClick={linkSubmit}>Next</button>
+                            </a>
                         </div>
                     </div>
                 </div>

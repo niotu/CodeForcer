@@ -58,6 +58,9 @@ const LateSubmissionPage = () => {
             </div>
             <div className="page-active">
                 <div className="wizard">
+                    <div className="filler">
+
+                    </div>
                     <div className="panel">
                         <div className="left-part">
                             <h1>Set up late submission date</h1>
@@ -84,24 +87,26 @@ const LateSubmissionPage = () => {
                                     required
                                     className={isCorrect ? 'correct' : 'incorrect'}
                                 /><br/><br/>
-                                <div className="navigation">
 
-                                    <div className="left-navigation-part">
-                                        <a href="">
-                                            <button className="previous-page" onClick={(e) => {
-                                                e.preventDefault();
-                                                history.go(-1);
-                                            }}>Back
-                                            </button>
-                                        </a>
-                                    </div>
-                                    <div className="right-navigation-part">
-                                        <a>
-                                            <button type="submit" onSubmit={lateSubmit}>Submit</button>
-                                        </a>
-                                    </div>
-                                </div>
                             </form>
+                        </div>
+                    </div>
+                    <div className="navigation">
+
+                        <div className="left-navigation-part">
+
+                        </div>
+                        <div className="right-navigation-part">
+                            <a href="">
+                                <button className="previous-page" onClick={(e) => {
+                                    e.preventDefault();
+                                    history.go(-1);
+                                }}>Back
+                                </button>
+                            </a>
+                            <a>
+                                <button type="submit" onClick={lateSubmit}>Next</button>
+                            </a>
                         </div>
                     </div>
                 </div>

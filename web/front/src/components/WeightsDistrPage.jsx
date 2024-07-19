@@ -7,9 +7,10 @@ import logoutIcon from "../assets/logout.png";
 
 
 const WeightsDistrPage = () => {
-    let comment = 'The task weights minimum value is 1'
+    const [comment, setComment] = useState('The task weights minimum value is 1');
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const navigate = useNavigate();
+
 
     const [tasks, setTasks] = useState([]);
     const [headers, setHeaders] = useState('');
@@ -24,6 +25,15 @@ const WeightsDistrPage = () => {
 
     const handleWeights = async (e) => {
         e.preventDefault();
+
+        if (weights.length < tasks.length) {
+            setIsCorrect(false);
+            setComment('Please enter a weights to ALL tasks. It is required');
+            return;
+        } else {
+            setIsCorrect(true);
+            setComment('');
+        }
 
         console.log(`Weights: [ ${weights.join('-')} ]`)
 
@@ -80,6 +90,9 @@ const WeightsDistrPage = () => {
             </div>
             <div className='page-active'>
                 <div className="wizard">
+                    <div className={'filler'}>
+
+                    </div>
                     <div className="panel">
                         <div className="left-part">
                             <h1>Set up tasks weights</h1>
@@ -119,24 +132,26 @@ const WeightsDistrPage = () => {
                                         </select>
                                     </ul>
                                 </nav>
-                                <div className="navigation">
-                                    <div className="left-navigation-part">
-                                        <a href="">
-                                            <button className="previous-page" onClick={(e) => {
-                                                e.preventDefault();
-                                                history.go(-1);
-                                            }}>Back
-                                            </button>
-                                        </a>
-                                    </div>
 
-                                    <div className="right-navigation-part">
-                                        <a>
-                                            <button type='submit' onSubmit={handleWeights}>Submit</button>
-                                        </a>
-                                    </div>
-                                </div>
                             </form>
+                        </div>
+                    </div>
+                    <div className="navigation">
+                        <div className="left-navigation-part">
+
+                        </div>
+
+                        <div className="right-navigation-part">
+                            <a href="">
+                                <button className="previous-page" onClick={(e) => {
+                                    e.preventDefault();
+                                    history.go(-1);
+                                }}>Back
+                                </button>
+                            </a>
+                            <a>
+                                <button type='submit' onClick={handleWeights}>Next</button>
+                            </a>
                         </div>
                     </div>
                 </div>

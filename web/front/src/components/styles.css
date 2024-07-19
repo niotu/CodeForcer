@@ -87,7 +87,7 @@ form {
     background-color: white;
     box-shadow: 5px 5px 5px darkgray;
     text-align: center;
-    justify-content: center;
+    justify-content: space-between;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -100,6 +100,7 @@ form {
 
 /* Panel layout */
 .panel {
+    /*margin-top: 17vh;*/
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -108,11 +109,12 @@ form {
     max-height: 75%;
     min-height: 50%;
     width: 100%;
-    margin: 15px 0;
+    /*margin: 15px 0;*/
 }
 
 /* Navigation layout */
-.navigation {
+.navigation, .filler {
+    height: 5vh;
     position: relative;
     width: 100%;
     bottom: 0;
@@ -127,6 +129,9 @@ form {
 
 /* Navigation buttons */
 .navigation button {
+    margin: 0 4vh;
+    max-width: 16vw;
+    min-width: 8vw;
     font-size: 1.2vw;
     box-shadow: 2px 2px 2px darkgray;
 
@@ -157,9 +162,9 @@ form {
 .left-navigation-part,
 .right-navigation-part {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
-    width: 30%;
+    width: 50%;
     text-align: center;
 }
 
@@ -181,6 +186,10 @@ input {
     margin-bottom: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+}
+
+input.incorrect  {
+    border: 1px solid red;
 }
 
 

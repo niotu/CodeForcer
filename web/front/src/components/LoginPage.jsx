@@ -97,6 +97,9 @@ const LoginPage = () => {
             </div>
             <div className='page-active'>
                 <div className="wizard">
+                    <div className={'filler'}>
+
+                    </div>
                     <div className="panel">
                         <div className="left-part">
                             <h1>Login to CodeForces</h1>
@@ -123,6 +126,9 @@ const LoginPage = () => {
                                 <button type="submit">Log In</button>
                             </form>
                         </div>
+                    </div>
+                    <div className={'navigation'}>
+
                     </div>
                 </div>
             </div>
