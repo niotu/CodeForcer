@@ -8,7 +8,7 @@ ls -al
 
 # Start the React frontend
 cd ./web/front
-npm run start
-#npm run build
-#npm install -g serve
-#serve -s build -l 80
+#npm run start
+npm run build
+npm install -g serve
+serve -s build
