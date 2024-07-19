@@ -9,18 +9,23 @@
     "@testing-library/user-event": "^13.5.0",
     "blob": "^0.1.0",
     "file-saver": "^2.0.5",
-    "iconv": "^3.0.1",
+    "fs": "^0.0.1-security",
+    "fs.js": "^0.0.1",
+    "https": "^1.0.0",
     "localforage": "^1.10.0",
     "multipart-parser": "^0.0.2",
     "node-zip": "^1.1.1",
+    "path-browserify": "^1.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.24.1",
     "react-scripts": "^5.0.1",
     "stream": "^0.0.3",
     "stream-browserify": "^3.0.0",
+    "url": "^0.11.3",
     "util": "^0.12.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "webpack": "^5.93.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -41,6 +46,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
   },
   "devDependencies": {
     "js-cookie": "^3.0.5"
