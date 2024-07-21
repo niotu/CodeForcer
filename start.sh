@@ -11,4 +11,4 @@ cd ./web/front
 #npm run start
 npm run build
 npm install -g serve
-serve -s build
+serve -s build -l 80
