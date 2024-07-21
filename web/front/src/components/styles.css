@@ -185,11 +185,14 @@ input {
     padding: 8px;
     margin-bottom: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: transparent;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
 }
 
-input.incorrect  {
-    border: 1px solid red;
+
+input.incorrect {
+    border: 2px solid red;
 }
 
 
