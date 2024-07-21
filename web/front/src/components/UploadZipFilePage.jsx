@@ -73,13 +73,8 @@ const UploadZipFilePage = () => {
                         </div>
                         <div className="right-part">
                             <form onSubmit={fileSubmit} autoComplete='on'>
-                                <label htmlFor="zipFile">Choose ZIP file:</label>
-                                <input
-                                    type="file"
-                                    id="zipFile"
-                                    accept=".zip"
-                                    onChange={handleZipChange}
-                                />
+                                <input type="file" id="file" accept=".zip" onChange={handleZipChange}/>
+                                <label htmlFor="file" className="upload">Upload CSV</label>
                             </form>
                         </div>
                     </div>

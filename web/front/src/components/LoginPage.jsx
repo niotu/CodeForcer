@@ -16,7 +16,7 @@ const LoginPage = () => {
     };
     const [key, setKey] = useState(Cookies.get('userKey') || '');
     const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
-    const [comment, setComment] = useState('We use Cookies to store your temporary data.');
+    const [comment, setComment] = useState('');
     const navigate = useNavigate();
     let id;
     let status;
@@ -64,10 +64,10 @@ const LoginPage = () => {
             if (resp_json.status === 'OK') {
                 id = resp_json.id;
                 console.log(`** id is ${id}`)
-                Cookies.set('userKey', key);
+                // Cookies.set('userKey', key);
                 // console.log(`key: ${key}, key from cookies: ${Cookies.get('userKey')}`)
 
-                Cookies.set('userSecret', secret);
+                // Cookies.set('userSecret', secret);
 
                 // console.log(`secret: ${secret}, secret from cookies: ${Cookies.get('userSecret')}`)
                 localStorage.setItem('isAuthorized', true); // Store the authorization status in local storage

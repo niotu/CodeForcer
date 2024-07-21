@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import './styles.css';
+import './inputs.scss'
 import logout, {show404page} from "./globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
@@ -64,7 +65,8 @@ const WeightsDistrPage = () => {
 
         const fetchTasks = async () => {
 
-            let url = process.env.REACT_APP_BACKEND_URL +
+            let url =
+                // process.env.REACT_APP_BACKEND_URL +
                 '/api/getTasks?' + queryParams;
 
             const response = await fetch(url);
@@ -77,9 +79,11 @@ const WeightsDistrPage = () => {
 
 
     }, [])
-    // const setMode = (value) => {
-    //     mode = useState(value);
-    // };
+
+
+    function handleMode(value) {
+        return value ? 'Best' : 'Last';
+    }
 
     return (
         <div className="content">
@@ -106,38 +110,42 @@ const WeightsDistrPage = () => {
                         <div className="right-part">
                             <form onSubmit={handleWeights} autoComplete='on'>
                                 <nav className="list-view" id='distribution-form'>
-                                    <ul>
+                                    <div className={'tasks-container'}>
+                                        <label className='headers'>Task Weights: </label>
                                         {
                                             tasks.map((task, index) => ( // Add the 'index' parameter here
-                                                <li key={task.Index}>
-                                                    <label className='task'> {task.Name}</label>
-                                                    <input
-                                                        type='number'
-                                                        onChange={(e) => {
-                                                            setTaskWeights(e.target.value, index); // Pass the index
-                                                        }}
-                                                        required
-                                                        min={1}
+                                                <div className="form__numbergroup field">
+                                                    <input type='number'
+                                                           onChange={(e) => {
+                                                               setTaskWeights(e.target.value, index); // Pass the index
+                                                           }}
+                                                           className="form__numberfield"
+                                                           required
+                                                           min={1}
                                                     />
-                                                </li>
+                                                    <label htmlFor="number"
+                                                           className="form__numberlabel">{task.Name}</label>
+                                                </div>
+
                                             ))
                                         }
-                                        <div className="default-data-in-form">
-                                            <label className='headers'>Headers: </label>
-                                            <textarea id='headers'
-                                                      onChange={(e) =>
-                                                          setHeaders(e.target.value)}>
+                                    </div>
+                                    <div className="default-data-in-form">
+                                        <label className='headers'>Headers: </label>
+                                        <textarea id='headers'
+                                                  onChange={(e) =>
+                                                      setHeaders(e.target.value)}>
                                             </textarea>
-                                            <label className='task'>Mode: </label>
-                                            <select id='mode'
-                                                    onChange={(e) =>
-                                                        setMode(e.target.value)}
-                                                    defaultValue={mode}>
-                                                <option value='last'>Last</option>
-                                                <option value='best'>Best</option>
-                                            </select>
-                                        </div>
-                                    </ul>
+                                        <label className='task'>Mode: </label>
+                                        <select id='mode'
+                                                onChange={(e) =>
+                                                    setMode(e.target.value)}
+                                                defaultValue={mode}>
+                                            <option value='last'>Last</option>
+                                            <option value='best'>Best</option>
+                                        </select>
+                                    </div>
+
                                 </nav>
 
                             </form>
@@ -164,7 +172,8 @@ const WeightsDistrPage = () => {
                 </div>
             </div>
         </div>
-    );
+    )
+        ;
 };
 
 export default WeightsDistrPage;

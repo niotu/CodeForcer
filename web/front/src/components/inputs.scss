@@ -1,15 +1,25 @@
+$main: #32a852;
+$second: #3e9439;
 $secondary: #38ef7d;
 $white: #fff;
 $gray: #9b9b9b;
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .form__group {
   position: relative;
   padding: 15px 0 0;
   margin-top: 10px;
   width: 50%;
-}
-
-input {
-  border-radius: 15px;
 }
 
 .form__field {
@@ -38,7 +48,7 @@ input {
 
 .form__label {
   margin-left: 10px;
-  padding: 0  5px ;
+  padding: 0 5px;
   background: $white;
   position: absolute;
   top: 0;
@@ -55,7 +65,7 @@ input {
     display: block;
     transition: 0.2s;
     font-size: 1rem;
-    color: #32a852;
+    color: $main;
     font-weight: 700;
   }
 
@@ -71,3 +81,141 @@ input {
     box-shadow: none;
   }
 }
+
+/*
+number inputs
+*/
+
+.tasks-container {
+  width: 100%;
+}
+
+.form__numbergroup {
+  position: relative;
+  //padding: -5px 0 0;
+  padding-top: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form__numberfield {
+  //margin-bottom: 15px;
+  font-family: inherit;
+  width: 100%;
+  //border: 0;
+  border: 2px solid $gray;
+  border-radius: 5px;
+  outline: 0;
+  color: $gray;
+  padding: 7px 0;
+  background: transparent;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: transparent;
+  }
+
+  &:placeholder-shown ~ .form__numberlabel {
+    font-size: 1.3rem;
+    cursor: text;
+    top: 20px;
+  }
+}
+
+.form__numberlabel {
+  margin-left: 10px;
+  padding: 0 5px;
+  background: $white;
+  position: absolute;
+  top: 20px;
+  display: block;
+  transition: 0.2s;
+  font-size: 1rem;
+  color: $gray;
+}
+
+.form__numberfield:focus {
+  ~ .form__numberlabel {
+    position: absolute;
+    top: 0;
+    //margin-bottom: 20px;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: $main;
+    font-weight: 700;
+  }
+
+  padding-bottom: 6px;
+  font-weight: 700;
+  border-width: 3px;
+  border-image-slice: 1;
+}
+
+/* reset input */
+.form__numberfield {
+  &:required, &:invalid {
+    box-shadow: none;
+  }
+}
+
+/*
+  file inputs
+*/
+
+
+[type="file"] {
+  height: 0;
+  overflow: hidden;
+  width: 0;
+}
+
+[type="file"] + label {
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-size: inherit;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  outline: none;
+  padding: 1rem 50px;
+  position: relative;
+  transition: all 0.3s;
+  vertical-align: middle;
+
+  &:hover {
+    background-color: $second;
+  }
+
+  &.upload {
+    background-color: $main;
+    border-radius: 50px;
+    overflow: hidden;
+
+    &::before {
+      color: #fff;
+      content: url(../assets/upload.png);
+      //z-index: 100000;
+      font-size: 100%;
+      height: 100%;
+      width: 52px;
+      right: 135%;
+      line-height: 3.3;
+      position: absolute;
+      top: 12px;
+      transition: all 0.3s;
+    }
+
+    &:hover {
+      background-color: $main;
+
+      &::before {
+        right: 72%;
+
+      }
+    }
+  }
+}
+

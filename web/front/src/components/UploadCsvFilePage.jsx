@@ -5,7 +5,6 @@ import logout, {show404page} from "./globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
 import InfoComponent from "./InfoComponent.jsx";
-import data from "./infoDistr.json";
 
 const UploadCsvFilePage = () => {
     const {groupCode, contestId} = useParams();
@@ -88,14 +87,8 @@ const UploadCsvFilePage = () => {
                         </div>
                         <div className="right-part">
                             <form onSubmit={fileSubmit} autoComplete='on'>
-                                <label htmlFor="csvFile">Choose CSV file:</label>
-                                <input
-                                    type="file"
-                                    id="csvFile"
-                                    accept=".csv"
-                                    onChange={handleCsvChange}
-                                /><br/><br/>
-
+                                <input type="file" id="file" accept=".csv" onChange={handleCsvChange}/>
+                                <label htmlFor="file" className="upload">Upload CSV</label>
                             </form>
                         </div>
                     </div>

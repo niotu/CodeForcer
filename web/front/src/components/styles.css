@@ -70,7 +70,9 @@ textarea {
     justify-content: center;
     text-align: center;
     background-color: white;
-    border-color: transparent
+    border-color: transparent;
+    transition: all 0.3s;
+
 }
 
 form {
@@ -156,6 +158,8 @@ form {
     color: white;
     border: none;
     cursor: pointer;
+    transition: all 0.3s;
+
 }
 
 .navigation button:hover {
@@ -225,19 +229,6 @@ h1 {
     padding: 0;
 }
 
-.list-view li {
-    background-color: #32a852; /* Dark grey */
-    color: white;
-    border-radius: 25px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.list-view li a {
-    color: white;
-    text-decoration: none;
-    font-size: 1.5vw;
-}
 
 .list-view li a:hover {
     text-decoration: underline;
@@ -280,6 +271,8 @@ h1 {
     color: white;
     border: none;
     cursor: pointer;
+    transition: all 0.3s;
+
 }
 
 .right-part button:hover {
