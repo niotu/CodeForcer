@@ -53,6 +53,7 @@
     "os": false
   },
   "devDependencies": {
-    "js-cookie": "^3.0.5"
+    "js-cookie": "^3.0.5",
+    "sass": "^1.77.8"
   }
 }
