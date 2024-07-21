@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
-import './styles.css';
-import logout, {show404page} from "./globalFunctions.jsx";
+import './styles/styles.css';
+import logout, {show404page} from "./additional/globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
-import InfoComponent from "./InfoComponent.jsx";
+import InfoComponent from "./additional/InfoComponent.jsx";
 
 const UploadCsvFilePage = () => {
     const {groupCode, contestId} = useParams();
-    const data = require('./infoDistr.json');
+    const data = require('./additional/infoDistr.json');
     const infoData = {
         content: data.UploadCsvFilePage
     };

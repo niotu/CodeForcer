@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import Cookies from 'js-cookie';
-import './styles.css'; // Import the provided CSS file
-import logout from './globalFunctions.jsx'
+import './styles/styles.css'; // Import the provided CSS file
+import logout from './additional/globalFunctions.jsx'
 import logo from '../assets/logo.svg'
 import logoutIcon from '../assets/logout.png'
-import InfoComponent from "./InfoComponent.jsx";
-import data from "./infoDistr.json";
+import InfoComponent from "./additional/InfoComponent.jsx";
+import data from "./additional/infoDistr.json";
 
 const LoginPage = () => {
     const [isCorrect, setIsCorrect] = useState(true);
-    const data = require('./infoDistr.json');
+    const data = require('./additional/infoDistr.json');
     const infoData = {
         content: data.LoginPage
     };

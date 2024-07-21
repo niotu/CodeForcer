@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
-import './styles.css';
-import logout, {show404page} from "./globalFunctions.jsx";
+import './styles/styles.css';
+import logout, {show404page} from "./additional/globalFunctions.jsx";
 import localForage from "localforage";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";

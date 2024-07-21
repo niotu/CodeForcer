@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import infoIcon from '../assets/info-icon.png';
+import infoIcon from '../../assets/info-icon.png';
 
 const InfoComponent = ({infoData}) => {
     const [showTooltip, setShowTooltip] = useState(false);
