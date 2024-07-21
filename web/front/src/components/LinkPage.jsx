@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom"; // Import the provided CSS file
 import './styles.css';
+import './inputs.scss'
 import logout, {show404page} from "./globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
@@ -66,24 +67,26 @@ const LinkPage = () => {
 
         let url0 = process.env.REACT_APP_BACKEND_URL +
             '/api/getTasks?' + queryParams;
+        try {
+            const response = await fetch(url0, {
+                method: 'GET'
+            });
+            console.log(response);
+            let resp_json = await response.json();
+            // console.log(resp_json);
+            status = resp_json.status;
 
-        const response = await fetch(url0, {
-            method: 'GET'
-        });
-        console.log(response);
-        let resp_json = await response.json();
-        // console.log(resp_json);
-        status = resp_json.status;
-
-        console.log(status);
-        if (status === 'OK') {
-            navigate(`/weights-distribution/${groupCode}/${contestId}`);
-        } else if (status === 'FAILED') {
-            setComment(resp_json.comment);
+            console.log(status);
+            if (status === 'OK') {
+                navigate(`/weights-distribution/${groupCode}/${contestId}`);
+            } else if (status === 'FAILED') {
+                setComment(resp_json.comment);
+                setIsCorrect(false);
+            }
+        } catch (e) {
+            setComment('Error in connection');
             setIsCorrect(false);
-            alert(resp_json.comment);
         }
-
     }
 
     console.log('** process');
@@ -113,12 +116,18 @@ const LinkPage = () => {
                         </div>
                         <div className="right-part">
                             <form onSubmit={linkSubmit} autoComplete='on'>
-                                <label htmlFor="link">Paste the link:</label>
-                                <input type="url" id="link" value={link}
-                                       placeholder={isCorrect ? 'link' : 'link is required'}
-                                       onChange={(e) => setUrl(e.target.value)}
-                                       required
-                                       className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                                <div className="form__group field">
+                                    <input type="url"
+                                           className="form__field"
+                                           placeholder="link"
+                                           name="link"
+                                           id='link'
+                                           required
+                                           onChange={(e) => setUrl(e.target.value)}
+
+                                    />
+                                    <label htmlFor="url" className="form__label">Link</label>
+                                </div>
                             </form>
                         </div>
 

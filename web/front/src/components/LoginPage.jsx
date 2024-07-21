@@ -114,27 +114,36 @@ const LoginPage = () => {
                         </div>
                         <div className="right-part">
                             <form onSubmit={handleSubmit} autoComplete='on'>
-                                <label htmlFor="key">Key:</label>
-                                <input type="password"
-                                       id="key"
-                                       value={key}
-                                       onChange={(e) => setKey(e.target.value)}
-                                       required
-                                       className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                                <div className="form__group field">
+                                    <input type="password"
+                                           className="form__field"
+                                           placeholder="key"
+                                           name="key"
+                                           id='key'
+                                           value={key}
+                                           required
+                                           onChange={(e) => setKey(e.target.value)}
 
-                                <label htmlFor="secret">Secret:</label>
-                                <input type="password"
-                                       id="secret"
-                                       value={secret}
-                                       onChange={(e) => setSecret(e.target.value)}
-                                       required
-                                       className={isCorrect ? 'correct' : 'incorrect'}/><br/><br/>
+                                    />
+                                    <label htmlFor="password" className="form__label">Key</label>
+                                </div>
+                                <div className="form__group field">
+                                    <input type="password"
+                                           className="form__field"
+                                           placeholder="secret"
+                                           name="secret"
+                                           id='secret'
+                                           required
+                                           value={secret}
+                                           onChange={(e) => setSecret(e.target.value)}
+                                    />
+                                    <label htmlFor="password" className="form__label">Secret</label>
+                                </div>
                                 <button type="submit">Log In</button>
                             </form>
                         </div>
                     </div>
                     <div className={'navigation'}>
-
                     </div>
                 </div>
             </div>
