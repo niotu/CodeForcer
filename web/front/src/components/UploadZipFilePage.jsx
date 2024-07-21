@@ -5,9 +5,15 @@ import logout, {show404page} from "./globalFunctions.jsx";
 import localForage from "localforage";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
+import InfoComponent from "./InfoComponent.jsx";
+import data from "./infoDistr.json";
 
 const UploadZipFilePage = () => {
     const {group, contestId} = useParams();
+    const data = require('./infoDistr.json');
+    const infoData = {
+        content: data.UploadZipFilePage
+    };
     const navigate = useNavigate();
     const [comment, setComment] = useState('It is a not required step, you can skip it. Just click "Submit"');
     const [isCorrect, setIsCorrect] = useState(true);
@@ -58,7 +64,7 @@ const UploadZipFilePage = () => {
             <div className="page-active">
                 <div className="wizard">
                     <div className="filler">
-
+                        <InfoComponent infoData={infoData}/>
                     </div>
                     <div className="panel">
                         <div className="left-part">
@@ -74,8 +80,6 @@ const UploadZipFilePage = () => {
                                     accept=".zip"
                                     onChange={handleZipChange}
                                 />
-
-
                             </form>
                         </div>
                     </div>

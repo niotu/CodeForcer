@@ -4,6 +4,7 @@ import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
+import InfoComponent from "./InfoComponent.jsx";
 
 function dateToUnix(date) {
     // Ensure we're working with a Date object
@@ -21,6 +22,10 @@ const LateSubmissionPage = () => {
     const {groupCode, contestId} = useParams();
     const [lateHours, setLateHours] = useState(12);
     const navigate = useNavigate();
+    const data = require('./infoDistr.json');
+    const infoData = {
+        content: data.LateSubmissionPage
+    };
 
     const [comment, setComment] = useState('');
 
@@ -59,7 +64,7 @@ const LateSubmissionPage = () => {
             <div className="page-active">
                 <div className="wizard">
                     <div className="filler">
-
+                        <InfoComponent infoData={infoData}/>
                     </div>
                     <div className="panel">
                         <div className="left-part">

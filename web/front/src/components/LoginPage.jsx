@@ -5,9 +5,16 @@ import './styles.css'; // Import the provided CSS file
 import logout from './globalFunctions.jsx'
 import logo from '../assets/logo.svg'
 import logoutIcon from '../assets/logout.png'
+import InfoComponent from "./InfoComponent.jsx";
+import data from "./infoDistr.json";
 
 const LoginPage = () => {
     const [isCorrect, setIsCorrect] = useState(true);
+    const data = require('./infoDistr.json');
+    const infoData = {
+        content: data.LoginPage
+    };
+    con
     const [key, setKey] = useState(Cookies.get('userKey') || '');
     const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
     const [comment, setComment] = useState('We use Cookies to store your temporary data.');
@@ -98,7 +105,7 @@ const LoginPage = () => {
             <div className='page-active'>
                 <div className="wizard">
                     <div className={'filler'}>
-
+                        <InfoComponent infoData={infoData}/>
                     </div>
                     <div className="panel">
                         <div className="left-part">

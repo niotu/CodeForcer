@@ -4,10 +4,15 @@ import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
+import InfoComponent from "./InfoComponent.jsx";
 
 
 const WeightsDistrPage = () => {
     const [comment, setComment] = useState('The task weights minimum value is 1');
+    const data = require('./infoDistr.json');
+    const infoData = {
+        content: data.WeightsDistrPage
+    };
     const {groupCode, contestId} = useParams(); // Extracting groupCode and contestId from URL parameters
     const navigate = useNavigate();
 
@@ -91,7 +96,7 @@ const WeightsDistrPage = () => {
             <div className='page-active'>
                 <div className="wizard">
                     <div className={'filler'}>
-
+                        <InfoComponent infoData={infoData}/>
                     </div>
                     <div className="panel">
                         <div className="left-part">
@@ -117,19 +122,21 @@ const WeightsDistrPage = () => {
                                                 </li>
                                             ))
                                         }
-                                        <label className='headers'>Headers: </label>
-                                        <textarea id='headers'
-                                                  onChange={(e) =>
-                                                      setHeaders(e.target.value)}>
-                                    </textarea>
-                                        <label className='task'>Mode: </label>
-                                        <select id='mode'
-                                                onChange={(e) =>
-                                                    setMode(e.target.value)}
-                                                defaultValue={mode}>
-                                            <option value='last'>Last</option>
-                                            <option value='best'>Best</option>
-                                        </select>
+                                        <div className="default-data-in-form">
+                                            <label className='headers'>Headers: </label>
+                                            <textarea id='headers'
+                                                      onChange={(e) =>
+                                                          setHeaders(e.target.value)}>
+                                            </textarea>
+                                            <label className='task'>Mode: </label>
+                                            <select id='mode'
+                                                    onChange={(e) =>
+                                                        setMode(e.target.value)}
+                                                    defaultValue={mode}>
+                                                <option value='last'>Last</option>
+                                                <option value='best'>Best</option>
+                                            </select>
+                                        </div>
                                     </ul>
                                 </nav>
 

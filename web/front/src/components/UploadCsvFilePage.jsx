@@ -4,9 +4,15 @@ import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
+import InfoComponent from "./InfoComponent.jsx";
+import data from "./infoDistr.json";
 
 const UploadCsvFilePage = () => {
     const {groupCode, contestId} = useParams();
+    const data = require('./infoDistr.json');
+    const infoData = {
+        content: data.UploadCsvFilePage
+    };
     const navigate = useNavigate();
     const [comment, setComment] = useState('It is not required step, you can skip this page. Press "Submit"');
     const [isCorrect, setIsCorrect] = useState(true);
@@ -73,6 +79,7 @@ const UploadCsvFilePage = () => {
                 <div className="wizard">
                     <div className={'filler'}>
 
+                        <InfoComponent infoData={infoData}/>
                     </div>
                     <div className="panel">
                         <div className="left-part">

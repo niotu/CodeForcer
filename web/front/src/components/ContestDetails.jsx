@@ -236,7 +236,6 @@ const ContestDetails = () => {
             <div className="page-active">
                 <div className="wizard">
                     <div className={'filler'}>
-
                     </div>
                     <div className="panel">
                         <div className="left-part">
