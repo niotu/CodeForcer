@@ -66,7 +66,7 @@ const WeightsDistrPage = () => {
         const fetchTasks = async () => {
 
             let url =
-                // process.env.REACT_APP_BACKEND_URL +
+                process.env.REACT_APP_BACKEND_URL +
                 '/api/getTasks?' + queryParams;
 
             const response = await fetch(url);
