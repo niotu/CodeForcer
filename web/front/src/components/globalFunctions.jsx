@@ -12,6 +12,8 @@ export default function logout() {
     // history.clear();
 }
 
+
+
 export function show404page() {
     return (<div className="content">
             <div className="header">

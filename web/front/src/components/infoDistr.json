@@ -1,0 +1,8 @@
+{
+  "LoginPage": "API key and API secret are needed to interact with codeforces. You can get them by following this <a href=\"https://codeforces.com/settings/api\">link</a>",
+  "LinkPage": "Enter a link to the contest from which you want to get the scores",
+  "WeightsDistrPage": "Enter the number of points the student will receive for completing each assignment, select the grading mode: Best Sent Solution or Last Solution. If part of the points for the assignment is awarded for manual review, enter in the Headers field what the points will be awarded for. For example, “Correct use of classes”",
+  "LateSubmissionPage": "Enter in the appropriate boxes how late a student can be for a solution to be graded and the percentage penalty for tardiness",
+  "UploadCsvFilePage": "Upload a CSV file with student mapping. The file should look like the following:<br>email;handle <br>mail1@innopolis.university;handle1 <br>mail2@innopolis.university;handle2 <br>...",
+  "UploadZipFilePage": "Download the archive with all the solutions from your contest and then paste it here. You can do this on the contest page in the admin tab. The program will process this archive and give you the same, but in a more convenient format Task (folder) → Programming language (folder) → All student solutions signed with their full name (files)."
+}

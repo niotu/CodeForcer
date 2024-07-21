@@ -70,7 +70,6 @@ async function parseMultipart(blob, boundary) {
     });
 }
 
-
 const ContestDetails = () => {
     const [comment, setComment] = useState('Congratulations!');
 
@@ -94,7 +93,7 @@ const ContestDetails = () => {
     const [headers, setHeaders] = useState(sessionStorage.getItem('headers').replaceAll('\n', '-') || []);
     const [isCorrect, setIsCorrect] = useState(true)
     const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuth') || true)
-
+    const [isFinished, setIsFinished] = useState(false);
     // const crypto = require('crypto');
 
     //
@@ -159,12 +158,12 @@ const ContestDetails = () => {
                     setGoogleSheetLink(result.googleSheets);
                     setCsvData(result.csv);
                     setSubmissionsData(zipFilePart);
-                    setIsFinished(true);
+                    // setIsFinished(true);
                     setLoading(false);
                 } else if (jsonPart.status === 'FAILED') {
                     setComment(jsonPart.comment);
                     setIsCorrect(false);
-                    setIsFinished(true);
+                    // setIsFinished(true);
                     // setLoading(false);
                     // alert(jsonPart.comment);
                 }
@@ -188,18 +187,17 @@ const ContestDetails = () => {
         window.URL.revokeObjectURL(url);
     };
 
-    const downloadSubmissions = () => {
+    const downloadSubmissions = async () => {
         const a = document.createElement('a');
         a.href = submissionsData;
-        a.download = 'submissions.zip';
+        a.download = 'data.zip';
         a.click();
-        // window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(url);
     };
 
     if (loading) {
         return (
             <div className="content">
-
                 <div className="header">
                     <img src={logo} height={50} alt={'logo'}/>
                     {isAuth ? (<a href="/" className={isAuth ? 'authorized' : 'non-authorized'}>
@@ -238,7 +236,6 @@ const ContestDetails = () => {
             <div className="page-active">
                 <div className="wizard">
                     <div className={'filler'}>
-
                     </div>
                     <div className="panel">
                         <div className="left-part">
@@ -259,10 +256,11 @@ const ContestDetails = () => {
                             <div>
                                 <button onClick={downloadCsv}>Download CSV</button>
                             </div>
-                            <div>
-                                <button onClick={downloadSubmissions}>Download Submissions</button>
-                            </div>
-
+                            {submissionsData ? (
+                                <div>
+                                    <button onClick={downloadSubmissions}>Download Submissions</button>
+                                </div>) : (<div></div>)
+                            }
                         </div>
                     </div>
                     <div className="navigation">

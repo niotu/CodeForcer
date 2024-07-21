@@ -26,7 +26,20 @@ html {
 
 body {
     background: #E8FFDD; /* Light green background */
+    /*background-image: url("../assets/bg2.png");*/
     min-height: 100vh;
+}
+
+.default-data-in-form {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+textarea {
+    resize: none;
 }
 
 /* Component-specific styles */
@@ -112,8 +125,21 @@ form {
     /*margin: 15px 0;*/
 }
 
+.filler {
+    height: 5vh;
+    position: relative;
+    width: 100%;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-wrap: nowrap;
+}
+
 /* Navigation layout */
-.navigation, .filler {
+.navigation {
     height: 5vh;
     position: relative;
     width: 100%;
@@ -185,11 +211,33 @@ input {
     padding: 8px;
     margin-bottom: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: transparent;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
 }
 
-input.incorrect  {
-    border: 1px solid red;
+
+input.incorrect {
+    border: 2px solid red;
+}
+
+.info-tooltip {
+    position: absolute;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    padding: 20px;
+    width: 500px;
+    right: 10px;
+    z-index: 99;
+    border-radius: 20px;
+}
+
+.info {
+    position: relative;
+}
+
+.info-tooltip.show-tooltip {
+    display: block;
 }
 
 

@@ -1,3 +1,6 @@
 .idea
 server_commands.txt
 /web/front/node_modules
+/web/front/package-lock.json
+/web/front/.env.production
+/web/front/build

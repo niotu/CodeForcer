@@ -4,11 +4,16 @@ import './styles.css';
 import logout, {show404page} from "./globalFunctions.jsx";
 import logo from "../assets/logo.svg";
 import logoutIcon from "../assets/logout.png";
+import InfoComponent from "./InfoComponent.jsx";
 
 const LinkPage = () => {
     // const [key, setKey] = useState('');
     // const [secret, setSecret] = useState('');
     const [link, setUrl] = useState('');
+    const data = require('./infoDistr.json');
+    const infoData = {
+        content: data.LinkPage
+    };
     const navigate = useNavigate();
     const [comment, setComment] = useState('');
     const [isCorrect, setIsCorrect] = useState(true)
@@ -27,8 +32,7 @@ const LinkPage = () => {
             setIsCorrect(false);
             setComment('Link is required');
             return;
-        }
-        else {
+        } else {
             setIsCorrect(true);
         }
         console.log('** clicked...')
@@ -100,7 +104,7 @@ const LinkPage = () => {
 
                 <div className="wizard">
                     <div className={'filler'}>
-
+                        <InfoComponent infoData={infoData}/>
                     </div>
                     <div className="panel">
                         <div className="left-part">
