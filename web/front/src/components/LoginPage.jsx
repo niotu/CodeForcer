@@ -14,7 +14,6 @@ const LoginPage = () => {
     const infoData = {
         content: data.LoginPage
     };
-    con
     const [key, setKey] = useState(Cookies.get('userKey') || '');
     const [secret, setSecret] = useState(Cookies.get('userSecret') || '');
     const [comment, setComment] = useState('We use Cookies to store your temporary data.');
