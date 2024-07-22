@@ -1,6 +1,7 @@
 stages:
   - lint
   - test
+  - deploy
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
@@ -10,10 +11,8 @@ image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/docker:stable-di
 linting:
   stage: lint
   image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/golangci/golangci-lint
-
   script:
     - golangci-lint run ./backend
-
 
 testing:
   stage: test
@@ -22,3 +21,16 @@ testing:
     - go mod tidy
     - go test -v ./backend
 
+deploy:
+  stage: deploy
+  before_script:
+    - apk update && apk add openssh-client sshpass
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - eval $(ssh-agent -s)
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -H 51.250.32.159 >> ~/.ssh/known_hosts
+  script:
+    - echo "Deploying application..."
+    - ssh -o StrictHostKeyChecking=no admin@51.250.32.159 'sudo -i ./startserver.sh'
