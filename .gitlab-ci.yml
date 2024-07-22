@@ -5,6 +5,10 @@ stages:
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
+  SSH_PRIVATE_KEY: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    YOUR_PRIVATE_KEY_CONTENT
+    -----END OPENSSH PRIVATE KEY-----
 
 image: harbor.pg.innopolis.university/demo_docker_ci_blxxdclxud/docker:stable-dind
 
@@ -26,7 +30,7 @@ deploy:
   before_script:
     - apk update && apk add openssh-client sshpass
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | sed 's/\\n/\n/g' > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - eval $(ssh-agent -s)
     - ssh-add ~/.ssh/id_rsa
